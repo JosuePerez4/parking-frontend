@@ -427,11 +427,6 @@ function SmartAssignModal({
     color: "#fff",
     border: "1px solid rgba(37,99,235,0.5)",
   };
-  const btnGhost = {
-    backgroundColor: "var(--bg-input)",
-    border: "1px solid var(--border-medium)",
-    color: "var(--text-secondary)",
-  };
   const btnGreen = {
     background: "linear-gradient(135deg,#059669,#047857)",
     color: "#fff",
@@ -800,6 +795,8 @@ export default function VehiculosPage() {
     }
   }, []);
 
+  // Carga inicial al montar — load() actualiza estado de forma asíncrona, no en el cuerpo del efecto.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   async function handleDelete() {

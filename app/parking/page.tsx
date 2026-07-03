@@ -156,6 +156,8 @@ export default function ParkingPage() {
   }, []);
 
   useEffect(() => {
+    // Carga inicial al montar — load() actualiza estado de forma asíncrona, no en el cuerpo del efecto.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
     intervalRef.current = setInterval(load, 10000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };

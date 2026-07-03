@@ -86,24 +86,25 @@ export function MensualidadesClient() {
     }
   }, []);
 
+  // Carga inicial al montar — load() actualiza estado de forma asíncrona, no en el cuerpo del efecto.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
+
+  const priceForVehicle = useCallback((vehicleId: number | "") => {
+    if (!settings || !vehicleId) return "";
+    const v = vehicles.find((x) => x.id === vehicleId);
+    const isMoto = v?.type === "moto";
+    return String(isMoto ? settings.mensualidadMoto : settings.mensualidadCarro);
+  }, [settings, vehicles]);
 
   // Apply vehicleId preselect once vehicles are loaded
   useEffect(() => {
     if (loading || preselectRef.current === null) return;
     const id = preselectRef.current;
     preselectRef.current = null;
-    setCreateForm((prev) => ({ ...prev, vehicleId: id }));
+    setCreateForm((prev) => ({ ...prev, vehicleId: id, price: priceForVehicle(id) }));
     setCreateOpen(true);
-  }, [loading]);
-
-  // Auto-fill price when vehicle changes
-  useEffect(() => {
-    if (!settings || !createForm.vehicleId) return;
-    const v = vehicles.find((x) => x.id === createForm.vehicleId);
-    const isMoto = v?.type === "moto";
-    setCreateForm((p) => ({ ...p, price: String(isMoto ? settings.mensualidadMoto : settings.mensualidadCarro) }));
-  }, [createForm.vehicleId, settings, vehicles]);
+  }, [loading, priceForVehicle]);
 
   const companies = Array.from(new Set(memberships.map((m) => m.company).filter(Boolean))) as string[];
 
@@ -326,7 +327,10 @@ export function MensualidadesClient() {
                   <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Vehículo *</label>
                   <CustomSelect
                     value={createForm.vehicleId}
-                    onChange={(val) => setCreateForm((p) => ({ ...p, vehicleId: val === "" ? "" : val as number }))}
+                    onChange={(val) => {
+                      const vehicleId = val === "" ? "" : (val as number);
+                      setCreateForm((p) => ({ ...p, vehicleId, price: priceForVehicle(vehicleId) }));
+                    }}
                     options={[
                       { value: "", label: "Seleccionar vehículo..." },
                       ...vehicles.map((v) => ({

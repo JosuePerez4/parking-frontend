@@ -29,6 +29,59 @@ const motoRows: TarifaRow[] = [
   { key: "mensualidadMoto", label: "Mensualidad",         description: "Tarifa mensual fija" },
 ];
 
+function TarifaSection({ title, rows, accent, settings, form, onChange }: {
+  title: string;
+  rows: TarifaRow[];
+  accent: string;
+  settings: AppSettings | null;
+  form: Partial<AppSettings>;
+  onChange: (key: keyof AppSettings, value: string) => void;
+}) {
+  return (
+    <div className="rounded-2xl overflow-hidden"
+      style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
+      <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: `${accent}1a`, border: `1px solid ${accent}33` }}>
+          <svg className="w-4 h-4" style={{ color: accent }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="1" y="3" width="15" height="13" rx="2" /><path d="M16 8h4l3 5v3h-7V8z" />
+            <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
+          </svg>
+        </div>
+        <h2 className="text-sm font-bold text-white">{title}</h2>
+      </div>
+      <div className="divide-y" style={{ borderColor: "var(--bg-row-hover)" }}>
+        {rows.map((row) => (
+          <div key={row.key} className="px-6 py-4 flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-white">{row.label}</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--text-dim)" }}>{row.description}</p>
+            </div>
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {settings && (
+                <span className="text-xs font-medium" style={{ color: "var(--text-dim)" }}>
+                  actual: {formatCOP(settings[row.key] as number)}
+                </span>
+              )}
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium" style={{ color: "var(--text-muted)" }}>$</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={(form[row.key] as number) ?? ""}
+                  onChange={(e) => onChange(row.key, e.target.value)}
+                  className="pl-6 pr-3 py-2 rounded-lg text-sm text-white outline-none w-32 text-right"
+                  style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)" }}
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function TarifasPage() {
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [form, setForm] = useState<Partial<AppSettings>>({});
@@ -66,52 +119,6 @@ export default function TarifasPage() {
     }
   }
 
-  function TarifaSection({ title, rows, accent }: { title: string; rows: TarifaRow[]; accent: string }) {
-    return (
-      <div className="rounded-2xl overflow-hidden"
-        style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
-        <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: `${accent}1a`, border: `1px solid ${accent}33` }}>
-            <svg className="w-4 h-4" style={{ color: accent }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="1" y="3" width="15" height="13" rx="2" /><path d="M16 8h4l3 5v3h-7V8z" />
-              <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
-            </svg>
-          </div>
-          <h2 className="text-sm font-bold text-white">{title}</h2>
-        </div>
-        <div className="divide-y" style={{ borderColor: "var(--bg-row-hover)" }}>
-          {rows.map((row) => (
-            <div key={row.key} className="px-6 py-4 flex items-center justify-between gap-4">
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-white">{row.label}</p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--text-dim)" }}>{row.description}</p>
-              </div>
-              <div className="flex items-center gap-3 flex-shrink-0">
-                {settings && (
-                  <span className="text-xs font-medium" style={{ color: "var(--text-dim)" }}>
-                    actual: {formatCOP(settings[row.key] as number)}
-                  </span>
-                )}
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium" style={{ color: "var(--text-muted)" }}>$</span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={(form[row.key] as number) ?? ""}
-                    onChange={(e) => handleChange(row.key, e.target.value)}
-                    className="pl-6 pr-3 py-2 rounded-lg text-sm text-white outline-none w-32 text-right"
-                    style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)" }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-6 md:p-8 max-w-4xl mx-auto">
       <div className="flex items-start justify-between mb-8">
@@ -139,8 +146,8 @@ export default function TarifasPage() {
         </div>
       ) : (
         <form onSubmit={handleSave} className="space-y-6">
-          <TarifaSection title="Carro / Taxi" rows={carroRows} accent="#2563EB" />
-          <TarifaSection title="Moto" rows={motoRows} accent="#7C3AED" />
+          <TarifaSection title="Carro / Taxi" rows={carroRows} accent="#2563EB" settings={settings} form={form} onChange={handleChange} />
+          <TarifaSection title="Moto" rows={motoRows} accent="#7C3AED" settings={settings} form={form} onChange={handleChange} />
 
           <div className="flex items-center justify-end gap-4">
             {saved && (

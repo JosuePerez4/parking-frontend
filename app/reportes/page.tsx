@@ -211,6 +211,8 @@ export default function ReportesPage() {
     }
   }, []);
 
+  // Carga inicial al montar — load() actualiza estado de forma asíncrona, no en el cuerpo del efecto.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   // ── Derived metrics ──────────────────────────────────────────────────────

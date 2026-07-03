@@ -119,6 +119,8 @@ export default function ClientesPage() {
     }
   }, []);
 
+  // Carga inicial al montar — load() actualiza estado de forma asíncrona, no en el cuerpo del efecto.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
