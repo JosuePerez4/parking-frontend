@@ -1,0 +1,175 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { getSettings, updateSettings, type AppSettings } from "@/lib/api";
+
+function formatCOP(value: number) {
+  return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(value);
+}
+
+interface TarifaRow {
+  key: keyof AppSettings;
+  label: string;
+  description: string;
+}
+
+const carroRows: TarifaRow[] = [
+  { key: "fraccionCarro",   label: "Fracción (≤15 min)",  description: "Cobro mínimo de entrada" },
+  { key: "horaCarro",       label: "Hora (≤60 min)",      description: "Hasta una hora completa" },
+  { key: "medioDiaCarro",   label: "Medio día (≤6 h)",    description: "Hasta seis horas" },
+  { key: "diaCarro",        label: "Día (≤12 h)",         description: "Hasta doce horas" },
+  { key: "mensualidadCarro",label: "Mensualidad",         description: "Tarifa mensual fija" },
+];
+
+const motoRows: TarifaRow[] = [
+  { key: "fraccionMoto",    label: "Fracción (≤15 min)",  description: "Cobro mínimo de entrada" },
+  { key: "horaMoto",        label: "Hora (≤60 min)",      description: "Hasta una hora completa" },
+  { key: "medioDiaMoto",    label: "Medio día (≤6 h)",    description: "Hasta seis horas" },
+  { key: "diaMoto",         label: "Día (≤12 h)",         description: "Hasta doce horas" },
+  { key: "mensualidadMoto", label: "Mensualidad",         description: "Tarifa mensual fija" },
+];
+
+export default function TarifasPage() {
+  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [form, setForm] = useState<Partial<AppSettings>>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getSettings()
+      .then((s) => { setSettings(s); setForm(s); })
+      .catch(() => setError("No se pudo cargar la configuración."))
+      .finally(() => setLoading(false));
+  }, []);
+
+  function handleChange(key: keyof AppSettings, value: string) {
+    const num = parseInt(value, 10);
+    setForm((p) => ({ ...p, [key]: isNaN(num) ? 0 : num }));
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+    try {
+      const updated = await updateSettings(form);
+      setSettings(updated);
+      setForm(updated);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch {
+      setError("Error al guardar las tarifas.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function TarifaSection({ title, rows, accent }: { title: string; rows: TarifaRow[]; accent: string }) {
+    return (
+      <div className="rounded-2xl overflow-hidden"
+        style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
+        <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ backgroundColor: `${accent}1a`, border: `1px solid ${accent}33` }}>
+            <svg className="w-4 h-4" style={{ color: accent }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="1" y="3" width="15" height="13" rx="2" /><path d="M16 8h4l3 5v3h-7V8z" />
+              <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
+            </svg>
+          </div>
+          <h2 className="text-sm font-bold text-white">{title}</h2>
+        </div>
+        <div className="divide-y" style={{ borderColor: "var(--bg-row-hover)" }}>
+          {rows.map((row) => (
+            <div key={row.key} className="px-6 py-4 flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-white">{row.label}</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-dim)" }}>{row.description}</p>
+              </div>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                {settings && (
+                  <span className="text-xs font-medium" style={{ color: "var(--text-dim)" }}>
+                    actual: {formatCOP(settings[row.key] as number)}
+                  </span>
+                )}
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium" style={{ color: "var(--text-muted)" }}>$</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={(form[row.key] as number) ?? ""}
+                    onChange={(e) => handleChange(row.key, e.target.value)}
+                    className="pl-6 pr-3 py-2 rounded-lg text-sm text-white outline-none w-32 text-right"
+                    style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)" }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 md:p-8 max-w-4xl mx-auto">
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-white mb-1">Tarifas</h1>
+          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            Configura los precios por tipo de vehículo y tiempo de permanencia
+          </p>
+        </div>
+      </div>
+
+      {error && (
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3"
+          style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex items-center justify-center py-24">
+          <svg className="w-8 h-8 animate-spin" style={{ color: "#2563EB" }} viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        </div>
+      ) : (
+        <form onSubmit={handleSave} className="space-y-6">
+          <TarifaSection title="Carro / Taxi" rows={carroRows} accent="#2563EB" />
+          <TarifaSection title="Moto" rows={motoRows} accent="#7C3AED" />
+
+          <div className="flex items-center justify-end gap-4">
+            {saved && (
+              <span className="text-sm flex items-center gap-1.5" style={{ color: "#34D399" }}>
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Tarifas guardadas
+              </span>
+            )}
+            <button type="submit" disabled={saving}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60"
+              style={{ background: "linear-gradient(135deg,#2563EB,#1D4ED8)", color: "#fff", border: "1px solid rgba(37,99,235,0.5)" }}>
+              {saving ? (
+                <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>Guardando...</>
+              ) : (
+                <><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>Guardar Tarifas</>
+              )}
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
