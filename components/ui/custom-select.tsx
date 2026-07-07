@@ -83,14 +83,14 @@ export function CustomSelect({
       {/* Dropdown */}
       {open && (
         <div
-          className="absolute left-0 right-0 mt-1.5 rounded-xl overflow-hidden"
+          className="absolute left-0 right-0 mt-1.5 rounded-xl overflow-hidden animate-in"
           style={{
-            background: "#1e293b",
+            background: "var(--bg-modal)",
             border: "1px solid rgba(37,99,235,0.35)",
             zIndex: 9999,
             maxHeight: "220px",
             overflowY: "auto",
-            boxShadow: "0 16px 48px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.4)",
+            boxShadow: "0 16px 48px rgba(0,0,0,0.35), 0 4px 16px rgba(0,0,0,0.2)",
           }}
         >
           {options.map((opt) => {
@@ -101,20 +101,20 @@ export function CustomSelect({
                 key={String(opt.value)}
                 className="px-3 py-2.5 text-sm cursor-pointer transition-colors duration-100"
                 style={{
-                  color: isSelected ? "#60A5FA" : isEmpty ? "#64748B" : "#E2E8F0",
+                  color: isSelected ? "#60A5FA" : isEmpty ? "var(--text-muted)" : "var(--text-primary)",
                   backgroundColor: isSelected ? "rgba(37,99,235,0.18)" : "transparent",
                   borderLeft: isSelected ? "2px solid #2563EB" : "2px solid transparent",
                 }}
                 onMouseEnter={(e) => {
                   if (!isSelected) {
-                    e.currentTarget.style.backgroundColor = "rgba(37,99,235,0.14)";
-                    e.currentTarget.style.color = "#93C5FD";
+                    e.currentTarget.style.backgroundColor = "rgba(37,99,235,0.12)";
+                    e.currentTarget.style.color = "#60A5FA";
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isSelected) {
                     e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = isEmpty ? "#64748B" : "#E2E8F0";
+                    e.currentTarget.style.color = isEmpty ? "var(--text-muted)" : "var(--text-primary)";
                   }
                 }}
                 onClick={() => {

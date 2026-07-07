@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Sidebar } from "@/components/sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/components/auth-provider";
+import { AppShell } from "@/components/app-shell";
 
 export const metadata: Metadata = {
   title: "Parking IA — Dashboard",
@@ -17,12 +18,9 @@ export default function RootLayout({
     <html lang="es" className="h-full antialiased dark">
       <body className="min-h-full" style={{ backgroundColor: "var(--bg-page)", fontFamily: "'Inter', system-ui, sans-serif" }}>
         <ThemeProvider>
-          <div className="flex min-h-screen">
-            <Sidebar />
-            <main className="flex-1 ml-64 min-h-screen">
-              {children}
-            </main>
-          </div>
+          <AuthProvider>
+            <AppShell>{children}</AppShell>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

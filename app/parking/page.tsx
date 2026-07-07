@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { getActiveVehicles, exitVehicle, type ActiveVehicle } from "@/lib/api";
+import { useAuth } from "@/components/auth-provider";
 
 // Backend returns "DD/MM/YYYY HH:mm:ss" via DateFormatterInterceptor
 function parseColombianDate(dateStr: string): Date {
@@ -133,6 +134,8 @@ function ExitModal({
 }
 
 export default function ParkingPage() {
+  const { session } = useAuth();
+  const tenantId = session!.user.tenantId!;
   const [vehicles, setVehicles] = useState<ActiveVehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -144,7 +147,7 @@ export default function ParkingPage() {
 
   const load = useCallback(async () => {
     try {
-      const data = await getActiveVehicles();
+      const data = await getActiveVehicles(tenantId);
       setVehicles(data);
       setLastUpdate(new Date());
       setError(null);
@@ -153,7 +156,7 @@ export default function ParkingPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   useEffect(() => {
     // Carga inicial al montar — load() actualiza estado de forma asíncrona, no en el cuerpo del efecto.
@@ -172,7 +175,7 @@ export default function ParkingPage() {
     if (!exitTarget) return;
     setExitLoading(true);
     try {
-      await exitVehicle(exitTarget.plate);
+      await exitVehicle(tenantId, exitTarget.plate);
       setExitTarget(null);
       await load();
     } catch (err: unknown) {

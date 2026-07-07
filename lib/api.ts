@@ -1,8 +1,168 @@
 const API_BASE = "http://localhost:3000";
 
-// ── Settings ───────────────────────────────────────────────────────────────
+// ── Auth ───────────────────────────────────────────────────────────────────
+export interface AuthUser {
+  id: number;
+  email: string;
+  fullName: string;
+  role: "platform_admin" | "business_admin" | "operator";
+  tenantId: number | null;
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  user: AuthUser;
+}
+
+export async function login(email: string, password: string): Promise<LoginResponse> {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.message ?? "Credenciales inválidas");
+  }
+  return res.json();
+}
+
+// ── Tenants (negocios) ───────────────────────────────────────────────────────
+export interface Tenant {
+  id: number;
+  name: string;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  status: "active" | "inactive";
+  createdAt: string;
+}
+
+export interface CreateTenantDto {
+  name: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  status?: "active" | "inactive";
+}
+
+export type UpdateTenantDto = Partial<CreateTenantDto>;
+
+export async function listTenants(): Promise<Tenant[]> {
+  const res = await fetch(`${API_BASE}/tenants`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Error al cargar negocios");
+  return res.json();
+}
+
+export async function getTenant(id: number): Promise<Tenant> {
+  const res = await fetch(`${API_BASE}/tenants/${id}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Error al cargar el negocio");
+  return res.json();
+}
+
+export async function createTenant(data: CreateTenantDto): Promise<Tenant> {
+  const res = await fetch(`${API_BASE}/tenants`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.message ?? "Error al crear el negocio");
+  }
+  return res.json();
+}
+
+export async function updateTenant(id: number, data: UpdateTenantDto): Promise<Tenant> {
+  const res = await fetch(`${API_BASE}/tenants/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.message ?? "Error al actualizar el negocio");
+  }
+  return res.json();
+}
+
+export async function deactivateTenant(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/tenants/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.message ?? "Error al desactivar el negocio");
+  }
+}
+
+// ── Users (usuarios de plataforma / negocio) ────────────────────────────────
+export interface AppUser {
+  id: number;
+  tenantId: number | null;
+  email: string;
+  fullName: string;
+  role: "platform_admin" | "business_admin" | "operator";
+  status: "active" | "inactive";
+  createdAt: string;
+}
+
+export interface CreateUserDto {
+  tenantId?: number;
+  email: string;
+  password: string;
+  fullName: string;
+  role: "platform_admin" | "business_admin" | "operator";
+  status?: "active" | "inactive";
+}
+
+export interface UpdateUserDto {
+  fullName?: string;
+  role?: "platform_admin" | "business_admin" | "operator";
+  status?: "active" | "inactive";
+}
+
+export async function listUsers(tenantId?: number): Promise<AppUser[]> {
+  const qs = tenantId !== undefined ? `?tenantId=${tenantId}` : "";
+  const res = await fetch(`${API_BASE}/users${qs}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Error al cargar usuarios");
+  return res.json();
+}
+
+export async function createUser(data: CreateUserDto): Promise<AppUser> {
+  const res = await fetch(`${API_BASE}/users`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.message ?? "Error al crear usuario");
+  }
+  return res.json();
+}
+
+export async function updateUser(id: number, data: UpdateUserDto): Promise<AppUser> {
+  const res = await fetch(`${API_BASE}/users/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.message ?? "Error al actualizar usuario");
+  }
+  return res.json();
+}
+
+export async function deactivateUser(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/users/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.message ?? "Error al desactivar usuario");
+  }
+}
+
+// ── Settings (tarifas, por negocio) ─────────────────────────────────────────
 export interface AppSettings {
   id: number;
+  tenantId: number;
   fraccionCarro: number;
   horaCarro: number;
   medioDiaCarro: number;
@@ -15,14 +175,18 @@ export interface AppSettings {
   mensualidadMoto: number;
 }
 
-export async function getSettings(): Promise<AppSettings> {
-  const res = await fetch(`${API_BASE}/settings`, { cache: "no-store" });
+export async function getSettings(tenantId: number): Promise<AppSettings | null> {
+  const res = await fetch(`${API_BASE}/settings?tenantId=${tenantId}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Error al cargar configuración");
-  return res.json();
+  const data = await res.json();
+  return data ?? null;
 }
 
-export async function updateSettings(data: Partial<AppSettings>): Promise<AppSettings> {
-  const res = await fetch(`${API_BASE}/settings`, {
+export async function updateSettings(
+  tenantId: number,
+  data: Partial<AppSettings>,
+): Promise<AppSettings> {
+  const res = await fetch(`${API_BASE}/settings?tenantId=${tenantId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -34,6 +198,7 @@ export async function updateSettings(data: Partial<AppSettings>): Promise<AppSet
 // ── Clients ────────────────────────────────────────────────────────────────
 export interface Client {
   id: number;
+  tenantId: number;
   fullName: string;
   document: string;
   phone: string;
@@ -44,6 +209,7 @@ export interface Client {
 }
 
 export interface CreateClientDto {
+  tenantId: number;
   fullName: string;
   document: string;
   phone: string;
@@ -51,8 +217,8 @@ export interface CreateClientDto {
   address: string;
 }
 
-export async function getClients(): Promise<Client[]> {
-  const res = await fetch(`${API_BASE}/clients`, { cache: "no-store" });
+export async function getClients(tenantId: number): Promise<Client[]> {
+  const res = await fetch(`${API_BASE}/clients?tenantId=${tenantId}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Error al cargar clientes");
   return res.json();
 }
@@ -66,8 +232,12 @@ export interface UpdateClientDto {
   status?: "active" | "inactive" | "blocked";
 }
 
-export async function updateClient(id: number, data: UpdateClientDto): Promise<Client> {
-  const res = await fetch(`${API_BASE}/clients/${id}`, {
+export async function updateClient(
+  id: number,
+  data: UpdateClientDto,
+  tenantId: number,
+): Promise<Client> {
+  const res = await fetch(`${API_BASE}/clients/${id}?tenantId=${tenantId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -92,8 +262,8 @@ export async function createClient(data: CreateClientDto): Promise<Client> {
   return res.json();
 }
 
-export async function deleteClient(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/clients/${id}`, { method: "DELETE" });
+export async function deleteClient(id: number, tenantId: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/clients/${id}?tenantId=${tenantId}`, { method: "DELETE" });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err?.message ?? "Error al eliminar cliente");
@@ -103,6 +273,7 @@ export async function deleteClient(id: number): Promise<void> {
 // ── Vehicles ───────────────────────────────────────────────────────────────
 export interface Vehicle {
   id: number;
+  tenantId: number;
   clientId: number;
   plate: string;
   type: "car" | "moto" | "truck";
@@ -124,6 +295,7 @@ export interface Vehicle {
 }
 
 export interface CreateVehicleDto {
+  tenantId: number;
   clientId: number;
   plate: string;
   type: "car" | "moto" | "truck";
@@ -131,8 +303,8 @@ export interface CreateVehicleDto {
   color?: string;
 }
 
-export async function getVehicles(): Promise<Vehicle[]> {
-  const res = await fetch(`${API_BASE}/vehicles`, { cache: "no-store" });
+export async function getVehicles(tenantId: number): Promise<Vehicle[]> {
+  const res = await fetch(`${API_BASE}/vehicles?tenantId=${tenantId}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Error al cargar vehículos");
   return res.json();
 }
@@ -150,8 +322,12 @@ export async function createVehicle(data: CreateVehicleDto): Promise<Vehicle> {
   return res.json();
 }
 
-export async function assignVehicleClient(vehicleId: number, clientId: number): Promise<Vehicle> {
-  const res = await fetch(`${API_BASE}/vehicles/${vehicleId}`, {
+export async function assignVehicleClient(
+  vehicleId: number,
+  clientId: number,
+  tenantId: number,
+): Promise<Vehicle> {
+  const res = await fetch(`${API_BASE}/vehicles/${vehicleId}?tenantId=${tenantId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ clientId }),
@@ -163,8 +339,9 @@ export async function assignVehicleClient(vehicleId: number, clientId: number): 
 export async function updateVehicle(
   id: number,
   data: { clientId?: number; brand?: string; color?: string },
+  tenantId: number,
 ): Promise<Vehicle> {
-  const res = await fetch(`${API_BASE}/vehicles/${id}`, {
+  const res = await fetch(`${API_BASE}/vehicles/${id}?tenantId=${tenantId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -176,8 +353,8 @@ export async function updateVehicle(
   return res.json();
 }
 
-export async function deleteVehicle(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/vehicles/${id}`, { method: "DELETE" });
+export async function deleteVehicle(id: number, tenantId: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/vehicles/${id}?tenantId=${tenantId}`, { method: "DELETE" });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err?.message ?? "Error al eliminar vehículo");
@@ -195,13 +372,16 @@ export interface ActiveVehicle {
   estimatedCost: number;
 }
 
-export async function getActiveVehicles(): Promise<ActiveVehicle[]> {
-  const res = await fetch(`${API_BASE}/parking/active`, { cache: "no-store" });
+export async function getActiveVehicles(tenantId: number): Promise<ActiveVehicle[]> {
+  const res = await fetch(`${API_BASE}/parking/active?tenantId=${tenantId}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Error al cargar parking activo");
   return res.json();
 }
 
-export async function exitVehicle(plate: string): Promise<{
+export async function exitVehicle(
+  tenantId: number,
+  plate: string,
+): Promise<{
   plate: string;
   duration: string;
   totalMinutes: number;
@@ -210,7 +390,7 @@ export async function exitVehicle(plate: string): Promise<{
   const res = await fetch(`${API_BASE}/parking/exit`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ plate }),
+    body: JSON.stringify({ tenantId, plate }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -219,7 +399,7 @@ export async function exitVehicle(plate: string): Promise<{
   return res.json();
 }
 
-// ── Entries ────────────────────────────────────────────────────────────────
+// ── Entries (historial de ingresos/salidas) ─────────────────────────────────
 export interface Entry {
   id: number;
   plate: string;
@@ -229,8 +409,8 @@ export interface Entry {
   vehicleType: string | null;
 }
 
-export async function getEntries(): Promise<Entry[]> {
-  const res = await fetch(`${API_BASE}/entries`, { cache: "no-store" });
+export async function getEntries(tenantId: number): Promise<Entry[]> {
+  const res = await fetch(`${API_BASE}/parking/entries?tenantId=${tenantId}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Error al cargar historial");
   return res.json();
 }
@@ -238,6 +418,7 @@ export async function getEntries(): Promise<Entry[]> {
 // ── Memberships ────────────────────────────────────────────────────────────
 export interface Membership {
   id: number;
+  tenantId: number;
   vehicleId: number;
   clientId: number;
   startDate: string;
@@ -264,6 +445,7 @@ export interface Membership {
 }
 
 export interface CreateMembershipDto {
+  tenantId: number;
   vehicleId: number;
   clientId: number;
   startDate: string;
@@ -273,8 +455,8 @@ export interface CreateMembershipDto {
   company?: string;
 }
 
-export async function getMemberships(): Promise<Membership[]> {
-  const res = await fetch(`${API_BASE}/memberships`, { cache: "no-store" });
+export async function getMemberships(tenantId: number): Promise<Membership[]> {
+  const res = await fetch(`${API_BASE}/memberships?tenantId=${tenantId}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Error al cargar mensualidades");
   return res.json();
 }
@@ -292,14 +474,16 @@ export async function createMembership(data: CreateMembershipDto): Promise<Membe
   return res.json();
 }
 
-export async function getExpiringMemberships(): Promise<Membership[]> {
-  const res = await fetch(`${API_BASE}/memberships/expiring`, { cache: "no-store" });
+export async function getExpiringMemberships(tenantId: number): Promise<Membership[]> {
+  const res = await fetch(`${API_BASE}/memberships/expiring?tenantId=${tenantId}`, {
+    cache: "no-store",
+  });
   if (!res.ok) throw new Error("Error al cargar mensualidades por vencer");
   return res.json();
 }
 
-export async function renewMembership(id: number): Promise<Membership> {
-  const res = await fetch(`${API_BASE}/memberships/${id}/renew`, {
+export async function renewMembership(id: number, tenantId: number): Promise<Membership> {
+  const res = await fetch(`${API_BASE}/memberships/${id}/renew?tenantId=${tenantId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
   });
@@ -307,8 +491,10 @@ export async function renewMembership(id: number): Promise<Membership> {
   return res.json();
 }
 
-export async function deleteMembership(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/memberships/${id}`, { method: "DELETE" });
+export async function deleteMembership(id: number, tenantId: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/memberships/${id}?tenantId=${tenantId}`, {
+    method: "DELETE",
+  });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err?.message ?? "Error al eliminar mensualidad");
@@ -336,8 +522,10 @@ export interface CajaReport {
   cobros: CajaCobroRow[];
 }
 
-export async function getCajaReport(fecha: string): Promise<CajaReport> {
-  const res = await fetch(`${API_BASE}/reports/caja?fecha=${fecha}`, { cache: "no-store" });
+export async function getCajaReport(fecha: string, tenantId: number): Promise<CajaReport> {
+  const res = await fetch(`${API_BASE}/reports/caja?fecha=${fecha}&tenantId=${tenantId}`, {
+    cache: "no-store",
+  });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err?.message ?? "Error al generar cierre de caja");

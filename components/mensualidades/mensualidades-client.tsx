@@ -6,6 +6,7 @@ import {
   getVehicles, getSettings,
   type Membership, type Vehicle, type AppSettings,
 } from "@/lib/api";
+import { useAuth } from "@/components/auth-provider";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { MensualidadesTable } from "./mensualidades-table";
 import { ExpiringAlert } from "./expiring-alert";
@@ -30,6 +31,8 @@ function nextMonthISO() {
 }
 
 export function MensualidadesClient() {
+  const { session } = useAuth();
+  const tenantId = session!.user.tenantId!;
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [expiring, setExpiring] = useState<Membership[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -73,7 +76,7 @@ export function MensualidadesClient() {
       setLoading(true);
       setError(null);
       const [all, exp, veh, cfg] = await Promise.all([
-        getMemberships(), getExpiringMemberships(), getVehicles(), getSettings(),
+        getMemberships(tenantId), getExpiringMemberships(tenantId), getVehicles(tenantId), getSettings(tenantId),
       ]);
       setMemberships(all);
       setExpiring(exp);
@@ -84,7 +87,7 @@ export function MensualidadesClient() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   // Carga inicial al montar — load() actualiza estado de forma asíncrona, no en el cuerpo del efecto.
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -121,7 +124,7 @@ export function MensualidadesClient() {
     setDeleting(true);
     setDeleteError(null);
     try {
-      await deleteMembership(deleteTarget.id);
+      await deleteMembership(deleteTarget.id, tenantId);
       setDeleteTarget(null);
       await load();
     } catch (err: unknown) {
@@ -135,7 +138,7 @@ export function MensualidadesClient() {
     if (!renewTarget) return;
     setRenewing(true);
     try {
-      await renewMembership(renewTarget.id);
+      await renewMembership(renewTarget.id, tenantId);
       setRenewTarget(null);
       await load();
     } catch {
@@ -158,6 +161,7 @@ export function MensualidadesClient() {
     setCreateError(null);
     try {
       await createMembership({
+        tenantId,
         vehicleId: v.id,
         clientId: v.clientId,
         startDate: createForm.startDate,
@@ -241,12 +245,16 @@ export function MensualidadesClient() {
             })}
           </div>
           {companies.length > 0 && (
-            <select value={companyFilter} onChange={(e) => setCompanyFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl text-sm text-white outline-none"
-              style={inputStyle}>
-              <option value="">Todas las empresas</option>
-              {companies.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <div className="w-56">
+              <CustomSelect
+                value={companyFilter}
+                onChange={(v) => setCompanyFilter(String(v))}
+                options={[
+                  { value: "", label: "Todas las empresas" },
+                  ...companies.map((c) => ({ value: c, label: c })),
+                ]}
+              />
+            </div>
           )}
         </div>
 
@@ -275,8 +283,8 @@ export function MensualidadesClient() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white">¿Estás seguro?</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Esta acción no se puede deshacer</p>
+                  <h2 className="text-base font-bold text-white">¿Desactivar esta mensualidad?</h2>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Sus datos se conservan, no se borra nada</p>
                 </div>
               </div>
               <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.15)" }}>
@@ -302,8 +310,8 @@ export function MensualidadesClient() {
                     <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>Eliminando...</>
-                  ) : "Sí, eliminar"}
+                    </svg>Desactivando...</>
+                  ) : "Sí, desactivar"}
                 </button>
               </div>
             </div>

@@ -1,0 +1,593 @@
+"use client";
+
+import { useEffect, useState, useCallback, type FormEvent } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import {
+  getTenant,
+  listUsers,
+  createUser,
+  updateUser,
+  deactivateUser,
+  type Tenant,
+  type AppUser,
+} from "@/lib/api";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CustomSelect } from "@/components/ui/custom-select";
+import { StatusBadge } from "@/components/admin/status-badge";
+import { TenantEditModal } from "@/components/admin/tenant-edit-modal";
+
+type BusinessRole = "business_admin" | "operator";
+
+const ROLE_LABELS: Record<string, string> = {
+  platform_admin: "Admin de plataforma",
+  business_admin: "Admin del negocio",
+  operator: "Operador",
+};
+
+const ROLE_OPTIONS = [
+  { value: "business_admin", label: "Admin del negocio" },
+  { value: "operator", label: "Operador" },
+];
+
+const STATUS_OPTIONS = [
+  { value: "active", label: "Activo" },
+  { value: "inactive", label: "Inactivo" },
+];
+
+interface CreateUserFormState {
+  fullName: string;
+  email: string;
+  password: string;
+  role: BusinessRole;
+}
+
+const EMPTY_CREATE_USER: CreateUserFormState = { fullName: "", email: "", password: "", role: "operator" };
+
+interface EditUserFormState {
+  fullName: string;
+  role: BusinessRole;
+  status: "active" | "inactive";
+}
+
+function formatDate(dateStr: string): string {
+  if (!dateStr) return "—";
+  const datePart = dateStr.split(" ")[0];
+  if (datePart?.includes("/")) return datePart;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+function TableSkeleton() {
+  return (
+    <div className="p-4 space-y-0">
+      <div className="flex items-center gap-4 px-1 pb-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
+        {[160, 140, 110, 80, 90].map((w, i) => (
+          <Skeleton key={i} className="h-3 rounded" style={{ width: w, backgroundColor: "var(--bg-input)" }} />
+        ))}
+      </div>
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-4 py-4" style={{ borderBottom: i < 2 ? "1px solid var(--border-row)" : "none" }}>
+          <Skeleton className="h-3 w-40 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-3 w-32 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-6 w-24 rounded-full" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-6 w-16 rounded-full" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-3 w-20 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function TenantDetailPage() {
+  const params = useParams<{ id: string }>();
+  const tenantId = Number(params?.id);
+
+  const [tenant, setTenant] = useState<Tenant | null>(null);
+  const [users, setUsers] = useState<AppUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [editTenantOpen, setEditTenantOpen] = useState(false);
+
+  // Create user modal
+  const [createUserOpen, setCreateUserOpen] = useState(false);
+  const [createUserForm, setCreateUserForm] = useState<CreateUserFormState>(EMPTY_CREATE_USER);
+  const [createUserSaving, setCreateUserSaving] = useState(false);
+  const [createUserError, setCreateUserError] = useState<string | null>(null);
+
+  // Edit user modal
+  const [editUserTarget, setEditUserTarget] = useState<AppUser | null>(null);
+  const [editUserForm, setEditUserForm] = useState<EditUserFormState>({ fullName: "", role: "operator", status: "active" });
+  const [editUserSaving, setEditUserSaving] = useState(false);
+  const [editUserError, setEditUserError] = useState<string | null>(null);
+
+  // Deactivate user confirm
+  const [deactivateUserTarget, setDeactivateUserTarget] = useState<AppUser | null>(null);
+  const [deactivatingUser, setDeactivatingUser] = useState(false);
+  const [deactivateUserError, setDeactivateUserError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (!Number.isFinite(tenantId)) {
+      setError("Negocio inválido.");
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      setError(null);
+      const [t, u] = await Promise.all([getTenant(tenantId), listUsers(tenantId)]);
+      setTenant(t);
+      setUsers(u);
+    } catch {
+      setError("No se pudo conectar con el servidor.");
+    } finally {
+      setLoading(false);
+    }
+  }, [tenantId]);
+
+  // Carga inicial al montar — load() actualiza estado de forma asíncrona, no en el cuerpo del efecto.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { load(); }, [load]);
+
+  function openCreateUserModal() {
+    setCreateUserForm(EMPTY_CREATE_USER);
+    setCreateUserError(null);
+    setCreateUserOpen(true);
+  }
+
+  function closeCreateUserModal() {
+    setCreateUserOpen(false);
+    setCreateUserForm(EMPTY_CREATE_USER);
+    setCreateUserError(null);
+  }
+
+  async function handleCreateUserSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!createUserForm.fullName.trim() || !createUserForm.email.trim() || !createUserForm.password) {
+      setCreateUserError("Nombre, email y contraseña son obligatorios.");
+      return;
+    }
+    setCreateUserSaving(true);
+    setCreateUserError(null);
+    try {
+      await createUser({
+        tenantId,
+        role: createUserForm.role,
+        fullName: createUserForm.fullName.trim(),
+        email: createUserForm.email.trim(),
+        password: createUserForm.password,
+      });
+      closeCreateUserModal();
+      await load();
+    } catch (err) {
+      setCreateUserError(err instanceof Error ? err.message : "Error al crear usuario.");
+    } finally {
+      setCreateUserSaving(false);
+    }
+  }
+
+  function openEditUser(u: AppUser) {
+    setEditUserTarget(u);
+    setEditUserForm({
+      fullName: u.fullName,
+      role: (u.role === "platform_admin" ? "business_admin" : u.role) as BusinessRole,
+      status: u.status,
+    });
+    setEditUserError(null);
+  }
+
+  async function handleEditUserSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!editUserTarget) return;
+    if (!editUserForm.fullName.trim()) {
+      setEditUserError("El nombre completo es obligatorio.");
+      return;
+    }
+    setEditUserSaving(true);
+    setEditUserError(null);
+    try {
+      await updateUser(editUserTarget.id, {
+        fullName: editUserForm.fullName.trim(),
+        role: editUserForm.role,
+        status: editUserForm.status,
+      });
+      setEditUserTarget(null);
+      await load();
+    } catch (err) {
+      setEditUserError(err instanceof Error ? err.message : "Error al actualizar usuario.");
+    } finally {
+      setEditUserSaving(false);
+    }
+  }
+
+  async function handleDeactivateUser() {
+    if (!deactivateUserTarget) return;
+    setDeactivatingUser(true);
+    setDeactivateUserError(null);
+    try {
+      await deactivateUser(deactivateUserTarget.id);
+      setDeactivateUserTarget(null);
+      await load();
+    } catch (err) {
+      setDeactivateUserError(err instanceof Error ? err.message : "Error al desactivar usuario.");
+    } finally {
+      setDeactivatingUser(false);
+    }
+  }
+
+  return (
+    <div className="p-6 md:p-8 max-w-7xl mx-auto">
+      {/* Back link */}
+      <Link
+        href="/admin"
+        className="inline-flex items-center gap-1.5 text-xs font-medium mb-4 cursor-pointer transition-colors"
+        style={{ color: "var(--text-muted)" }}
+      >
+        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Volver a negocios
+      </Link>
+
+      {/* Error */}
+      {error && (
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3" style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
+          <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="space-y-6">
+          <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+            <Skeleton className="h-5 w-48 rounded mb-3" style={{ backgroundColor: "var(--bg-input)" }} />
+            <Skeleton className="h-3 w-64 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+          </div>
+          <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+            <TableSkeleton />
+          </div>
+        </div>
+      ) : !tenant ? null : (
+        <>
+          {/* Tenant info card */}
+          <div
+            className="rounded-2xl p-6 mb-8 flex items-start justify-between gap-4"
+            style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}
+          >
+            <div className="flex items-start gap-4 min-w-0">
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center text-base font-bold text-white flex-shrink-0"
+                style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}
+              >
+                {tenant.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>{tenant.name}</h1>
+                  <StatusBadge status={tenant.status} />
+                </div>
+                <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+                  {tenant.contactEmail || "Sin email de contacto"}
+                  {tenant.contactPhone ? ` · ${tenant.contactPhone}` : ""}
+                </p>
+                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Creado el {formatDate(tenant.createdAt)}</p>
+              </div>
+            </div>
+            <Button variant="outline" onClick={() => setEditTenantOpen(true)} className="flex-shrink-0">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              Editar
+            </Button>
+          </div>
+
+          {/* Users section */}
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>Usuarios</h2>
+              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Cuentas de acceso de este negocio</p>
+            </div>
+            <Button onClick={openCreateUserModal}>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Crear usuario
+            </Button>
+          </div>
+
+          <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
+            {users.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <p className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Sin usuarios</p>
+                <p className="text-sm" style={{ color: "var(--text-muted)" }}>Crea el primer usuario con el botón superior</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                      {["Email", "Nombre", "Rol", "Estado", "Creado", ""].map((col) => (
+                        <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((u, i) => (
+                      <tr
+                        key={u.id}
+                        style={{ borderBottom: i < users.length - 1 ? "1px solid var(--border-row)" : "none" }}
+                        className="transition-colors duration-150"
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                      >
+                        <td className="px-5 py-4">
+                          <span className="text-sm" style={{ color: "var(--text-primary)" }}>{u.email}</span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{u.fullName}</span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{ROLE_LABELS[u.role] ?? u.role}</span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <StatusBadge status={u.status} />
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="text-sm" style={{ color: "var(--text-muted)" }}>{formatDate(u.createdAt)}</span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => openEditUser(u)}
+                              title="Editar usuario"
+                              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+                              style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#FCD34D" }}
+                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(245,158,11,0.18)"; e.currentTarget.style.borderColor = "rgba(245,158,11,0.4)"; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(245,158,11,0.08)"; e.currentTarget.style.borderColor = "rgba(245,158,11,0.2)"; }}
+                            >
+                              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                              </svg>
+                            </button>
+                            {u.status === "active" && (
+                              <button
+                                onClick={() => { setDeactivateUserError(null); setDeactivateUserTarget(u); }}
+                                title="Desactivar usuario"
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+                                style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
+                              >
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="px-5 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
+                  <p className="text-xs" style={{ color: "var(--text-dim)" }}>{users.length} usuario{users.length !== 1 ? "s" : ""}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Edit tenant modal (shared) */}
+      <TenantEditModal
+        tenant={editTenantOpen ? tenant : null}
+        onClose={() => setEditTenantOpen(false)}
+        onSaved={async () => { setEditTenantOpen(false); await load(); }}
+      />
+
+      {/* Create user modal */}
+      <Dialog open={createUserOpen} onOpenChange={(v) => { if (!createUserSaving && !v) closeCreateUserModal(); }}>
+        <DialogContent
+          className="sm:max-w-lg border-0 p-0 overflow-hidden"
+          style={{ background: "var(--bg-modal)", backdropFilter: "blur(20px)", border: "1px solid var(--border-medium)" }}
+        >
+          <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#2563EB,#7C3AED)" }} />
+          <div className="p-6">
+            <DialogHeader className="mb-5">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
+                  <svg className="w-5 h-5" style={{ color: "#60A5FA" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+                    <path d="M19 8v6" /><path d="M22 11h-6" />
+                  </svg>
+                </div>
+                <DialogTitle style={{ color: "var(--text-primary)" }} className="text-lg font-bold">Nuevo Usuario</DialogTitle>
+              </div>
+              <DialogDescription style={{ color: "var(--text-muted)" }} className="text-sm">
+                {tenant?.name} · nueva cuenta de acceso
+              </DialogDescription>
+            </DialogHeader>
+
+            <form onSubmit={handleCreateUserSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="cu-name">Nombre completo *</Label>
+                <Input
+                  id="cu-name"
+                  value={createUserForm.fullName}
+                  onChange={(e) => setCreateUserForm((p) => ({ ...p, fullName: e.target.value }))}
+                  placeholder="Ej. Carlos Ruiz"
+                />
+              </div>
+              <div>
+                <Label htmlFor="cu-email">Email *</Label>
+                <Input
+                  id="cu-email"
+                  type="email"
+                  value={createUserForm.email}
+                  onChange={(e) => setCreateUserForm((p) => ({ ...p, email: e.target.value }))}
+                  placeholder="usuario@negocio.com"
+                />
+              </div>
+              <div>
+                <Label htmlFor="cu-password">Contraseña *</Label>
+                <Input
+                  id="cu-password"
+                  type="password"
+                  autoComplete="new-password"
+                  value={createUserForm.password}
+                  onChange={(e) => setCreateUserForm((p) => ({ ...p, password: e.target.value }))}
+                  placeholder="••••••••"
+                />
+              </div>
+              <div>
+                <Label htmlFor="cu-role">Rol *</Label>
+                <CustomSelect
+                  value={createUserForm.role}
+                  onChange={(v) => setCreateUserForm((p) => ({ ...p, role: v as BusinessRole }))}
+                  options={ROLE_OPTIONS}
+                  placeholder="Seleccionar rol..."
+                />
+              </div>
+
+              {createUserError && (
+                <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
+                  {createUserError}
+                </p>
+              )}
+
+              <div className="flex gap-3 pt-1">
+                <Button type="button" variant="outline" className="flex-1 justify-center" disabled={createUserSaving} onClick={closeCreateUserModal}>
+                  Cancelar
+                </Button>
+                <Button type="submit" className="flex-1 justify-center" disabled={createUserSaving}>
+                  {createUserSaving ? "Creando..." : "Crear usuario"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit user modal */}
+      <Dialog open={!!editUserTarget} onOpenChange={(v) => { if (!editUserSaving && !v) setEditUserTarget(null); }}>
+        <DialogContent
+          className="sm:max-w-lg border-0 p-0 overflow-hidden"
+          style={{ background: "var(--bg-modal)", backdropFilter: "blur(20px)", border: "1px solid var(--border-medium)" }}
+        >
+          <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#F59E0B,#D97706)" }} />
+          <div className="p-6">
+            <DialogHeader className="mb-5">
+              <DialogTitle style={{ color: "var(--text-primary)" }} className="text-lg font-bold">Editar Usuario</DialogTitle>
+              <DialogDescription style={{ color: "var(--text-muted)" }} className="text-sm">
+                {editUserTarget?.email}
+              </DialogDescription>
+            </DialogHeader>
+
+            <form onSubmit={handleEditUserSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="eu-name">Nombre completo *</Label>
+                <Input
+                  id="eu-name"
+                  value={editUserForm.fullName}
+                  onChange={(e) => setEditUserForm((p) => ({ ...p, fullName: e.target.value }))}
+                  placeholder="Nombre completo"
+                />
+              </div>
+              <div>
+                <Label htmlFor="eu-role">Rol</Label>
+                <CustomSelect
+                  value={editUserForm.role}
+                  onChange={(v) => setEditUserForm((p) => ({ ...p, role: v as BusinessRole }))}
+                  options={ROLE_OPTIONS}
+                />
+              </div>
+              <div>
+                <Label htmlFor="eu-status">Estado</Label>
+                <CustomSelect
+                  value={editUserForm.status}
+                  onChange={(v) => setEditUserForm((p) => ({ ...p, status: v as "active" | "inactive" }))}
+                  options={STATUS_OPTIONS}
+                />
+              </div>
+
+              {editUserError && (
+                <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
+                  {editUserError}
+                </p>
+              )}
+
+              <div className="flex gap-3 pt-1">
+                <Button type="button" variant="outline" className="flex-1 justify-center" disabled={editUserSaving} onClick={() => setEditUserTarget(null)}>
+                  Cancelar
+                </Button>
+                <Button type="submit" className="flex-1 justify-center" disabled={editUserSaving}>
+                  {editUserSaving ? "Guardando..." : "Guardar cambios"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Deactivate user confirm */}
+      {deactivateUserTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
+          onClick={(e) => { if (e.target === e.currentTarget && !deactivatingUser) setDeactivateUserTarget(null); }}
+        >
+          <div className="w-full max-w-sm rounded-2xl overflow-hidden" style={{ background: "var(--bg-modal)", border: "1px solid rgba(239,68,68,0.25)" }}>
+            <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#EF4444,#DC2626)" }} />
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)" }}>
+                  <svg className="w-5 h-5" style={{ color: "#F87171" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>¿Desactivar este usuario?</h2>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Perderá acceso al sistema, pero sus datos se conservan</p>
+                </div>
+              </div>
+              <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.15)" }}>
+                <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{deactivateUserTarget.fullName}</p>
+                <p className="text-xs" style={{ color: "var(--text-secondary)" }}>{deactivateUserTarget.email}</p>
+              </div>
+              {deactivateUserError && (
+                <p className="text-xs px-3 py-2 rounded-lg mb-4" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
+                  {deactivateUserError}
+                </p>
+              )}
+              <div className="flex gap-3">
+                <Button type="button" variant="outline" className="flex-1 justify-center" disabled={deactivatingUser} onClick={() => setDeactivateUserTarget(null)}>
+                  Cancelar
+                </Button>
+                <Button type="button" variant="destructive" className="flex-1 justify-center" disabled={deactivatingUser} onClick={handleDeactivateUser}>
+                  {deactivatingUser ? "Desactivando..." : "Sí, desactivar"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

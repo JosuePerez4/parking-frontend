@@ -1,13 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/components/theme-provider";
+import { useAuth } from "@/components/auth-provider";
 
-const navItems = [
+const ROLE_LABELS: Record<string, string> = {
+  platform_admin: "Admin de plataforma",
+  business_admin: "Admin del negocio",
+  operator: "Operador",
+};
+
+type Role = "platform_admin" | "business_admin" | "operator";
+
+const navItems: { href: string; label: string; roles: Role[]; icon: React.ReactNode }[] = [
+  {
+    href: "/admin",
+    label: "Negocios",
+    roles: ["platform_admin"],
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 21h18" />
+        <path d="M5 21V7l7-4 7 4v14" />
+        <path d="M9 21v-6h6v6" />
+      </svg>
+    ),
+  },
   {
     href: "/",
     label: "Dashboard",
+    roles: ["business_admin", "operator"],
     icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="7" height="7" />
@@ -20,6 +42,7 @@ const navItems = [
   {
     href: "/parking",
     label: "Parking Activo",
+    roles: ["business_admin", "operator"],
     icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
@@ -30,6 +53,7 @@ const navItems = [
   {
     href: "/clientes",
     label: "Clientes",
+    roles: ["business_admin", "operator"],
     icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -42,6 +66,7 @@ const navItems = [
   {
     href: "/vehiculos",
     label: "Vehículos",
+    roles: ["business_admin", "operator"],
     icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="1" y="3" width="15" height="13" rx="2" />
@@ -54,6 +79,7 @@ const navItems = [
   {
     href: "/mensualidades",
     label: "Mensualidades",
+    roles: ["business_admin", "operator"],
     icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -66,6 +92,7 @@ const navItems = [
   {
     href: "/tarifas",
     label: "Tarifas",
+    roles: ["business_admin"],
     icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="12" y1="1" x2="12" y2="23" />
@@ -76,11 +103,25 @@ const navItems = [
   {
     href: "/reportes",
     label: "Reportes",
+    roles: ["business_admin"],
     icon: (
       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="18" y1="20" x2="18" y2="10" />
         <line x1="12" y1="20" x2="12" y2="4" />
         <line x1="6" y1="20" x2="6" y2="14" />
+      </svg>
+    ),
+  },
+  {
+    href: "/usuarios",
+    label: "Usuarios",
+    roles: ["business_admin"],
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M19 8v6" />
+        <path d="M22 11h-6" />
       </svg>
     ),
   },
@@ -112,8 +153,17 @@ function MoonIcon() {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, toggle } = useTheme();
+  const { session, logout } = useAuth();
   const isLight = theme === "light";
+  const role = session?.user.role;
+  const visibleNavItems = navItems.filter((item) => !role || item.roles.includes(role));
+
+  function handleLogout() {
+    logout();
+    router.push("/login");
+  }
 
   return (
     <aside
@@ -151,7 +201,7 @@ export function Sidebar() {
         >
           Principal
         </p>
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
@@ -235,12 +285,32 @@ export function Sidebar() {
             className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
             style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)" }}
           >
-            P
+            {session ? session.user.fullName.charAt(0).toUpperCase() : "?"}
           </div>
-          <div className="min-w-0">
-            <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>Admin</p>
-            <p className="text-xs truncate" style={{ color: "var(--text-muted)" }}>Parking IA</p>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
+              {session ? session.user.fullName : "Invitado"}
+            </p>
+            <p className="text-xs truncate" style={{ color: "var(--text-muted)" }}>
+              {session ? ROLE_LABELS[session.user.role] ?? session.user.role : "Sin sesión"}
+            </p>
           </div>
+          {session && (
+            <button
+              onClick={handleLogout}
+              title="Cerrar sesión"
+              className="p-1.5 rounded-lg flex-shrink-0 cursor-pointer transition-colors duration-150"
+              style={{ color: "var(--text-muted)" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </aside>

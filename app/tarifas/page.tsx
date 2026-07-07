@@ -2,6 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { getSettings, updateSettings, type AppSettings } from "@/lib/api";
+import { useAuth } from "@/components/auth-provider";
+
+const EMPTY_SETTINGS: Omit<AppSettings, "id" | "tenantId"> = {
+  fraccionCarro: 0,
+  horaCarro: 0,
+  medioDiaCarro: 0,
+  diaCarro: 0,
+  mensualidadCarro: 0,
+  fraccionMoto: 0,
+  horaMoto: 0,
+  medioDiaMoto: 0,
+  diaMoto: 0,
+  mensualidadMoto: 0,
+};
 
 function formatCOP(value: number) {
   return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(value);
@@ -38,7 +52,7 @@ function TarifaSection({ title, rows, accent, settings, form, onChange }: {
   onChange: (key: keyof AppSettings, value: string) => void;
 }) {
   return (
-    <div className="rounded-2xl overflow-hidden"
+    <div className="rounded-2xl overflow-hidden card-hover"
       style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
       <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
         <div className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -66,12 +80,15 @@ function TarifaSection({ title, rows, accent, settings, form, onChange }: {
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium" style={{ color: "var(--text-muted)" }}>$</span>
                 <input
-                  type="number"
-                  min={0}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={(form[row.key] as number) ?? ""}
                   onChange={(e) => onChange(row.key, e.target.value)}
-                  className="pl-6 pr-3 py-2 rounded-lg text-sm text-white outline-none w-32 text-right"
-                  style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)" }}
+                  className="pl-6 pr-3 py-2 rounded-lg text-sm outline-none w-32 text-right transition-colors duration-150"
+                  style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)", color: "var(--text-primary)" }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.6)"; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-medium)"; }}
                 />
               </div>
             </div>
@@ -83,22 +100,25 @@ function TarifaSection({ title, rows, accent, settings, form, onChange }: {
 }
 
 export default function TarifasPage() {
+  const { session } = useAuth();
+  const tenantId = session!.user.tenantId!;
   const [settings, setSettings] = useState<AppSettings | null>(null);
-  const [form, setForm] = useState<Partial<AppSettings>>({});
+  const [form, setForm] = useState<Partial<AppSettings>>(EMPTY_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getSettings()
-      .then((s) => { setSettings(s); setForm(s); })
+    getSettings(tenantId)
+      .then((s) => { setSettings(s); setForm(s ?? EMPTY_SETTINGS); })
       .catch(() => setError("No se pudo cargar la configuración."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [tenantId]);
 
   function handleChange(key: keyof AppSettings, value: string) {
-    const num = parseInt(value, 10);
+    const digits = value.replace(/\D/g, "");
+    const num = parseInt(digits, 10);
     setForm((p) => ({ ...p, [key]: isNaN(num) ? 0 : num }));
   }
 
@@ -107,7 +127,7 @@ export default function TarifasPage() {
     setSaving(true);
     setError(null);
     try {
-      const updated = await updateSettings(form);
+      const updated = await updateSettings(tenantId, form);
       setSettings(updated);
       setForm(updated);
       setSaved(true);

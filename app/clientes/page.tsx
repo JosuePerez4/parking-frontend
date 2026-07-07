@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { getClients, createClient, createVehicle, updateClient, deleteClient, type Client, type CreateClientDto, type UpdateClientDto } from "@/lib/api";
+import { useAuth } from "@/components/auth-provider";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +11,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CustomSelect } from "@/components/ui/custom-select";
 
 const statusConfig = {
   active:   { label: "Activo",    bg: "rgba(16,185,129,0.15)",  border: "rgba(16,185,129,0.35)",  color: "#34D399", dot: "#10B981" },
@@ -17,7 +19,19 @@ const statusConfig = {
   blocked:  { label: "Bloqueado", bg: "rgba(239,68,68,0.15)",   border: "rgba(239,68,68,0.35)",   color: "#FCA5A5", dot: "#EF4444" },
 };
 
-const EMPTY_FORM: CreateClientDto = { fullName: "", document: "", phone: "", email: "", address: "" };
+const CLIENT_STATUS_OPTIONS = [
+  { value: "active", label: "Activo" },
+  { value: "inactive", label: "Inactivo" },
+  { value: "blocked", label: "Bloqueado" },
+];
+
+const VEHICLE_TYPE_OPTIONS = [
+  { value: "car", label: "Carro" },
+  { value: "moto", label: "Moto" },
+  { value: "truck", label: "Camión" },
+];
+
+const EMPTY_FORM: Omit<CreateClientDto, "tenantId"> = { fullName: "", document: "", phone: "", email: "", address: "" };
 const EMPTY_VEHICLE = { plate: "", type: "car" as "car" | "moto" | "truck", brand: "", color: "" };
 
 function formatDate(dateStr: string): string {
@@ -83,11 +97,13 @@ function InputField({ label, name, value, onChange, type = "text", placeholder }
 }
 
 export default function ClientesPage() {
+  const { session } = useAuth();
+  const tenantId = session!.user.tenantId!;
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [form, setForm] = useState<CreateClientDto>(EMPTY_FORM);
+  const [form, setForm] = useState<Omit<CreateClientDto, "tenantId">>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [step, setStep] = useState<"client" | "vehicle">("client");
@@ -111,13 +127,13 @@ export default function ClientesPage() {
     try {
       setLoading(true);
       setError(null);
-      setClients(await getClients());
+      setClients(await getClients(tenantId));
     } catch {
       setError("No se pudo conectar con el servidor.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   // Carga inicial al montar — load() actualiza estado de forma asíncrona, no en el cuerpo del efecto.
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -136,7 +152,7 @@ export default function ClientesPage() {
     setSaving(true);
     setFormError(null);
     try {
-      const client = await createClient(form);
+      const client = await createClient({ ...form, tenantId });
       setNewClientId(client.id);
       setVehicleForm(EMPTY_VEHICLE);
       setVehicleError(null);
@@ -155,7 +171,7 @@ export default function ClientesPage() {
     setVehicleSaving(true);
     setVehicleError(null);
     try {
-      await createVehicle({ ...vehicleForm, clientId: newClientId });
+      await createVehicle({ ...vehicleForm, clientId: newClientId, tenantId });
       closeModal();
     } catch (err: unknown) {
       setVehicleError(err instanceof Error ? err.message : "Error al crear vehículo.");
@@ -192,7 +208,7 @@ export default function ClientesPage() {
     setDeleting(true);
     setDeleteError(null);
     try {
-      await deleteClient(deleteTarget.id);
+      await deleteClient(deleteTarget.id, tenantId);
       setDeleteTarget(null);
       await load();
     } catch (err: unknown) {
@@ -212,7 +228,7 @@ export default function ClientesPage() {
     setEditSaving(true);
     setEditError(null);
     try {
-      await updateClient(editTarget.id, editForm);
+      await updateClient(editTarget.id, editForm, tenantId);
       setEditTarget(null);
       await load();
     } catch (err: unknown) {
@@ -325,16 +341,16 @@ export default function ClientesPage() {
                       <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => { setDeleteError(null); setDeleteTarget(c); }}
+                          title="Desactivar cliente"
                           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
                           style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
                           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
                           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
                         >
                           <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                            <path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                            <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
                           </svg>
-                          Eliminar
+                          Desactivar
                         </button>
                       </td>
                     </tr>
@@ -403,15 +419,11 @@ export default function ClientesPage() {
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Estado</label>
-                  <select
+                  <CustomSelect
                     value={editForm.status ?? "active"}
-                    onChange={(e) => setEditForm((p) => ({ ...p, status: e.target.value as Client["status"] }))}
-                    className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none"
-                    style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)" }}>
-                    <option value="active">Activo</option>
-                    <option value="inactive">Inactivo</option>
-                    <option value="blocked">Bloqueado</option>
-                  </select>
+                    onChange={(v) => setEditForm((p) => ({ ...p, status: v as Client["status"] }))}
+                    options={CLIENT_STATUS_OPTIONS}
+                  />
                 </div>
               </div>
 
@@ -467,15 +479,15 @@ export default function ClientesPage() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white">¿Estás seguro?</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Esta acción no se puede deshacer</p>
+                  <h2 className="text-base font-bold text-white">¿Desactivar este cliente?</h2>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Sus datos se conservan, no se borra nada</p>
                 </div>
               </div>
               <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.15)" }}>
                 <p className="text-sm text-white font-medium mb-1">{deleteTarget.fullName}</p>
                 <p className="text-xs" style={{ color: "var(--text-secondary)" }}>Doc: {deleteTarget.document}</p>
                 <p className="text-xs mt-2" style={{ color: "#F87171" }}>
-                  Se eliminarán también sus vehículos y mensualidades asociadas.
+                  También se desactivarán sus vehículos y mensualidades. Dejarán de aparecer en los listados, pero la información queda guardada.
                 </p>
               </div>
               {deleteError && (
@@ -496,8 +508,8 @@ export default function ClientesPage() {
                     <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>Eliminando...</>
-                  ) : "Sí, eliminar"}
+                    </svg>Desactivando...</>
+                  ) : "Sí, desactivar"}
                 </button>
               </div>
             </div>
@@ -612,14 +624,11 @@ export default function ClientesPage() {
                     placeholder="Ej. ABC123" />
                   <div>
                     <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Tipo *</label>
-                    <select value={vehicleForm.type}
-                      onChange={(e) => setVehicleForm((p) => ({ ...p, type: e.target.value as "car" | "moto" | "truck" }))}
-                      className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none"
-                      style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)" }}>
-                      <option value="car">Carro</option>
-                      <option value="moto">Moto</option>
-                      <option value="truck">Camión</option>
-                    </select>
+                    <CustomSelect
+                      value={vehicleForm.type}
+                      onChange={(v) => setVehicleForm((p) => ({ ...p, type: v as "car" | "moto" | "truck" }))}
+                      options={VEHICLE_TYPE_OPTIONS}
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <InputField label="Marca" name="brand" value={vehicleForm.brand}

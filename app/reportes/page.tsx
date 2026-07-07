@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { getClients, getVehicles, getMemberships, getEntries, getCajaReport, type Entry, type Membership, type CajaReport } from "@/lib/api";
+import { useAuth } from "@/components/auth-provider";
+import { DatePicker } from "@/components/ui/date-picker";
 
 // ── Date helpers ────────────────────────────────────────────────────────────
 function parseColombianDate(dateStr: string): Date {
@@ -42,7 +44,7 @@ async function exportXlsx(sheets: { name: string; rows: Record<string, unknown>[
 // ── Sub-components ──────────────────────────────────────────────────────────
 function StatCard({ label, value, sub, accent, loading }: { label: string; value: string; sub?: string; accent: string; loading: boolean }) {
   return (
-    <div className="rounded-2xl p-5"
+    <div className="rounded-2xl p-5 card-hover"
       style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
       <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--text-dim)" }}>{label}</p>
       {loading ? (
@@ -176,6 +178,8 @@ async function exportCajaPDF(report: CajaReport) {
 
 // ── Main page ───────────────────────────────────────────────────────────────
 export default function ReportesPage() {
+  const { session } = useAuth();
+  const tenantId = session!.user.tenantId!;
   const [entries, setEntries] = useState<Entry[]>([]);
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [clientCount, setClientCount] = useState(0);
@@ -197,7 +201,7 @@ export default function ReportesPage() {
       setLoading(true);
       setError(null);
       const [clients, vehicles, mems, ents] = await Promise.all([
-        getClients(), getVehicles(), getMemberships(), getEntries(),
+        getClients(tenantId), getVehicles(tenantId), getMemberships(tenantId), getEntries(tenantId),
       ]);
       setClientCount(clients.length);
       setVehicleCount(vehicles.length);
@@ -209,7 +213,7 @@ export default function ReportesPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   // Carga inicial al montar — load() actualiza estado de forma asíncrona, no en el cuerpo del efecto.
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -341,7 +345,7 @@ export default function ReportesPage() {
     setCajaError(null);
     setCajaReport(null);
     try {
-      const report = await getCajaReport(cajaFecha);
+      const report = await getCajaReport(cajaFecha, tenantId);
       setCajaReport(report);
     } catch (e: unknown) {
       setCajaError(e instanceof Error ? e.message : "Error al generar cierre");
@@ -410,7 +414,7 @@ export default function ReportesPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Horas pico */}
         {!loading && closedEntries.length > 0 && (
-          <div className="rounded-2xl p-6"
+          <div className="rounded-2xl p-6 card-hover"
             style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
             <h3 className="text-sm font-semibold text-white mb-4">Horas pico de ingreso</h3>
             <div className="space-y-2">
@@ -440,7 +444,7 @@ export default function ReportesPage() {
 
         {/* Top placas */}
         {!loading && topPlates.length > 0 && (
-          <div className="rounded-2xl p-6"
+          <div className="rounded-2xl p-6 card-hover"
             style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
             <h3 className="text-sm font-semibold text-white mb-4">Vehículos más frecuentes</h3>
             <div className="space-y-3">
@@ -533,21 +537,13 @@ export default function ReportesPage() {
 
         {/* Date picker + generate button */}
         <div className="flex items-center gap-3 mb-6">
-          <input
-            type="date"
+          <DatePicker
             value={cajaFecha}
-            onChange={(e) => { setCajaFecha(e.target.value); setCajaReport(null); }}
-            className="rounded-xl px-4 py-2.5 text-sm font-medium outline-none"
-            style={{
-              backgroundColor: "var(--bg-input)",
-              border: "1px solid var(--border-default)",
-              color: "var(--text-primary)",
-              colorScheme: "dark",
-            }}
+            onChange={(v) => { setCajaFecha(v); setCajaReport(null); }}
           />
           <button
             onClick={generarCierre}
-            disabled={cajaLoading}
+            disabled={cajaLoading || !cajaFecha}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-50 transition-all duration-200"
             style={{ backgroundColor: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)", color: "#60A5FA" }}
             onMouseEnter={(e) => { if (!cajaLoading) e.currentTarget.style.backgroundColor = "rgba(37,99,235,0.25)"; }}

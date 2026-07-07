@@ -6,6 +6,7 @@ import {
   getVehicles, getClients, deleteVehicle, updateVehicle, createClient,
   type Vehicle, type Client, type CreateClientDto,
 } from "@/lib/api";
+import { useAuth } from "@/components/auth-provider";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -180,14 +181,13 @@ function VehicleTable({
                       </svg>
                       Asignar
                     </button>
-                    <button onClick={() => onDelete(v)}
+                    <button onClick={() => onDelete(v)} title="Desactivar vehículo"
                       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
                       style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
                       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
                       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}>
                       <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                        <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
                       </svg>
                     </button>
                   </div>
@@ -298,10 +298,11 @@ function StepIndicator({ current, total }: { current: number; total: number | nu
 
 // ── SmartAssignModal ──────────────────────────────────────────────────────────
 function SmartAssignModal({
-  vehicle, clients, onClose, onDone,
+  vehicle, clients, tenantId, onClose, onDone,
 }: {
   vehicle: Vehicle;
   clients: Client[];
+  tenantId: number;
   onClose: () => void;
   onDone: () => void;
 }) {
@@ -323,7 +324,7 @@ function SmartAssignModal({
   const [selectedClientId, setSelectedClientId] = useState<number | "">("");
 
   // s3b — new client form
-  const [newClient, setNewClient] = useState<CreateClientDto>({
+  const [newClient, setNewClient] = useState<Omit<CreateClientDto, "tenantId">>({
     fullName: "", document: "", phone: "", email: "", address: "",
   });
 
@@ -366,7 +367,7 @@ function SmartAssignModal({
     setSaving(true);
     setError(null);
     try {
-      const created = await createClient(newClient);
+      const created = await createClient({ ...newClient, tenantId });
       setResolvedClientId(created.id);
       setStep("s4");
     } catch (e: unknown) {
@@ -383,7 +384,7 @@ function SmartAssignModal({
       const payload: { brand?: string; color?: string } = {};
       if (effectiveBrand) payload.brand = effectiveBrand;
       if (effectiveColor) payload.color = effectiveColor;
-      await updateVehicle(vehicle.id, payload);
+      await updateVehicle(vehicle.id, payload, tenantId);
       onDone();
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Error al guardar.");
@@ -399,7 +400,7 @@ function SmartAssignModal({
       const payload: { clientId: number; brand?: string; color?: string } = { clientId: resolvedClientId };
       if (effectiveBrand) payload.brand = effectiveBrand;
       if (effectiveColor) payload.color = effectiveColor;
-      await updateVehicle(vehicle.id, payload);
+      await updateVehicle(vehicle.id, payload, tenantId);
       onDone();
       router.push(`/mensualidades?vehicleId=${vehicle.id}`);
     } catch (e: unknown) {
@@ -650,8 +651,8 @@ function SmartAssignModal({
           {step === "s3b" && (
             <>
               <div className="space-y-3">
-                {(["fullName","document","phone","email","address"] as (keyof CreateClientDto)[]).map((field) => {
-                  const labels: Record<keyof CreateClientDto, string> = {
+                {(["fullName","document","phone","email","address"] as (keyof Omit<CreateClientDto, "tenantId">)[]).map((field) => {
+                  const labels: Record<keyof Omit<CreateClientDto, "tenantId">, string> = {
                     fullName: "Nombre completo *", document: "Documento *",
                     phone: "Teléfono", email: "Correo electrónico", address: "Dirección",
                   };
@@ -771,6 +772,8 @@ function Spinner() {
 
 // ── Página principal ──────────────────────────────────────────────────────────
 export default function VehiculosPage() {
+  const { session } = useAuth();
+  const tenantId = session!.user.tenantId!;
   const [vehicles, setVehicles]       = useState<Vehicle[]>([]);
   const [clients, setClients]         = useState<Client[]>([]);
   const [loading, setLoading]         = useState(true);
@@ -785,7 +788,7 @@ export default function VehiculosPage() {
     try {
       setLoading(true);
       setError(null);
-      const [v, c] = await Promise.all([getVehicles(), getClients()]);
+      const [v, c] = await Promise.all([getVehicles(tenantId), getClients(tenantId)]);
       setVehicles(v);
       setClients(c);
     } catch {
@@ -793,7 +796,7 @@ export default function VehiculosPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   // Carga inicial al montar — load() actualiza estado de forma asíncrona, no en el cuerpo del efecto.
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -804,7 +807,7 @@ export default function VehiculosPage() {
     setDeleting(true);
     setDeleteError(null);
     try {
-      await deleteVehicle(deleteTarget.id);
+      await deleteVehicle(deleteTarget.id, tenantId);
       setDeleteTarget(null);
       await load();
     } catch (err: unknown) {
@@ -957,6 +960,7 @@ export default function VehiculosPage() {
         <SmartAssignModal
           vehicle={assignTarget}
           clients={clients}
+          tenantId={tenantId}
           onClose={() => setAssignTarget(null)}
           onDone={async () => { setAssignTarget(null); await load(); }}
         />
@@ -980,8 +984,8 @@ export default function VehiculosPage() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white">¿Estás seguro?</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Esta acción no se puede deshacer</p>
+                  <h2 className="text-base font-bold text-white">¿Desactivar este vehículo?</h2>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Sus datos se conservan, no se borra nada</p>
                 </div>
               </div>
               <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.15)" }}>
@@ -989,7 +993,7 @@ export default function VehiculosPage() {
                 <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
                   {vehicleTypeLabel[deleteTarget.type] ?? deleteTarget.type}{deleteTarget.brand ? ` · ${deleteTarget.brand}` : ""}
                 </p>
-                <p className="text-xs mt-2" style={{ color: "#F87171" }}>Se eliminarán también sus mensualidades asociadas.</p>
+                <p className="text-xs mt-2" style={{ color: "#F87171" }}>También se desactivarán sus mensualidades. Dejará de aparecer en los listados, pero la información queda guardada.</p>
               </div>
               {deleteError && (
                 <p className="text-xs px-3 py-2 rounded-lg mb-4" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
@@ -1009,8 +1013,8 @@ export default function VehiculosPage() {
                     <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                    </svg>Eliminando...</>
-                  ) : "Sí, eliminar"}
+                    </svg>Desactivando...</>
+                  ) : "Sí, desactivar"}
                 </button>
               </div>
             </div>
