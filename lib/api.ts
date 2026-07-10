@@ -428,6 +428,7 @@ export interface Membership {
   autoRenew: boolean;
   company: string | null;
   createdAt: string;
+  paidAt: string | null;
   vehicle?: {
     id: number;
     plate: string;
@@ -518,6 +519,7 @@ export interface CajaReport {
   totalVehiculos: number;
   visitantes: number;
   mensualidades: number;
+  ingresosMensualidades: number;
   desglosePorHora: { hora: string; cantidad: number }[];
   cobros: CajaCobroRow[];
 }

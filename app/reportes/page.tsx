@@ -229,12 +229,20 @@ export default function ReportesPage() {
   const closedEntries = entries.filter((e) => e.exitTime && e.amountPaid != null);
 
   function incomeInRange(from: Date, to: Date) {
-    return closedEntries
+    const entriesIncome = closedEntries
       .filter((e) => {
         const d = parseColombianDate(e.exitTime!);
         return d >= from && d <= to;
       })
       .reduce((sum, e) => sum + (e.amountPaid ?? 0), 0);
+    const membershipIncome = memberships
+      .filter((m) => {
+        if (!m.paidAt) return false;
+        const d = parseColombianDate(m.paidAt);
+        return d >= from && d <= to;
+      })
+      .reduce((sum, m) => sum + parseFloat(m.price), 0);
+    return entriesIncome + membershipIncome;
   }
 
   const incomeToday = incomeInRange(new Date(today + "T00:00:00"), new Date(today + "T23:59:59"));

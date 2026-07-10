@@ -41,6 +41,7 @@ export function MensualidadesClient() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<FilterTab>("todas");
   const [companyFilter, setCompanyFilter] = useState("");
+  const [search, setSearch] = useState("");
   const [renewTarget, setRenewTarget] = useState<Membership | null>(null);
   const [renewing, setRenewing] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Membership | null>(null);
@@ -111,11 +112,18 @@ export function MensualidadesClient() {
 
   const companies = Array.from(new Set(memberships.map((m) => m.company).filter(Boolean))) as string[];
 
+  const q = search.trim().toLowerCase();
   const filtered = memberships.filter((m) => {
     if (activeTab === "activas" && m.status !== "active") return false;
     if (activeTab === "vencidas" && m.status !== "expired") return false;
     if (activeTab === "proximas" && !expiring.some((e) => e.id === m.id)) return false;
     if (companyFilter && m.company !== companyFilter) return false;
+    if (q) {
+      const matches =
+        m.vehicle?.plate?.toLowerCase().includes(q) ||
+        m.client?.fullName?.toLowerCase().includes(q);
+      if (!matches) return false;
+    }
     return true;
   });
 
@@ -244,18 +252,33 @@ export function MensualidadesClient() {
               );
             })}
           </div>
-          {companies.length > 0 && (
-            <div className="w-56">
-              <CustomSelect
-                value={companyFilter}
-                onChange={(v) => setCompanyFilter(String(v))}
-                options={[
-                  { value: "", label: "Todas las empresas" },
-                  ...companies.map((c) => ({ value: c, label: c })),
-                ]}
+          <div className="flex items-center gap-3">
+            <div className="relative w-64">
+              <svg className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-dim)" }}>
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Buscar por placa o cliente..."
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm text-white outline-none"
+                style={inputStyle}
               />
             </div>
-          )}
+            {companies.length > 0 && (
+              <div className="w-56">
+                <CustomSelect
+                  value={companyFilter}
+                  onChange={(v) => setCompanyFilter(String(v))}
+                  options={[
+                    { value: "", label: "Todas las empresas" },
+                    ...companies.map((c) => ({ value: c, label: c })),
+                  ]}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {loading ? <TableSkeleton /> : (

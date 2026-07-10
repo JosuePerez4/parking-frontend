@@ -143,6 +143,7 @@ export default function ParkingPage() {
   const [, setTick] = useState(0);
   const [exitTarget, setExitTarget] = useState<ActiveVehicle | null>(null);
   const [exitLoading, setExitLoading] = useState(false);
+  const [search, setSearch] = useState("");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const load = useCallback(async () => {
@@ -170,6 +171,11 @@ export default function ParkingPage() {
     const t = setInterval(() => setTick((n) => n + 1), 30000);
     return () => clearInterval(t);
   }, []);
+
+  const q = search.trim().toLowerCase();
+  const filteredVehicles = q
+    ? vehicles.filter((v) => v.plate.toLowerCase().includes(q))
+    : vehicles;
 
   const handleExit = async () => {
     if (!exitTarget) return;
@@ -249,6 +255,21 @@ export default function ParkingPage() {
         </div>
       )}
 
+      {/* Search */}
+      <div className="mb-6 relative max-w-sm">
+        <svg className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-dim)" }}>
+          <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar por placa..."
+          className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm text-white outline-none"
+          style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)" }}
+        />
+      </div>
+
       {/* Table */}
       <div className="rounded-2xl overflow-hidden"
         style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
@@ -271,6 +292,11 @@ export default function ParkingPage() {
             <p className="text-white font-semibold mb-1">Parqueadero vacío</p>
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>No hay vehículos dentro en este momento</p>
           </div>
+        ) : filteredVehicles.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <p className="text-white font-semibold mb-1">Sin resultados</p>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>Ningún vehículo dentro coincide con &quot;{search}&quot;</p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -282,9 +308,9 @@ export default function ParkingPage() {
                 </tr>
               </thead>
               <tbody>
-                {vehicles.map((v, i) => (
+                {filteredVehicles.map((v, i) => (
                   <tr key={v.id}
-                    style={{ borderBottom: i < vehicles.length - 1 ? "1px solid var(--border-row)" : "none" }}
+                    style={{ borderBottom: i < filteredVehicles.length - 1 ? "1px solid var(--border-row)" : "none" }}
                     onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
                     onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}>
                     <td className="px-5 py-4">
@@ -331,7 +357,7 @@ export default function ParkingPage() {
             </table>
             <div className="px-5 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
               <p className="text-xs" style={{ color: "var(--text-dim)" }}>
-                {vehicles.length} vehículo{vehicles.length !== 1 ? "s" : ""} · Actualización automática cada 10 segundos
+                {filteredVehicles.length} vehículo{filteredVehicles.length !== 1 ? "s" : ""} · Actualización automática cada 10 segundos
               </p>
             </div>
           </div>
