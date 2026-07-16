@@ -237,8 +237,11 @@ export interface AppSettings {
 
 export async function getSettings(tenantId: number): Promise<AppSettings | null> {
   const res = await apiFetch(`/settings?tenantId=${tenantId}`, { cache: "no-store" });
+  // Un negocio nuevo aún no tiene tarifas configuradas: eso no es un error,
+  // simplemente no hay configuración todavía.
+  if (res.status === 404) return null;
   await ensureOk(res, "Error al cargar configuración");
-  const data = await res.json();
+  const data = await res.json().catch(() => null);
   return data ?? null;
 }
 
