@@ -151,7 +151,7 @@ function MoonIcon() {
   );
 }
 
-export function Sidebar() {
+export function Sidebar({ open = false, onClose }: { open?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, toggle } = useTheme();
@@ -167,7 +167,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="fixed left-0 top-0 h-full w-64 flex flex-col z-40"
+      className={`fixed left-0 top-0 h-full w-64 flex flex-col z-40 transition-transform duration-200 md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}
       style={{
         backgroundColor: "var(--bg-sidebar)",
         borderRight: "1px solid var(--border-soft)",
@@ -207,6 +207,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer group"
               style={{
                 backgroundColor: isActive ? "rgba(37, 99, 235, 0.15)" : "transparent",

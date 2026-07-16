@@ -247,7 +247,7 @@ export default function ClientesPage() {
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Clientes</h1>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Gestiona los clientes registrados en el sistema</p>
@@ -292,78 +292,139 @@ export default function ClientesPage() {
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>Crea el primer cliente con el botón superior</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
-                  {["Cliente", "Documento", "Teléfono", "Email", "Estado", "Registrado", ""].map((col) => (
-                    <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {clients.map((c, i) => {
-                  const st = statusConfig[c.status] ?? statusConfig.inactive;
-                  return (
-                    <tr
-                      key={c.id}
-                      className="transition-colors duration-150 cursor-pointer"
-                      style={{ borderBottom: i < clients.length - 1 ? "1px solid var(--border-row)" : "none" }}
-                      onClick={() => openEdit(c)}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
-                    >
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                            style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
-                            {c.fullName.charAt(0).toUpperCase()}
+          <div>
+            {/* Tabla (desktop) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                    {["Cliente", "Documento", "Teléfono", "Email", "Estado", "Registrado", ""].map((col) => (
+                      <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {clients.map((c, i) => {
+                    const st = statusConfig[c.status] ?? statusConfig.inactive;
+                    return (
+                      <tr
+                        key={c.id}
+                        className="transition-colors duration-150 cursor-pointer"
+                        style={{ borderBottom: i < clients.length - 1 ? "1px solid var(--border-row)" : "none" }}
+                        onClick={() => openEdit(c)}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                      >
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                              style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+                              {c.fullName.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-white leading-tight">{c.fullName}</p>
+                              {c.address && <p className="text-xs mt-0.5 truncate max-w-[160px]" style={{ color: "var(--text-muted)" }}>{c.address}</p>}
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-sm font-medium text-white leading-tight">{c.fullName}</p>
-                            {c.address && <p className="text-xs mt-0.5 truncate max-w-[160px]" style={{ color: "var(--text-muted)" }}>{c.address}</p>}
-                          </div>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="text-sm font-mono" style={{ color: "var(--text-secondary)" }}>{c.document}</span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{c.phone}</span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{c.email || "—"}</span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                            style={{ backgroundColor: st.bg, border: `1px solid ${st.border}`, color: st.color }}>
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: st.dot }} />
+                            {st.label}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="text-sm" style={{ color: "var(--text-muted)" }}>{formatDate(c.createdAt)}</span>
+                        </td>
+                        <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => { setDeleteError(null); setDeleteTarget(c); }}
+                            title="Desactivar cliente"
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+                            style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
+                          >
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
+                            </svg>
+                            Desactivar
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Tarjetas (móvil) */}
+            <div className="md:hidden p-4 space-y-3">
+              {clients.map((c) => {
+                const st = statusConfig[c.status] ?? statusConfig.inactive;
+                return (
+                  <div key={c.id} onClick={() => openEdit(c)}
+                    className="rounded-xl p-4 space-y-3 cursor-pointer"
+                    style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                          style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+                          {c.fullName.charAt(0).toUpperCase()}
                         </div>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="text-sm font-mono" style={{ color: "var(--text-secondary)" }}>{c.document}</span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{c.phone}</span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{c.email || "—"}</span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-                          style={{ backgroundColor: st.bg, border: `1px solid ${st.border}`, color: st.color }}>
-                          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: st.dot }} />
-                          {st.label}
-                        </span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="text-sm" style={{ color: "var(--text-muted)" }}>{formatDate(c.createdAt)}</span>
-                      </td>
-                      <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
-                        <button
-                          onClick={() => { setDeleteError(null); setDeleteTarget(c); }}
-                          title="Desactivar cliente"
-                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                          style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
-                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
-                        >
-                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
-                          </svg>
-                          Desactivar
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-white leading-tight truncate">{c.fullName}</p>
+                          <p className="text-xs mt-0.5 font-mono" style={{ color: "var(--text-muted)" }}>{c.document}</p>
+                        </div>
+                      </div>
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0"
+                        style={{ backgroundColor: st.bg, border: `1px solid ${st.border}`, color: st.color }}>
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: st.dot }} />
+                        {st.label}
+                      </span>
+                    </div>
+                    <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Teléfono</span>
+                        <span className="text-sm text-right" style={{ color: "var(--text-secondary)" }}>{c.phone}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Email</span>
+                        <span className="text-sm text-right truncate max-w-[60%]" style={{ color: "var(--text-secondary)" }}>{c.email || "—"}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Registrado</span>
+                        <span className="text-sm text-right" style={{ color: "var(--text-muted)" }}>{formatDate(c.createdAt)}</span>
+                      </div>
+                    </div>
+                    <div className="pt-1" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => { setDeleteError(null); setDeleteTarget(c); }}
+                        title="Desactivar cliente"
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+                        style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+                      >
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
+                        </svg>
+                        Desactivar
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
             <div className="px-5 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
               <p className="text-xs" style={{ color: "var(--text-dim)" }}>{clients.length} cliente{clients.length !== 1 ? "s" : ""}</p>
             </div>
@@ -396,7 +457,7 @@ export default function ClientesPage() {
             </DialogHeader>
 
             <form onSubmit={handleUpdate} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <InputField label="Nombre completo *" name="fullName"
                     value={editForm.fullName ?? ""}
@@ -556,7 +617,7 @@ export default function ClientesPage() {
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="col-span-2">
                       <InputField label="Nombre completo *" name="fullName" value={form.fullName} onChange={handleChange} placeholder="Ej. Juan Pérez García" />
                     </div>
@@ -624,7 +685,7 @@ export default function ClientesPage() {
                       options={VEHICLE_TYPE_OPTIONS}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InputField label="Marca" name="brand" value={vehicleForm.brand}
                       onChange={(e) => setVehicleForm((p) => ({ ...p, brand: e.target.value }))}
                       placeholder="Ej. Chevrolet" />

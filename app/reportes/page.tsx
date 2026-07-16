@@ -377,7 +377,7 @@ export default function ReportesPage() {
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Reportes</h1>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Métricas y exportación de datos</p>
@@ -480,30 +480,60 @@ export default function ReportesPage() {
           <h2 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--text-dim)" }}>Cobros por empresa</h2>
           <div className="rounded-2xl overflow-hidden mb-8"
             style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
-            <table className="w-full">
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
-                  {["Empresa", "Total mensualidades", "Activas", "Vencidas"].map((c) => (
-                    <th key={c} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{c}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {companyRows.map(([company, { count, active }], i) => (
-                  <tr key={company} style={{ borderBottom: i < companyRows.length - 1 ? "1px solid var(--border-row)" : "none" }}>
-                    <td className="px-5 py-3">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium"
-                        style={{ backgroundColor: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)", color: "#C4B5FD" }}>
-                        {company}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-sm text-white">{count}</td>
-                    <td className="px-5 py-3 text-sm font-semibold" style={{ color: "#34D399" }}>{active}</td>
-                    <td className="px-5 py-3 text-sm" style={{ color: "#FCA5A5" }}>{count - active}</td>
+            {/* Tabla (desktop) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                    {["Empresa", "Total mensualidades", "Activas", "Vencidas"].map((c) => (
+                      <th key={c} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{c}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {companyRows.map(([company, { count, active }], i) => (
+                    <tr key={company} style={{ borderBottom: i < companyRows.length - 1 ? "1px solid var(--border-row)" : "none" }}>
+                      <td className="px-5 py-3">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium"
+                          style={{ backgroundColor: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)", color: "#C4B5FD" }}>
+                          {company}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-sm text-white">{count}</td>
+                      <td className="px-5 py-3 text-sm font-semibold" style={{ color: "#34D399" }}>{active}</td>
+                      <td className="px-5 py-3 text-sm" style={{ color: "#FCA5A5" }}>{count - active}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Tarjetas (móvil) */}
+            <div className="md:hidden p-4 space-y-3">
+              {companyRows.map(([company, { count, active }]) => (
+                <div key={company} className="rounded-xl p-4 space-y-3"
+                  style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-default)" }}>
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium"
+                    style={{ backgroundColor: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)", color: "#C4B5FD" }}>
+                    {company}
+                  </span>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <p className="text-lg font-bold text-white">{count}</p>
+                      <p className="text-xs" style={{ color: "var(--text-dim)" }}>Total</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold" style={{ color: "#34D399" }}>{active}</p>
+                      <p className="text-xs" style={{ color: "var(--text-dim)" }}>Activas</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold" style={{ color: "#FCA5A5" }}>{count - active}</p>
+                      <p className="text-xs" style={{ color: "var(--text-dim)" }}>Vencidas</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </>
       )}
@@ -519,7 +549,7 @@ export default function ReportesPage() {
 
       {/* ── Cierre de Caja ─────────────────────────────────────────────────── */}
       <div className="border-t pt-10" style={{ borderColor: "var(--border-default)" }}>
-        <div className="flex items-start justify-between mb-6">
+        <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
           <div>
             <h2 className="text-xl font-bold text-white mb-1">Cierre de Caja</h2>
             <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Resumen diario de ingresos para cuadre al final del turno</p>
@@ -634,55 +664,106 @@ export default function ReportesPage() {
                   No hay cobros registrados para esta fecha
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
-                        {["Placa", "Tipo", "Entrada", "Salida", "Duración", "Monto", ""].map((h) => (
-                          <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cajaReport.cobros.map((c, i) => (
-                        <tr key={i} style={{ borderBottom: i < cajaReport.cobros.length - 1 ? "1px solid var(--border-row)" : "none" }}>
-                          <td className="px-5 py-3">
-                            <span className="text-xs font-bold px-2.5 py-1 rounded font-mono"
-                              style={{ backgroundColor: "rgba(37,99,235,0.12)", color: "#93C5FD", border: "1px solid rgba(37,99,235,0.25)" }}>
-                              {c.placa}
-                            </span>
-                          </td>
-                          <td className="px-5 py-3 text-sm" style={{ color: "var(--text-secondary)" }}>{c.tipo}</td>
-                          <td className="px-5 py-3 text-sm font-mono" style={{ color: "var(--text-secondary)" }}>{formatTime(c.horaEntrada)}</td>
-                          <td className="px-5 py-3 text-sm font-mono" style={{ color: "var(--text-secondary)" }}>{formatTime(c.horaSalida)}</td>
-                          <td className="px-5 py-3 text-sm" style={{ color: "var(--text-muted)" }}>{c.duracion}</td>
-                          <td className="px-5 py-3 text-sm font-semibold" style={{ color: c.monto > 0 ? "#34D399" : "var(--text-muted)" }}>
-                            {formatCOP(c.monto)}
-                          </td>
-                          <td className="px-5 py-3">
-                            {c.esMensualidad ? (
-                              <span className="text-xs px-2 py-0.5 rounded font-medium"
-                                style={{ backgroundColor: "rgba(16,185,129,0.12)", color: "#34D399", border: "1px solid rgba(16,185,129,0.25)" }}>
-                                Mensualidad
-                              </span>
-                            ) : (
-                              <span className="text-xs px-2 py-0.5 rounded font-medium"
-                                style={{ backgroundColor: "rgba(245,158,11,0.12)", color: "#FCD34D", border: "1px solid rgba(245,158,11,0.25)" }}>
-                                Visitante
-                              </span>
-                            )}
-                          </td>
+                <div>
+                  {/* Tabla (desktop) */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                          {["Placa", "Tipo", "Entrada", "Salida", "Duración", "Monto", ""].map((h) => (
+                            <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{h}</th>
+                          ))}
                         </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr style={{ borderTop: "2px solid var(--border-default)" }}>
-                        <td colSpan={5} className="px-5 py-3 text-sm font-semibold text-white">Total</td>
-                        <td className="px-5 py-3 text-sm font-bold" style={{ color: "#34D399" }}>{formatCOP(cajaReport.totalCOP)}</td>
-                        <td />
-                      </tr>
-                    </tfoot>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {cajaReport.cobros.map((c, i) => (
+                          <tr key={i} style={{ borderBottom: i < cajaReport.cobros.length - 1 ? "1px solid var(--border-row)" : "none" }}>
+                            <td className="px-5 py-3">
+                              <span className="text-xs font-bold px-2.5 py-1 rounded font-mono"
+                                style={{ backgroundColor: "rgba(37,99,235,0.12)", color: "#93C5FD", border: "1px solid rgba(37,99,235,0.25)" }}>
+                                {c.placa}
+                              </span>
+                            </td>
+                            <td className="px-5 py-3 text-sm" style={{ color: "var(--text-secondary)" }}>{c.tipo}</td>
+                            <td className="px-5 py-3 text-sm font-mono" style={{ color: "var(--text-secondary)" }}>{formatTime(c.horaEntrada)}</td>
+                            <td className="px-5 py-3 text-sm font-mono" style={{ color: "var(--text-secondary)" }}>{formatTime(c.horaSalida)}</td>
+                            <td className="px-5 py-3 text-sm" style={{ color: "var(--text-muted)" }}>{c.duracion}</td>
+                            <td className="px-5 py-3 text-sm font-semibold" style={{ color: c.monto > 0 ? "#34D399" : "var(--text-muted)" }}>
+                              {formatCOP(c.monto)}
+                            </td>
+                            <td className="px-5 py-3">
+                              {c.esMensualidad ? (
+                                <span className="text-xs px-2 py-0.5 rounded font-medium"
+                                  style={{ backgroundColor: "rgba(16,185,129,0.12)", color: "#34D399", border: "1px solid rgba(16,185,129,0.25)" }}>
+                                  Mensualidad
+                                </span>
+                              ) : (
+                                <span className="text-xs px-2 py-0.5 rounded font-medium"
+                                  style={{ backgroundColor: "rgba(245,158,11,0.12)", color: "#FCD34D", border: "1px solid rgba(245,158,11,0.25)" }}>
+                                  Visitante
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr style={{ borderTop: "2px solid var(--border-default)" }}>
+                          <td colSpan={5} className="px-5 py-3 text-sm font-semibold text-white">Total</td>
+                          <td className="px-5 py-3 text-sm font-bold" style={{ color: "#34D399" }}>{formatCOP(cajaReport.totalCOP)}</td>
+                          <td />
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+
+                  {/* Tarjetas (móvil) */}
+                  <div className="md:hidden p-4 space-y-3">
+                    {cajaReport.cobros.map((c, i) => (
+                      <div key={i} className="rounded-xl p-4 space-y-3"
+                        style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-default)" }}>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-xs font-bold px-2.5 py-1 rounded font-mono"
+                            style={{ backgroundColor: "rgba(37,99,235,0.12)", color: "#93C5FD", border: "1px solid rgba(37,99,235,0.25)" }}>
+                            {c.placa}
+                          </span>
+                          {c.esMensualidad ? (
+                            <span className="text-xs px-2 py-0.5 rounded font-medium"
+                              style={{ backgroundColor: "rgba(16,185,129,0.12)", color: "#34D399", border: "1px solid rgba(16,185,129,0.25)" }}>
+                              Mensualidad
+                            </span>
+                          ) : (
+                            <span className="text-xs px-2 py-0.5 rounded font-medium"
+                              style={{ backgroundColor: "rgba(245,158,11,0.12)", color: "#FCD34D", border: "1px solid rgba(245,158,11,0.25)" }}>
+                              Visitante
+                            </span>
+                          )}
+                        </div>
+                        <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Tipo</span>
+                            <span className="text-sm text-right" style={{ color: "var(--text-secondary)" }}>{c.tipo}</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Entrada → Salida</span>
+                            <span className="text-sm text-right font-mono" style={{ color: "var(--text-secondary)" }}>{formatTime(c.horaEntrada)} → {formatTime(c.horaSalida)}</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Duración</span>
+                            <span className="text-sm text-right" style={{ color: "var(--text-muted)" }}>{c.duracion}</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Monto</span>
+                            <span className="text-sm font-semibold text-right" style={{ color: c.monto > 0 ? "#34D399" : "var(--text-muted)" }}>{formatCOP(c.monto)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex items-center justify-between px-1 pt-2" style={{ borderTop: "2px solid var(--border-default)" }}>
+                      <span className="text-sm font-semibold text-white">Total</span>
+                      <span className="text-sm font-bold" style={{ color: "#34D399" }}>{formatCOP(cajaReport.totalCOP)}</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

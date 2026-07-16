@@ -66,12 +66,12 @@ function TarifaSection({ title, rows, accent, settings, form, onChange }: {
       </div>
       <div className="divide-y" style={{ borderColor: "var(--bg-row-hover)" }}>
         {rows.map((row) => (
-          <div key={row.key} className="px-6 py-4 flex items-center justify-between gap-4">
+          <div key={row.key} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div className="min-w-0">
               <p className="text-sm font-medium text-white">{row.label}</p>
               <p className="text-xs mt-0.5" style={{ color: "var(--text-dim)" }}>{row.description}</p>
             </div>
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0">
               {settings && (
                 <span className="text-xs font-medium" style={{ color: "var(--text-dim)" }}>
                   actual: {formatCOP(settings[row.key] as number)}
@@ -141,7 +141,7 @@ export default function TarifasPage() {
 
   return (
     <div className="p-6 md:p-8 max-w-4xl mx-auto">
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Tarifas</h1>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>

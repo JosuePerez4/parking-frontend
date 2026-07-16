@@ -220,7 +220,7 @@ export function MensualidadesClient() {
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Mensualidades</h1>
           <p style={{ color: "var(--text-secondary)" }} className="text-sm">
@@ -255,24 +255,26 @@ export function MensualidadesClient() {
         style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
         {/* Tabs + company filter */}
         <div className="flex items-center justify-between flex-wrap gap-3 p-4">
-          <div className="flex items-center gap-1 p-1 rounded-xl w-fit" style={{ backgroundColor: "rgba(0,0,0,0.3)" }}>
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.value;
-              return (
-                <button key={tab.value} onClick={() => setActiveTab(tab.value)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium cursor-pointer"
-                  style={{ backgroundColor: isActive ? "#2563EB" : "transparent", color: isActive ? "#fff" : "#94A3B8" }}>
-                  {tab.label}
-                  <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold"
-                    style={{ backgroundColor: isActive ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)", color: isActive ? "#fff" : "#64748B" }}>
-                    {counts[tab.value]}
-                  </span>
-                </button>
-              );
-            })}
+          <div className="min-w-0 max-w-full overflow-x-auto">
+            <div className="flex items-center gap-1 p-1 rounded-xl w-fit" style={{ backgroundColor: "rgba(0,0,0,0.3)" }}>
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.value;
+                return (
+                  <button key={tab.value} onClick={() => setActiveTab(tab.value)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium cursor-pointer whitespace-nowrap"
+                    style={{ backgroundColor: isActive ? "#2563EB" : "transparent", color: isActive ? "#fff" : "#94A3B8" }}>
+                    {tab.label}
+                    <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold"
+                      style={{ backgroundColor: isActive ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)", color: isActive ? "#fff" : "#64748B" }}>
+                      {counts[tab.value]}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="relative w-64">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+            <div className="relative w-full sm:w-64">
               <svg className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-dim)" }}>
                 <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
@@ -286,7 +288,7 @@ export function MensualidadesClient() {
               />
             </div>
             {companies.length > 0 && (
-              <div className="w-56">
+              <div className="w-full sm:w-56">
                 <CustomSelect
                   value={companyFilter}
                   onChange={(v) => setCompanyFilter(String(v))}

@@ -197,7 +197,7 @@ export default function AdminNegociosPage() {
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Negocios</h1>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -237,95 +237,170 @@ export default function AdminNegociosPage() {
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>Crea el primer negocio con el botón superior</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
-                  {["Negocio", "Contacto", "Estado", "Creado", ""].map((col) => (
-                    <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {tenants.map((t, i) => (
-                  <tr
-                    key={t.id}
-                    className="transition-colors duration-150 cursor-pointer"
-                    style={{ borderBottom: i < tenants.length - 1 ? "1px solid var(--border-row)" : "none" }}
-                    onClick={() => router.push(`/admin/negocios/${t.id}`)}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
-                  >
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                          style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}
-                        >
-                          {t.name.charAt(0).toUpperCase()}
+          <div>
+            {/* Tabla (desktop) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                    {["Negocio", "Contacto", "Estado", "Creado", ""].map((col) => (
+                      <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {tenants.map((t, i) => (
+                    <tr
+                      key={t.id}
+                      className="transition-colors duration-150 cursor-pointer"
+                      style={{ borderBottom: i < tenants.length - 1 ? "1px solid var(--border-row)" : "none" }}
+                      onClick={() => router.push(`/admin/negocios/${t.id}`)}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                    >
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                            style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}
+                          >
+                            {t.name.charAt(0).toUpperCase()}
+                          </div>
+                          <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-primary)" }}>{t.name}</p>
                         </div>
-                        <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-primary)" }}>{t.name}</p>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{t.contactEmail || "—"}</p>
-                      {t.contactPhone && <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{t.contactPhone}</p>}
-                    </td>
-                    <td className="px-5 py-4">
-                      <StatusBadge status={t.status} />
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="text-sm" style={{ color: "var(--text-muted)" }}>{formatDate(t.createdAt)}</span>
-                    </td>
-                    <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => router.push(`/admin/negocios/${t.id}`)}
-                          title="Ver usuarios"
-                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                          style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-medium)", color: "var(--text-muted)" }}
-                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-input)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-subtle)"; e.currentTarget.style.color = "var(--text-muted)"; }}
-                        >
-                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                          </svg>
-                          Usuarios
-                        </button>
-                        <button
-                          onClick={() => setEditTarget(t)}
-                          title="Editar negocio"
-                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                          style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#FCD34D" }}
-                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(245,158,11,0.18)"; e.currentTarget.style.borderColor = "rgba(245,158,11,0.4)"; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(245,158,11,0.08)"; e.currentTarget.style.borderColor = "rgba(245,158,11,0.2)"; }}
-                        >
-                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                          </svg>
-                        </button>
-                        {t.status === "active" && (
+                      </td>
+                      <td className="px-5 py-4">
+                        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{t.contactEmail || "—"}</p>
+                        {t.contactPhone && <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{t.contactPhone}</p>}
+                      </td>
+                      <td className="px-5 py-4">
+                        <StatusBadge status={t.status} />
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="text-sm" style={{ color: "var(--text-muted)" }}>{formatDate(t.createdAt)}</span>
+                      </td>
+                      <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-2">
                           <button
-                            onClick={() => { setDeactivateError(null); setDeactivateTarget(t); }}
-                            title="Desactivar negocio"
+                            onClick={() => router.push(`/admin/negocios/${t.id}`)}
+                            title="Ver usuarios"
                             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                            style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
+                            style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-medium)", color: "var(--text-muted)" }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-input)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-subtle)"; e.currentTarget.style.color = "var(--text-muted)"; }}
                           >
                             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
+                              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+                              <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                            Usuarios
+                          </button>
+                          <button
+                            onClick={() => setEditTarget(t)}
+                            title="Editar negocio"
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+                            style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#FCD34D" }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(245,158,11,0.18)"; e.currentTarget.style.borderColor = "rgba(245,158,11,0.4)"; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(245,158,11,0.08)"; e.currentTarget.style.borderColor = "rgba(245,158,11,0.2)"; }}
+                          >
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                             </svg>
                           </button>
-                        )}
+                          {t.status === "active" && (
+                            <button
+                              onClick={() => { setDeactivateError(null); setDeactivateTarget(t); }}
+                              title="Desactivar negocio"
+                              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+                              style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
+                            >
+                              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Tarjetas (móvil) */}
+            <div className="md:hidden p-4 space-y-3">
+              {tenants.map((t) => (
+                <div key={t.id} onClick={() => router.push(`/admin/negocios/${t.id}`)}
+                  className="rounded-xl p-4 space-y-3 cursor-pointer"
+                  style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                        style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+                        {t.name.charAt(0).toUpperCase()}
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium leading-tight truncate" style={{ color: "var(--text-primary)" }}>{t.name}</p>
+                        <p className="text-xs mt-0.5 truncate" style={{ color: "var(--text-muted)" }}>{t.contactEmail || "—"}</p>
+                      </div>
+                    </div>
+                    <StatusBadge status={t.status} />
+                  </div>
+                  <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
+                    {t.contactPhone && (
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Teléfono</span>
+                        <span className="text-sm text-right" style={{ color: "var(--text-secondary)" }}>{t.contactPhone}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Creado</span>
+                      <span className="text-sm text-right" style={{ color: "var(--text-muted)" }}>{formatDate(t.createdAt)}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => router.push(`/admin/negocios/${t.id}`)}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+                      style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-medium)", color: "var(--text-muted)" }}
+                    >
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                      Usuarios
+                    </button>
+                    <button
+                      onClick={() => setEditTarget(t)}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+                      style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#FCD34D" }}
+                    >
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                      Editar
+                    </button>
+                    {t.status === "active" && (
+                      <button
+                        onClick={() => { setDeactivateError(null); setDeactivateTarget(t); }}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+                        style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+                      >
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
+                        </svg>
+                        Desactivar
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div className="px-5 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
               <p className="text-xs" style={{ color: "var(--text-dim)" }}>{tenants.length} negocio{tenants.length !== 1 ? "s" : ""}</p>
             </div>
@@ -433,7 +508,7 @@ export default function AdminNegociosPage() {
                         disabled={!!createdTenant}
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="create-email">Email de contacto</Label>
                         <Input

@@ -187,7 +187,7 @@ export default function UsuariosPage() {
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Usuarios</h1>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Gestiona los operadores de tu negocio</p>
@@ -226,64 +226,113 @@ export default function UsuariosPage() {
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>Crea el primer operador con el botón superior</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
-                  {["Usuario", "Email", "Rol", "Estado", "Creado", ""].map((col) => (
-                    <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u, i) => (
-                  <tr
-                    key={u.id}
-                    style={{ borderBottom: i < users.length - 1 ? "1px solid var(--border-row)" : "none" }}
-                    className="transition-colors duration-150"
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
-                  >
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                          style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
-                          {u.fullName.charAt(0).toUpperCase()}
-                        </div>
-                        <p className="text-sm font-medium text-white leading-tight">{u.fullName}</p>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{u.email}</span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <Badge variant="secondary">{roleLabel[u.role]}</Badge>
-                    </td>
-                    <td className="px-5 py-4">
-                      <Badge variant={u.status === "active" ? "default" : "destructive"}>
-                        {u.status === "active" ? "Activo" : "Inactivo"}
-                      </Badge>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="text-sm" style={{ color: "var(--text-muted)" }}>{formatDate(u.createdAt)}</span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-2">
-                        <Button size="sm" variant="secondary" onClick={() => openEdit(u)}>Editar</Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          disabled={u.status === "inactive"}
-                          onClick={() => { setDeactivateError(null); setDeactivateTarget(u); }}
-                        >
-                          Desactivar
-                        </Button>
-                      </div>
-                    </td>
+          <div>
+            {/* Tabla (desktop) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                    {["Usuario", "Email", "Rol", "Estado", "Creado", ""].map((col) => (
+                      <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {users.map((u, i) => (
+                    <tr
+                      key={u.id}
+                      style={{ borderBottom: i < users.length - 1 ? "1px solid var(--border-row)" : "none" }}
+                      className="transition-colors duration-150"
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                    >
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                            style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+                            {u.fullName.charAt(0).toUpperCase()}
+                          </div>
+                          <p className="text-sm font-medium text-white leading-tight">{u.fullName}</p>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{u.email}</span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <Badge variant="secondary">{roleLabel[u.role]}</Badge>
+                      </td>
+                      <td className="px-5 py-4">
+                        <Badge variant={u.status === "active" ? "default" : "destructive"}>
+                          {u.status === "active" ? "Activo" : "Inactivo"}
+                        </Badge>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="text-sm" style={{ color: "var(--text-muted)" }}>{formatDate(u.createdAt)}</span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="secondary" onClick={() => openEdit(u)}>Editar</Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            disabled={u.status === "inactive"}
+                            onClick={() => { setDeactivateError(null); setDeactivateTarget(u); }}
+                          >
+                            Desactivar
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Tarjetas (móvil) */}
+            <div className="md:hidden p-4 space-y-3">
+              {users.map((u) => (
+                <div key={u.id} className="rounded-xl p-4 space-y-3"
+                  style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                        style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+                        {u.fullName.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-white leading-tight truncate">{u.fullName}</p>
+                        <p className="text-xs mt-0.5 truncate" style={{ color: "var(--text-muted)" }}>{u.email}</p>
+                      </div>
+                    </div>
+                    <Badge variant={u.status === "active" ? "default" : "destructive"}>
+                      {u.status === "active" ? "Activo" : "Inactivo"}
+                    </Badge>
+                  </div>
+                  <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Rol</span>
+                      <Badge variant="secondary">{roleLabel[u.role]}</Badge>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Creado</span>
+                      <span className="text-sm text-right" style={{ color: "var(--text-muted)" }}>{formatDate(u.createdAt)}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <Button size="sm" variant="secondary" onClick={() => openEdit(u)}>Editar</Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      disabled={u.status === "inactive"}
+                      onClick={() => { setDeactivateError(null); setDeactivateTarget(u); }}
+                    >
+                      Desactivar
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div className="px-5 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
               <p className="text-xs" style={{ color: "var(--text-dim)" }}>{users.length} usuario{users.length !== 1 ? "s" : ""}</p>
             </div>
