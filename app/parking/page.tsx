@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { getActiveVehicles, exitVehicle, type ActiveVehicle } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
+import { NoticeBox } from "@/components/ui/notice-box";
+import { describeSubmitError, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
 
 // Backend returns "DD/MM/YYYY HH:mm:ss" via DateFormatterInterceptor
 function parseColombianDate(dateStr: string): Date {
@@ -44,11 +46,13 @@ function ExitModal({
   onClose,
   onConfirm,
   loading,
+  notice,
 }: {
   vehicle: ActiveVehicle;
   onClose: () => void;
   onConfirm: () => void;
   loading: boolean;
+  notice: SubmitNotice | null;
 }) {
   return (
     <div
@@ -104,6 +108,8 @@ function ExitModal({
             </div>
           </div>
 
+          <NoticeBox notice={notice} className="mb-4" />
+
           <div className="flex gap-3">
             <button onClick={onClose} disabled={loading}
               className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"
@@ -143,6 +149,7 @@ export default function ParkingPage() {
   const [, setTick] = useState(0);
   const [exitTarget, setExitTarget] = useState<ActiveVehicle | null>(null);
   const [exitLoading, setExitLoading] = useState(false);
+  const [exitNotice, setExitNotice] = useState<SubmitNotice | null>(null);
   const [search, setSearch] = useState("");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -180,12 +187,16 @@ export default function ParkingPage() {
   const handleExit = async () => {
     if (!exitTarget) return;
     setExitLoading(true);
+    setExitNotice(null);
     try {
       await exitVehicle(tenantId, exitTarget.plate);
       setExitTarget(null);
       await load();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "Error al registrar salida");
+      // Dejamos el modal abierto con el aviso. Ante red/timeout la salida pudo
+      // registrarse igual: refrescamos el listado para que el operador verifique.
+      setExitNotice(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setExitLoading(false);
     }
@@ -338,7 +349,7 @@ export default function ParkingPage() {
                     </td>
                     <td className="px-5 py-4">
                       <button
-                        onClick={() => setExitTarget(v)}
+                        onClick={() => { setExitNotice(null); setExitTarget(v); }}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer"
                         style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}
                         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.25)"; }}
@@ -368,9 +379,10 @@ export default function ParkingPage() {
       {exitTarget && (
         <ExitModal
           vehicle={exitTarget}
-          onClose={() => !exitLoading && setExitTarget(null)}
+          onClose={() => { if (!exitLoading) { setExitTarget(null); setExitNotice(null); } }}
           onConfirm={handleExit}
           loading={exitLoading}
+          notice={exitNotice}
         />
       )}
     </div>

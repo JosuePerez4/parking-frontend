@@ -1,5 +1,86 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
 
+// ── HTTP client centralizado ────────────────────────────────────────────────
+// Render (plan free) arranca dormido: el primer request puede tardar en
+// despertar. Por eso subimos el timeout a 60s con AbortController y tipamos
+// los errores para distinguir:
+//   - conflict  → 409, el registro ya existe (mostrar como aviso, no como fallo)
+//   - timeout   → la solicitud tardó demasiado (la operación pudo completarse)
+//   - network   → no se pudo conectar (la operación pudo completarse)
+//   - http      → otro error real del backend
+export type ApiErrorKind = "http" | "conflict" | "timeout" | "network";
+
+export class ApiError extends Error {
+  readonly kind: ApiErrorKind;
+  readonly status?: number;
+
+  constructor(message: string, kind: ApiErrorKind, status?: number) {
+    super(message);
+    this.name = "ApiError";
+    this.kind = kind;
+    this.status = status;
+  }
+
+  /** El registro ya existe (409). El backend envía el mensaje a mostrar. */
+  get isConflict(): boolean {
+    return this.kind === "conflict";
+  }
+
+  /**
+   * Error de red o timeout: NO podemos afirmar que la operación falló,
+   * el servidor pudo haberla completado igual.
+   */
+  get isUnconfirmed(): boolean {
+    return this.kind === "timeout" || this.kind === "network";
+  }
+}
+
+const DEFAULT_TIMEOUT_MS = 60_000;
+
+/**
+ * fetch() envuelto con timeout por AbortController. Traduce fallos de red y
+ * timeouts a ApiError tipado. No interpreta el status de la respuesta: de eso
+ * se encarga ensureOk().
+ */
+async function apiFetch(
+  path: string,
+  init: RequestInit = {},
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(`${API_BASE}${path}`, { ...init, signal: controller.signal });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new ApiError(
+        "La solicitud tardó demasiado. El servidor puede estar despertando; inténtalo de nuevo en unos segundos.",
+        "timeout",
+      );
+    }
+    throw new ApiError("No se pudo conectar con el servidor.", "network");
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Lanza ApiError si la respuesta no es ok, extrayendo el mensaje del backend.
+ * Nest suele mandar `message` como string o como array de validaciones.
+ */
+async function ensureOk(res: Response, fallback: string): Promise<void> {
+  if (res.ok) return;
+  const body = await res.json().catch(() => null);
+  const raw = (body as { message?: unknown } | null)?.message;
+  const message = Array.isArray(raw)
+    ? raw.join(", ")
+    : typeof raw === "string" && raw.length > 0
+      ? raw
+      : fallback;
+  if (res.status === 409) throw new ApiError(message, "conflict", 409);
+  throw new ApiError(message, "http", res.status);
+}
+
 // ── Auth ───────────────────────────────────────────────────────────────────
 export interface AuthUser {
   id: number;
@@ -15,15 +96,12 @@ export interface LoginResponse {
 }
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  const res = await apiFetch(`/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Credenciales inválidas");
-  }
+  await ensureOk(res, "Credenciales inválidas");
   return res.json();
 }
 
@@ -47,49 +125,40 @@ export interface CreateTenantDto {
 export type UpdateTenantDto = Partial<CreateTenantDto>;
 
 export async function listTenants(): Promise<Tenant[]> {
-  const res = await fetch(`${API_BASE}/tenants`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Error al cargar negocios");
+  const res = await apiFetch(`/tenants`, { cache: "no-store" });
+  await ensureOk(res, "Error al cargar negocios");
   return res.json();
 }
 
 export async function getTenant(id: number): Promise<Tenant> {
-  const res = await fetch(`${API_BASE}/tenants/${id}`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Error al cargar el negocio");
+  const res = await apiFetch(`/tenants/${id}`, { cache: "no-store" });
+  await ensureOk(res, "Error al cargar el negocio");
   return res.json();
 }
 
 export async function createTenant(data: CreateTenantDto): Promise<Tenant> {
-  const res = await fetch(`${API_BASE}/tenants`, {
+  const res = await apiFetch(`/tenants`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al crear el negocio");
-  }
+  await ensureOk(res, "Error al crear el negocio");
   return res.json();
 }
 
 export async function updateTenant(id: number, data: UpdateTenantDto): Promise<Tenant> {
-  const res = await fetch(`${API_BASE}/tenants/${id}`, {
+  const res = await apiFetch(`/tenants/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al actualizar el negocio");
-  }
+  await ensureOk(res, "Error al actualizar el negocio");
   return res.json();
 }
 
 export async function deactivateTenant(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/tenants/${id}`, { method: "DELETE" });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al desactivar el negocio");
-  }
+  const res = await apiFetch(`/tenants/${id}`, { method: "DELETE" });
+  await ensureOk(res, "Error al desactivar el negocio");
 }
 
 // ── Users (usuarios de plataforma / negocio) ────────────────────────────────
@@ -120,43 +189,34 @@ export interface UpdateUserDto {
 
 export async function listUsers(tenantId?: number): Promise<AppUser[]> {
   const qs = tenantId !== undefined ? `?tenantId=${tenantId}` : "";
-  const res = await fetch(`${API_BASE}/users${qs}`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Error al cargar usuarios");
+  const res = await apiFetch(`/users${qs}`, { cache: "no-store" });
+  await ensureOk(res, "Error al cargar usuarios");
   return res.json();
 }
 
 export async function createUser(data: CreateUserDto): Promise<AppUser> {
-  const res = await fetch(`${API_BASE}/users`, {
+  const res = await apiFetch(`/users`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al crear usuario");
-  }
+  await ensureOk(res, "Error al crear usuario");
   return res.json();
 }
 
 export async function updateUser(id: number, data: UpdateUserDto): Promise<AppUser> {
-  const res = await fetch(`${API_BASE}/users/${id}`, {
+  const res = await apiFetch(`/users/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al actualizar usuario");
-  }
+  await ensureOk(res, "Error al actualizar usuario");
   return res.json();
 }
 
 export async function deactivateUser(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/users/${id}`, { method: "DELETE" });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al desactivar usuario");
-  }
+  const res = await apiFetch(`/users/${id}`, { method: "DELETE" });
+  await ensureOk(res, "Error al desactivar usuario");
 }
 
 // ── Settings (tarifas, por negocio) ─────────────────────────────────────────
@@ -176,8 +236,8 @@ export interface AppSettings {
 }
 
 export async function getSettings(tenantId: number): Promise<AppSettings | null> {
-  const res = await fetch(`${API_BASE}/settings?tenantId=${tenantId}`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Error al cargar configuración");
+  const res = await apiFetch(`/settings?tenantId=${tenantId}`, { cache: "no-store" });
+  await ensureOk(res, "Error al cargar configuración");
   const data = await res.json();
   return data ?? null;
 }
@@ -186,12 +246,12 @@ export async function updateSettings(
   tenantId: number,
   data: Partial<AppSettings>,
 ): Promise<AppSettings> {
-  const res = await fetch(`${API_BASE}/settings?tenantId=${tenantId}`, {
+  const res = await apiFetch(`/settings?tenantId=${tenantId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Error al guardar configuración");
+  await ensureOk(res, "Error al guardar configuración");
   return res.json();
 }
 
@@ -218,8 +278,8 @@ export interface CreateClientDto {
 }
 
 export async function getClients(tenantId: number): Promise<Client[]> {
-  const res = await fetch(`${API_BASE}/clients?tenantId=${tenantId}`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Error al cargar clientes");
+  const res = await apiFetch(`/clients?tenantId=${tenantId}`, { cache: "no-store" });
+  await ensureOk(res, "Error al cargar clientes");
   return res.json();
 }
 
@@ -237,37 +297,28 @@ export async function updateClient(
   data: UpdateClientDto,
   tenantId: number,
 ): Promise<Client> {
-  const res = await fetch(`${API_BASE}/clients/${id}?tenantId=${tenantId}`, {
+  const res = await apiFetch(`/clients/${id}?tenantId=${tenantId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al actualizar cliente");
-  }
+  await ensureOk(res, "Error al actualizar cliente");
   return res.json();
 }
 
 export async function createClient(data: CreateClientDto): Promise<Client> {
-  const res = await fetch(`${API_BASE}/clients`, {
+  const res = await apiFetch(`/clients`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al crear cliente");
-  }
+  await ensureOk(res, "Error al crear cliente");
   return res.json();
 }
 
 export async function deleteClient(id: number, tenantId: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/clients/${id}?tenantId=${tenantId}`, { method: "DELETE" });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al eliminar cliente");
-  }
+  const res = await apiFetch(`/clients/${id}?tenantId=${tenantId}`, { method: "DELETE" });
+  await ensureOk(res, "Error al eliminar cliente");
 }
 
 // ── Vehicles ───────────────────────────────────────────────────────────────
@@ -304,21 +355,18 @@ export interface CreateVehicleDto {
 }
 
 export async function getVehicles(tenantId: number): Promise<Vehicle[]> {
-  const res = await fetch(`${API_BASE}/vehicles?tenantId=${tenantId}`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Error al cargar vehículos");
+  const res = await apiFetch(`/vehicles?tenantId=${tenantId}`, { cache: "no-store" });
+  await ensureOk(res, "Error al cargar vehículos");
   return res.json();
 }
 
 export async function createVehicle(data: CreateVehicleDto): Promise<Vehicle> {
-  const res = await fetch(`${API_BASE}/vehicles`, {
+  const res = await apiFetch(`/vehicles`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al crear vehículo");
-  }
+  await ensureOk(res, "Error al crear vehículo");
   return res.json();
 }
 
@@ -327,12 +375,12 @@ export async function assignVehicleClient(
   clientId: number,
   tenantId: number,
 ): Promise<Vehicle> {
-  const res = await fetch(`${API_BASE}/vehicles/${vehicleId}?tenantId=${tenantId}`, {
+  const res = await apiFetch(`/vehicles/${vehicleId}?tenantId=${tenantId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ clientId }),
   });
-  if (!res.ok) throw new Error("Error al asignar cliente");
+  await ensureOk(res, "Error al asignar cliente");
   return res.json();
 }
 
@@ -341,24 +389,18 @@ export async function updateVehicle(
   data: { clientId?: number; brand?: string; color?: string },
   tenantId: number,
 ): Promise<Vehicle> {
-  const res = await fetch(`${API_BASE}/vehicles/${id}?tenantId=${tenantId}`, {
+  const res = await apiFetch(`/vehicles/${id}?tenantId=${tenantId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al actualizar vehículo");
-  }
+  await ensureOk(res, "Error al actualizar vehículo");
   return res.json();
 }
 
 export async function deleteVehicle(id: number, tenantId: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/vehicles/${id}?tenantId=${tenantId}`, { method: "DELETE" });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al eliminar vehículo");
-  }
+  const res = await apiFetch(`/vehicles/${id}?tenantId=${tenantId}`, { method: "DELETE" });
+  await ensureOk(res, "Error al eliminar vehículo");
 }
 
 // ── Parking ────────────────────────────────────────────────────────────────
@@ -373,8 +415,8 @@ export interface ActiveVehicle {
 }
 
 export async function getActiveVehicles(tenantId: number): Promise<ActiveVehicle[]> {
-  const res = await fetch(`${API_BASE}/parking/active?tenantId=${tenantId}`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Error al cargar parking activo");
+  const res = await apiFetch(`/parking/active?tenantId=${tenantId}`, { cache: "no-store" });
+  await ensureOk(res, "Error al cargar parking activo");
   return res.json();
 }
 
@@ -387,15 +429,12 @@ export async function exitVehicle(
   totalMinutes: number;
   amountToPay: number;
 }> {
-  const res = await fetch(`${API_BASE}/parking/exit`, {
+  const res = await apiFetch(`/parking/exit`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ tenantId, plate }),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al registrar salida");
-  }
+  await ensureOk(res, "Error al registrar salida");
   return res.json();
 }
 
@@ -410,8 +449,8 @@ export interface Entry {
 }
 
 export async function getEntries(tenantId: number): Promise<Entry[]> {
-  const res = await fetch(`${API_BASE}/parking/entries?tenantId=${tenantId}`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Error al cargar historial");
+  const res = await apiFetch(`/parking/entries?tenantId=${tenantId}`, { cache: "no-store" });
+  await ensureOk(res, "Error al cargar historial");
   return res.json();
 }
 
@@ -457,49 +496,43 @@ export interface CreateMembershipDto {
 }
 
 export async function getMemberships(tenantId: number): Promise<Membership[]> {
-  const res = await fetch(`${API_BASE}/memberships?tenantId=${tenantId}`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Error al cargar mensualidades");
+  const res = await apiFetch(`/memberships?tenantId=${tenantId}`, { cache: "no-store" });
+  await ensureOk(res, "Error al cargar mensualidades");
   return res.json();
 }
 
 export async function createMembership(data: CreateMembershipDto): Promise<Membership> {
-  const res = await fetch(`${API_BASE}/memberships`, {
+  const res = await apiFetch(`/memberships`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al crear mensualidad");
-  }
+  await ensureOk(res, "Error al crear mensualidad");
   return res.json();
 }
 
 export async function getExpiringMemberships(tenantId: number): Promise<Membership[]> {
-  const res = await fetch(`${API_BASE}/memberships/expiring?tenantId=${tenantId}`, {
+  const res = await apiFetch(`/memberships/expiring?tenantId=${tenantId}`, {
     cache: "no-store",
   });
-  if (!res.ok) throw new Error("Error al cargar mensualidades por vencer");
+  await ensureOk(res, "Error al cargar mensualidades por vencer");
   return res.json();
 }
 
 export async function renewMembership(id: number, tenantId: number): Promise<Membership> {
-  const res = await fetch(`${API_BASE}/memberships/${id}/renew?tenantId=${tenantId}`, {
+  const res = await apiFetch(`/memberships/${id}/renew?tenantId=${tenantId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
   });
-  if (!res.ok) throw new Error("Error al renovar mensualidad");
+  await ensureOk(res, "Error al renovar mensualidad");
   return res.json();
 }
 
 export async function deleteMembership(id: number, tenantId: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/memberships/${id}?tenantId=${tenantId}`, {
+  const res = await apiFetch(`/memberships/${id}?tenantId=${tenantId}`, {
     method: "DELETE",
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al eliminar mensualidad");
-  }
+  await ensureOk(res, "Error al eliminar mensualidad");
 }
 
 // ── Reports / Caja ─────────────────────────────────────────────────────────
@@ -525,12 +558,9 @@ export interface CajaReport {
 }
 
 export async function getCajaReport(fecha: string, tenantId: number): Promise<CajaReport> {
-  const res = await fetch(`${API_BASE}/reports/caja?fecha=${fecha}&tenantId=${tenantId}`, {
+  const res = await apiFetch(`/reports/caja?fecha=${fecha}&tenantId=${tenantId}`, {
     cache: "no-store",
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message ?? "Error al generar cierre de caja");
-  }
+  await ensureOk(res, "Error al generar cierre de caja");
   return res.json();
 }

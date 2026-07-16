@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CustomSelect } from "@/components/ui/custom-select";
+import { NoticeBox } from "@/components/ui/notice-box";
+import { describeSubmitError, errorNotice, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
 
 const statusConfig = {
   active:   { label: "Activo",    bg: "rgba(16,185,129,0.15)",  border: "rgba(16,185,129,0.35)",  color: "#34D399", dot: "#10B981" },
@@ -105,23 +107,23 @@ export default function ClientesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<Omit<CreateClientDto, "tenantId">>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<SubmitNotice | null>(null);
   const [step, setStep] = useState<"client" | "vehicle">("client");
   const [newClientId, setNewClientId] = useState<number | null>(null);
   const [vehicleForm, setVehicleForm] = useState(EMPTY_VEHICLE);
   const [vehicleSaving, setVehicleSaving] = useState(false);
-  const [vehicleError, setVehicleError] = useState<string | null>(null);
+  const [vehicleError, setVehicleError] = useState<SubmitNotice | null>(null);
 
   // Edit modal
   const [editTarget, setEditTarget] = useState<Client | null>(null);
   const [editForm, setEditForm] = useState<UpdateClientDto>({});
   const [editSaving, setEditSaving] = useState(false);
-  const [editError, setEditError] = useState<string | null>(null);
+  const [editError, setEditError] = useState<SubmitNotice | null>(null);
 
   // Delete modal
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<SubmitNotice | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -146,7 +148,7 @@ export default function ClientesPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.fullName || !form.document || !form.phone) {
-      setFormError("Nombre, documento y teléfono son obligatorios.");
+      setFormError(errorNotice("Nombre, documento y teléfono son obligatorios."));
       return;
     }
     setSaving(true);
@@ -159,7 +161,8 @@ export default function ClientesPage() {
       setStep("vehicle");
       await load();
     } catch (err: unknown) {
-      setFormError(err instanceof Error ? err.message : "Error al crear cliente.");
+      setFormError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setSaving(false);
     }
@@ -174,7 +177,8 @@ export default function ClientesPage() {
       await createVehicle({ ...vehicleForm, clientId: newClientId, tenantId });
       closeModal();
     } catch (err: unknown) {
-      setVehicleError(err instanceof Error ? err.message : "Error al crear vehículo.");
+      setVehicleError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setVehicleSaving(false);
     }
@@ -212,7 +216,8 @@ export default function ClientesPage() {
       setDeleteTarget(null);
       await load();
     } catch (err: unknown) {
-      setDeleteError(err instanceof Error ? err.message : "Error al eliminar cliente.");
+      setDeleteError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setDeleting(false);
     }
@@ -222,7 +227,7 @@ export default function ClientesPage() {
     e.preventDefault();
     if (!editTarget) return;
     if (!editForm.fullName || !editForm.document || !editForm.phone) {
-      setEditError("Nombre, documento y teléfono son obligatorios.");
+      setEditError(errorNotice("Nombre, documento y teléfono son obligatorios."));
       return;
     }
     setEditSaving(true);
@@ -232,7 +237,8 @@ export default function ClientesPage() {
       setEditTarget(null);
       await load();
     } catch (err: unknown) {
-      setEditError(err instanceof Error ? err.message : "Error al actualizar cliente.");
+      setEditError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setEditSaving(false);
     }
@@ -427,11 +433,7 @@ export default function ClientesPage() {
                 </div>
               </div>
 
-              {editError && (
-                <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  {editError}
-                </p>
-              )}
+              <NoticeBox notice={editError} />
 
               <div className="flex gap-3 pt-1">
                 <button type="button" onClick={() => setEditTarget(null)} disabled={editSaving}
@@ -490,11 +492,7 @@ export default function ClientesPage() {
                   También se desactivarán sus vehículos y mensualidades. Dejarán de aparecer en los listados, pero la información queda guardada.
                 </p>
               </div>
-              {deleteError && (
-                <p className="text-xs px-3 py-2 rounded-lg mb-4" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  {deleteError}
-                </p>
-              )}
+              <NoticeBox notice={deleteError} className="mb-4" />
               <div className="flex gap-3">
                 <button onClick={() => setDeleteTarget(null)} disabled={deleting}
                   className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"
@@ -571,11 +569,7 @@ export default function ClientesPage() {
                       <InputField label="Dirección" name="address" value={form.address} onChange={handleChange} placeholder="Calle 123 #45-67" />
                     </div>
                   </div>
-                  {formError && (
-                    <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                      {formError}
-                    </p>
-                  )}
+                  <NoticeBox notice={formError} />
                   <div className="flex gap-3 pt-1">
                     <button type="button" onClick={closeModal} disabled={saving}
                       className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"
@@ -638,11 +632,7 @@ export default function ClientesPage() {
                       onChange={(e) => setVehicleForm((p) => ({ ...p, color: e.target.value }))}
                       placeholder="Ej. Blanco" />
                   </div>
-                  {vehicleError && (
-                    <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                      {vehicleError}
-                    </p>
-                  )}
+                  <NoticeBox notice={vehicleError} />
                   <div className="flex gap-3 pt-1">
                     <button type="button" onClick={closeModal} disabled={vehicleSaving}
                       className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"

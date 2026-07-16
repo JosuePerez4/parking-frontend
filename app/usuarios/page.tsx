@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { CustomSelect } from "@/components/ui/custom-select";
+import { NoticeBox } from "@/components/ui/notice-box";
+import { describeSubmitError, errorNotice, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
 
 const STATUS_OPTIONS = [
   { value: "active", label: "Activo" },
@@ -82,18 +84,18 @@ export default function UsuariosPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState<CreateOperatorForm>(EMPTY_CREATE_FORM);
   const [creating, setCreating] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
+  const [createError, setCreateError] = useState<SubmitNotice | null>(null);
 
   // Edit modal
   const [editTarget, setEditTarget] = useState<AppUser | null>(null);
   const [editForm, setEditForm] = useState<EditUserForm>({ fullName: "", status: "active" });
   const [editSaving, setEditSaving] = useState(false);
-  const [editError, setEditError] = useState<string | null>(null);
+  const [editError, setEditError] = useState<SubmitNotice | null>(null);
 
   // Deactivate modal
   const [deactivateTarget, setDeactivateTarget] = useState<AppUser | null>(null);
   const [deactivating, setDeactivating] = useState(false);
-  const [deactivateError, setDeactivateError] = useState<string | null>(null);
+  const [deactivateError, setDeactivateError] = useState<SubmitNotice | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -122,7 +124,7 @@ export default function UsuariosPage() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!createForm.fullName || !createForm.email || !createForm.password) {
-      setCreateError("Nombre, email y contraseña son obligatorios.");
+      setCreateError(errorNotice("Nombre, email y contraseña son obligatorios."));
       return;
     }
     setCreating(true);
@@ -132,7 +134,8 @@ export default function UsuariosPage() {
       closeCreateModal();
       await load();
     } catch (err: unknown) {
-      setCreateError(err instanceof Error ? err.message : "Error al crear operador.");
+      setCreateError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setCreating(false);
     }
@@ -148,7 +151,7 @@ export default function UsuariosPage() {
     e.preventDefault();
     if (!editTarget) return;
     if (!editForm.fullName) {
-      setEditError("El nombre completo es obligatorio.");
+      setEditError(errorNotice("El nombre completo es obligatorio."));
       return;
     }
     setEditSaving(true);
@@ -158,7 +161,8 @@ export default function UsuariosPage() {
       setEditTarget(null);
       await load();
     } catch (err: unknown) {
-      setEditError(err instanceof Error ? err.message : "Error al actualizar usuario.");
+      setEditError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setEditSaving(false);
     }
@@ -173,7 +177,8 @@ export default function UsuariosPage() {
       setDeactivateTarget(null);
       await load();
     } catch (err: unknown) {
-      setDeactivateError(err instanceof Error ? err.message : "Error al desactivar usuario.");
+      setDeactivateError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setDeactivating(false);
     }
@@ -337,11 +342,7 @@ export default function UsuariosPage() {
                   autoComplete="new-password"
                 />
               </div>
-              {createError && (
-                <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  {createError}
-                </p>
-              )}
+              <NoticeBox notice={createError} />
               <div className="flex gap-3 pt-1">
                 <Button type="button" variant="secondary" className="flex-1 justify-center" disabled={creating} onClick={closeCreateModal}>
                   Cancelar
@@ -394,11 +395,7 @@ export default function UsuariosPage() {
                   options={STATUS_OPTIONS}
                 />
               </div>
-              {editError && (
-                <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  {editError}
-                </p>
-              )}
+              <NoticeBox notice={editError} />
               <div className="flex gap-3 pt-1">
                 <Button type="button" variant="secondary" className="flex-1 justify-center" disabled={editSaving} onClick={() => setEditTarget(null)}>
                   Cancelar
@@ -437,11 +434,7 @@ export default function UsuariosPage() {
                 <p className="text-sm text-white font-medium mb-1">{deactivateTarget.fullName}</p>
                 <p className="text-xs" style={{ color: "var(--text-secondary)" }}>{deactivateTarget.email}</p>
               </div>
-              {deactivateError && (
-                <p className="text-xs px-3 py-2 rounded-lg mb-4" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  {deactivateError}
-                </p>
-              )}
+              <NoticeBox notice={deactivateError} className="mb-4" />
               <div className="flex gap-3">
                 <Button variant="secondary" className="flex-1 justify-center" disabled={deactivating} onClick={() => setDeactivateTarget(null)}>
                   Cancelar

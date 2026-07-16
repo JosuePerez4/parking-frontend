@@ -8,6 +8,8 @@ import {
 } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
 import { CustomSelect } from "@/components/ui/custom-select";
+import { NoticeBox } from "@/components/ui/notice-box";
+import { describeSubmitError, errorNotice, isUnconfirmed, UNCONFIRMED_MESSAGE, type SubmitNotice } from "@/lib/submit-error";
 import { MensualidadesTable } from "./mensualidades-table";
 import { ExpiringAlert } from "./expiring-alert";
 import { RenewModal } from "./renew-modal";
@@ -46,7 +48,7 @@ export function MensualidadesClient() {
   const [renewing, setRenewing] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Membership | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<SubmitNotice | null>(null);
 
   // Create modal
   const [createOpen, setCreateOpen] = useState(false);
@@ -58,7 +60,7 @@ export function MensualidadesClient() {
     company: "",
   });
   const [creating, setCreating] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
+  const [createError, setCreateError] = useState<SubmitNotice | null>(null);
 
   // Auto-open create modal when navigated from vehiculos wizard (?vehicleId=X)
   const preselectRef = useRef<number | null>(null);
@@ -136,7 +138,8 @@ export function MensualidadesClient() {
       setDeleteTarget(null);
       await load();
     } catch (err: unknown) {
-      setDeleteError(err instanceof Error ? err.message : "Error al eliminar mensualidad.");
+      setDeleteError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setDeleting(false);
     }
@@ -149,8 +152,16 @@ export function MensualidadesClient() {
       await renewMembership(renewTarget.id, tenantId);
       setRenewTarget(null);
       await load();
-    } catch {
-      alert("Error al renovar la mensualidad. Intenta de nuevo.");
+    } catch (err: unknown) {
+      const notice = describeSubmitError(err);
+      if (isUnconfirmed(err)) {
+        // La renovación pudo completarse: refrescamos y avisamos sin afirmar fallo.
+        setRenewTarget(null);
+        await load();
+        alert(UNCONFIRMED_MESSAGE);
+      } else {
+        alert(notice.message);
+      }
     } finally {
       setRenewing(false);
     }
@@ -159,11 +170,11 @@ export function MensualidadesClient() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!createForm.vehicleId || !createForm.price) {
-      setCreateError("Vehículo y precio son obligatorios.");
+      setCreateError(errorNotice("Vehículo y precio son obligatorios."));
       return;
     }
     const v = vehicles.find((x) => x.id === createForm.vehicleId);
-    if (!v) { setCreateError("Vehículo no encontrado."); return; }
+    if (!v) { setCreateError(errorNotice("Vehículo no encontrado.")); return; }
 
     setCreating(true);
     setCreateError(null);
@@ -181,7 +192,8 @@ export function MensualidadesClient() {
       setCreateForm({ vehicleId: "", startDate: todayISO(), endDate: nextMonthISO(), price: "", company: "" });
       await load();
     } catch (err: unknown) {
-      setCreateError(err instanceof Error ? err.message : "Error al crear mensualidad.");
+      setCreateError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setCreating(false);
     }
@@ -315,11 +327,7 @@ export function MensualidadesClient() {
                 <p className="text-xs mt-0.5 font-mono" style={{ color: "#93C5FD" }}>{deleteTarget.vehicle?.plate ?? `Vehículo #${deleteTarget.vehicleId}`}</p>
                 <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>Vence: {deleteTarget.endDate}</p>
               </div>
-              {deleteError && (
-                <p className="text-xs px-3 py-2 rounded-lg mb-4" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  {deleteError}
-                </p>
-              )}
+              <NoticeBox notice={deleteError} className="mb-4" />
               <div className="flex gap-3">
                 <button onClick={() => setDeleteTarget(null)} disabled={deleting}
                   className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"
@@ -399,11 +407,7 @@ export function MensualidadesClient() {
                     onChange={(e) => setCreateForm((p) => ({ ...p, company: e.target.value }))}
                     placeholder="Ej. Empresa ABC (opcional)" className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none" style={inputStyle} />
                 </div>
-                {createError && (
-                  <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                    {createError}
-                  </p>
-                )}
+                <NoticeBox notice={createError} />
                 <div className="flex gap-3 pt-1">
                   <button type="button" onClick={() => setCreateOpen(false)} disabled={creating}
                     className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"

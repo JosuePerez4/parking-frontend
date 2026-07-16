@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { CustomSelect } from "@/components/ui/custom-select";
+import { NoticeBox } from "@/components/ui/notice-box";
+import { describeSubmitError, errorNotice, type SubmitNotice } from "@/lib/submit-error";
 
 const STATUS_OPTIONS = [
   { value: "active", label: "Activo" },
@@ -52,7 +54,7 @@ export function TenantEditModal({
 }) {
   const [form, setForm] = useState<TenantFormState>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<SubmitNotice | null>(null);
 
   useEffect(() => {
     if (tenant) {
@@ -67,7 +69,7 @@ export function TenantEditModal({
     e.preventDefault();
     if (!tenant) return;
     if (!form.name.trim()) {
-      setError("El nombre del negocio es obligatorio.");
+      setError(errorNotice("El nombre del negocio es obligatorio."));
       return;
     }
     setSaving(true);
@@ -82,7 +84,9 @@ export function TenantEditModal({
       const updated = await updateTenant(tenant.id, data);
       onSaved(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al actualizar el negocio.");
+      // En conflicto o resultado no confirmado dejamos el modal abierto con el
+      // aviso; el padre refrescará el listado al cerrarlo.
+      setError(describeSubmitError(err));
     } finally {
       setSaving(false);
     }
@@ -157,14 +161,7 @@ export function TenantEditModal({
               />
             </div>
 
-            {error && (
-              <p
-                className="text-xs px-3 py-2 rounded-lg"
-                style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}
-              >
-                {error}
-              </p>
-            )}
+            <NoticeBox notice={error} />
 
             <div className="flex gap-3 pt-1">
               <Button type="button" variant="outline" className="flex-1 justify-center" disabled={saving} onClick={onClose}>

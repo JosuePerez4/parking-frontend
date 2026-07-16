@@ -26,6 +26,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { TenantEditModal } from "@/components/admin/tenant-edit-modal";
+import { NoticeBox } from "@/components/ui/notice-box";
+import { describeSubmitError, errorNotice, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
 
 type BusinessRole = "business_admin" | "operator";
 
@@ -105,18 +107,18 @@ export default function TenantDetailPage() {
   const [createUserOpen, setCreateUserOpen] = useState(false);
   const [createUserForm, setCreateUserForm] = useState<CreateUserFormState>(EMPTY_CREATE_USER);
   const [createUserSaving, setCreateUserSaving] = useState(false);
-  const [createUserError, setCreateUserError] = useState<string | null>(null);
+  const [createUserError, setCreateUserError] = useState<SubmitNotice | null>(null);
 
   // Edit user modal
   const [editUserTarget, setEditUserTarget] = useState<AppUser | null>(null);
   const [editUserForm, setEditUserForm] = useState<EditUserFormState>({ fullName: "", role: "operator", status: "active" });
   const [editUserSaving, setEditUserSaving] = useState(false);
-  const [editUserError, setEditUserError] = useState<string | null>(null);
+  const [editUserError, setEditUserError] = useState<SubmitNotice | null>(null);
 
   // Deactivate user confirm
   const [deactivateUserTarget, setDeactivateUserTarget] = useState<AppUser | null>(null);
   const [deactivatingUser, setDeactivatingUser] = useState(false);
-  const [deactivateUserError, setDeactivateUserError] = useState<string | null>(null);
+  const [deactivateUserError, setDeactivateUserError] = useState<SubmitNotice | null>(null);
 
   const load = useCallback(async () => {
     if (!Number.isFinite(tenantId)) {
@@ -156,7 +158,7 @@ export default function TenantDetailPage() {
   async function handleCreateUserSubmit(e: FormEvent) {
     e.preventDefault();
     if (!createUserForm.fullName.trim() || !createUserForm.email.trim() || !createUserForm.password) {
-      setCreateUserError("Nombre, email y contraseña son obligatorios.");
+      setCreateUserError(errorNotice("Nombre, email y contraseña son obligatorios."));
       return;
     }
     setCreateUserSaving(true);
@@ -172,7 +174,8 @@ export default function TenantDetailPage() {
       closeCreateUserModal();
       await load();
     } catch (err) {
-      setCreateUserError(err instanceof Error ? err.message : "Error al crear usuario.");
+      setCreateUserError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setCreateUserSaving(false);
     }
@@ -192,7 +195,7 @@ export default function TenantDetailPage() {
     e.preventDefault();
     if (!editUserTarget) return;
     if (!editUserForm.fullName.trim()) {
-      setEditUserError("El nombre completo es obligatorio.");
+      setEditUserError(errorNotice("El nombre completo es obligatorio."));
       return;
     }
     setEditUserSaving(true);
@@ -206,7 +209,8 @@ export default function TenantDetailPage() {
       setEditUserTarget(null);
       await load();
     } catch (err) {
-      setEditUserError(err instanceof Error ? err.message : "Error al actualizar usuario.");
+      setEditUserError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setEditUserSaving(false);
     }
@@ -221,7 +225,8 @@ export default function TenantDetailPage() {
       setDeactivateUserTarget(null);
       await load();
     } catch (err) {
-      setDeactivateUserError(err instanceof Error ? err.message : "Error al desactivar usuario.");
+      setDeactivateUserError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setDeactivatingUser(false);
     }
@@ -465,11 +470,7 @@ export default function TenantDetailPage() {
                 />
               </div>
 
-              {createUserError && (
-                <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  {createUserError}
-                </p>
-              )}
+              <NoticeBox notice={createUserError} />
 
               <div className="flex gap-3 pt-1">
                 <Button type="button" variant="outline" className="flex-1 justify-center" disabled={createUserSaving} onClick={closeCreateUserModal}>
@@ -526,11 +527,7 @@ export default function TenantDetailPage() {
                 />
               </div>
 
-              {editUserError && (
-                <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  {editUserError}
-                </p>
-              )}
+              <NoticeBox notice={editUserError} />
 
               <div className="flex gap-3 pt-1">
                 <Button type="button" variant="outline" className="flex-1 justify-center" disabled={editUserSaving} onClick={() => setEditUserTarget(null)}>
@@ -571,11 +568,7 @@ export default function TenantDetailPage() {
                 <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{deactivateUserTarget.fullName}</p>
                 <p className="text-xs" style={{ color: "var(--text-secondary)" }}>{deactivateUserTarget.email}</p>
               </div>
-              {deactivateUserError && (
-                <p className="text-xs px-3 py-2 rounded-lg mb-4" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  {deactivateUserError}
-                </p>
-              )}
+              <NoticeBox notice={deactivateUserError} className="mb-4" />
               <div className="flex gap-3">
                 <Button type="button" variant="outline" className="flex-1 justify-center" disabled={deactivatingUser} onClick={() => setDeactivateUserTarget(null)}>
                   Cancelar
