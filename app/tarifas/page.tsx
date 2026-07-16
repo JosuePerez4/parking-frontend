@@ -157,6 +157,21 @@ export default function TarifasPage() {
         </div>
       )}
 
+      {/* Negocio nuevo: aún no hay tarifas configuradas. Damos la bienvenida en
+          vez de mostrar un error. */}
+      {!loading && !error && !settings && (
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-start gap-3"
+          style={{ backgroundColor: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD" }}>
+          <svg className="w-5 h-5 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          <div>
+            <p className="font-semibold text-white mb-0.5">¡Bienvenido! 👋</p>
+            <p>Aún no has configurado las tarifas de tu negocio. Ingresa los precios por tipo de vehículo y guárdalos para empezar a operar.</p>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex items-center justify-center py-24">
           <svg className="w-8 h-8 animate-spin" style={{ color: "#2563EB" }} viewBox="0 0 24 24" fill="none">

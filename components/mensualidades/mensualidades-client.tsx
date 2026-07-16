@@ -78,15 +78,22 @@ export function MensualidadesClient() {
     try {
       setLoading(true);
       setError(null);
-      const [all, exp, veh, cfg] = await Promise.all([
-        getMemberships(tenantId), getExpiringMemberships(tenantId), getVehicles(tenantId), getSettings(tenantId),
+      // Datos base: para un negocio nuevo llegan vacíos, y eso NO es un error.
+      const [all, exp, veh] = await Promise.all([
+        getMemberships(tenantId), getExpiringMemberships(tenantId), getVehicles(tenantId),
       ]);
       setMemberships(all);
       setExpiring(exp);
       setVehicles(veh);
-      setSettings(cfg);
+      // Las tarifas solo sirven para prellenar el precio al crear. Si el negocio
+      // aún no las configuró (o el endpoint falla), seguimos sin bloquear la vista.
+      try {
+        setSettings(await getSettings(tenantId));
+      } catch {
+        setSettings(null);
+      }
     } catch {
-      setError("No se pudo conectar con el servidor. Verifica que el backend esté corriendo en http://localhost:3000");
+      setError("No se pudo conectar con el servidor.");
     } finally {
       setLoading(false);
     }
