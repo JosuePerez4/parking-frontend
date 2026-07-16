@@ -90,6 +90,86 @@ function TableSkeleton() {
   );
 }
 
+function VehiclePlate({ v }: { v: Vehicle }) {
+  return (
+    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider"
+      style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD", fontFamily: "monospace" }}>
+      {v.plate}
+    </span>
+  );
+}
+
+function VehicleOwner({ v }: { v: Vehicle }) {
+  if (!v.client) return <span className="text-sm" style={{ color: "var(--text-dim)" }}>Sin asignar</span>;
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+        style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+        {v.client.fullName.charAt(0).toUpperCase()}
+      </div>
+      <span className="text-sm text-white">{v.client.fullName}</span>
+    </div>
+  );
+}
+
+function VehicleStatusBadge({ v }: { v: Vehicle }) {
+  const vSt = vehicleStatusConfig[v.status] ?? vehicleStatusConfig.inactive;
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+      style={{ backgroundColor: vSt.bg, border: `1px solid ${vSt.border}`, color: vSt.color }}>
+      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: vSt.dot }} />
+      {vSt.label}
+    </span>
+  );
+}
+
+function VehicleMembershipBadge({ v }: { v: Vehicle }) {
+  const mKey = (v.membership?.status ?? "none") as keyof typeof membershipStatusConfig;
+  const mSt = membershipStatusConfig[mKey] ?? membershipStatusConfig.none;
+  return (
+    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
+      style={{ backgroundColor: mSt.bg, border: `1px solid ${mSt.border}`, color: mSt.color }}>
+      {mSt.label}
+    </span>
+  );
+}
+
+function VehicleActions({ v, onAssign, onDelete }: { v: Vehicle; onAssign: (v: Vehicle) => void; onDelete: (v: Vehicle) => void }) {
+  return (
+    <>
+      <button onClick={() => onAssign(v)}
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+        style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-medium)", color: "var(--text-muted)" }}
+        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-input)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-subtle)"; e.currentTarget.style.color = "var(--text-muted)"; }}>
+        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+          <line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" />
+        </svg>
+        Asignar
+      </button>
+      <button onClick={() => onDelete(v)} title="Desactivar vehículo"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
+        style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}>
+        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
+        </svg>
+      </button>
+    </>
+  );
+}
+
+function VehicleCardRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{label}</span>
+      <div className="text-right">{children}</div>
+    </div>
+  );
+}
+
 function VehicleTable({
   vehicles, emptyText, onAssign, onDelete,
 }: {
@@ -107,31 +187,24 @@ function VehicleTable({
     );
   }
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
-            {["Placa", "Tipo", "Marca / Color", "Propietario", "Estado", "Mensualidad", "Vencimiento", ""].map((col, i) => (
-              <th key={i} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {vehicles.map((v, i) => {
-            const vSt = vehicleStatusConfig[v.status] ?? vehicleStatusConfig.inactive;
-            const mKey = (v.membership?.status ?? "none") as keyof typeof membershipStatusConfig;
-            const mSt = membershipStatusConfig[mKey] ?? membershipStatusConfig.none;
-            return (
+    <div>
+      {/* Tabla (desktop) */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+              {["Placa", "Tipo", "Marca / Color", "Propietario", "Estado", "Mensualidad", "Vencimiento", ""].map((col, i) => (
+                <th key={i} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {vehicles.map((v, i) => (
               <tr key={v.id} className="transition-colors duration-150"
                 style={{ borderBottom: i < vehicles.length - 1 ? "1px solid var(--border-row)" : "none" }}
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}>
-                <td className="px-5 py-4">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider"
-                    style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD", fontFamily: "monospace" }}>
-                    {v.plate}
-                  </span>
-                </td>
+                <td className="px-5 py-4"><VehiclePlate v={v} /></td>
                 <td className="px-5 py-4">
                   <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{vehicleTypeLabel[v.type] ?? v.type}</span>
                 </td>
@@ -139,32 +212,9 @@ function VehicleTable({
                   <p className="text-sm text-white font-medium leading-tight">{v.brand || "—"}</p>
                   {v.color && <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{v.color}</p>}
                 </td>
-                <td className="px-5 py-4">
-                  {v.client ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                        style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
-                        {v.client.fullName.charAt(0).toUpperCase()}
-                      </div>
-                      <span className="text-sm text-white">{v.client.fullName}</span>
-                    </div>
-                  ) : (
-                    <span className="text-sm" style={{ color: "var(--text-dim)" }}>Sin asignar</span>
-                  )}
-                </td>
-                <td className="px-5 py-4">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-                    style={{ backgroundColor: vSt.bg, border: `1px solid ${vSt.border}`, color: vSt.color }}>
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: vSt.dot }} />
-                    {vSt.label}
-                  </span>
-                </td>
-                <td className="px-5 py-4">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
-                    style={{ backgroundColor: mSt.bg, border: `1px solid ${mSt.border}`, color: mSt.color }}>
-                    {mSt.label}
-                  </span>
-                </td>
+                <td className="px-5 py-4"><VehicleOwner v={v} /></td>
+                <td className="px-5 py-4"><VehicleStatusBadge v={v} /></td>
+                <td className="px-5 py-4"><VehicleMembershipBadge v={v} /></td>
                 <td className="px-5 py-4">
                   <span className="text-sm" style={{ color: v.membership?.status === "expired" ? "#FCA5A5" : "var(--text-muted)" }}>
                     {v.membership?.endDate ? formatDate(v.membership.endDate) : "—"}
@@ -172,33 +222,46 @@ function VehicleTable({
                 </td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-2">
-                    <button onClick={() => onAssign(v)}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                      style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-medium)", color: "var(--text-muted)" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-input)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-subtle)"; e.currentTarget.style.color = "var(--text-muted)"; }}>
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-                        <line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" />
-                      </svg>
-                      Asignar
-                    </button>
-                    <button onClick={() => onDelete(v)} title="Desactivar vehículo"
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                      style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}>
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
-                      </svg>
-                    </button>
+                    <VehicleActions v={v} onAssign={onAssign} onDelete={onDelete} />
                   </div>
                 </td>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Tarjetas (móvil) */}
+      <div className="md:hidden p-4 space-y-3">
+        {vehicles.map((v) => (
+          <div key={v.id} className="rounded-xl p-4 space-y-3"
+            style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <VehiclePlate v={v} />
+                <p className="text-sm text-white font-medium mt-2 leading-tight">{v.brand || "—"}</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                  {vehicleTypeLabel[v.type] ?? v.type}{v.color ? ` · ${v.color}` : ""}
+                </p>
+              </div>
+              <VehicleStatusBadge v={v} />
+            </div>
+            <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
+              <VehicleCardRow label="Propietario"><VehicleOwner v={v} /></VehicleCardRow>
+              <VehicleCardRow label="Mensualidad"><VehicleMembershipBadge v={v} /></VehicleCardRow>
+              <VehicleCardRow label="Vencimiento">
+                <span className="text-sm" style={{ color: v.membership?.status === "expired" ? "#FCA5A5" : "var(--text-muted)" }}>
+                  {v.membership?.endDate ? formatDate(v.membership.endDate) : "—"}
+                </span>
+              </VehicleCardRow>
+            </div>
+            <div className="flex items-center gap-2 pt-1">
+              <VehicleActions v={v} onAssign={onAssign} onDelete={onDelete} />
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div className="px-5 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
         <p className="text-xs" style={{ color: "var(--text-dim)" }}>
           {vehicles.length} vehículo{vehicles.length !== 1 ? "s" : ""}
@@ -845,7 +908,7 @@ export default function VehiculosPage() {
 
       {/* Stats */}
       {!loading && vehicles.length > 0 && (
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           {[
             { label: "Registrados",     value: stats.registered,     color: "#2563EB" },
             { label: "Visitantes",      value: stats.visitors,       color: "#7C3AED" },

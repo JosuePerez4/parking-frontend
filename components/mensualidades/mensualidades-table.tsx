@@ -47,6 +47,130 @@ const statusConfig = {
   },
 };
 
+// --- Piezas reutilizadas por la tabla (desktop) y las tarjetas (móvil) ---
+
+function PlateBadge({ m }: { m: Membership }) {
+  return (
+    <span
+      className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider"
+      style={{
+        backgroundColor: "rgba(37, 99, 235, 0.12)",
+        border: "1px solid rgba(37, 99, 235, 0.3)",
+        color: "#93C5FD",
+        fontFamily: "monospace",
+      }}
+    >
+      {m.vehicle?.plate ?? `#${m.vehicleId}`}
+    </span>
+  );
+}
+
+function CompanyBadge({ company }: { company?: string | null }) {
+  if (!company) return <span className="text-sm" style={{ color: "var(--text-dim)" }}>—</span>;
+  return (
+    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
+      style={{ backgroundColor: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)", color: "#C4B5FD" }}>
+      {company}
+    </span>
+  );
+}
+
+function StatusBadge({ status }: { status: (typeof statusConfig)[keyof typeof statusConfig] }) {
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+      style={{ backgroundColor: status.bg, border: `1px solid ${status.border}`, color: status.color }}
+    >
+      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: status.dot }} />
+      {status.label}
+    </span>
+  );
+}
+
+function ClientCell({ m }: { m: Membership }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div
+        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+        style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)" }}
+      >
+        {m.client?.fullName?.charAt(0).toUpperCase() ?? "?"}
+      </div>
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-white leading-tight truncate">
+          {m.client?.fullName ?? `Cliente #${m.clientId}`}
+        </p>
+        {m.client?.phone && (
+          <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+            {m.client.phone}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DueDate({ m, isExpiring }: { m: Membership; isExpiring: boolean }) {
+  return (
+    <div className="flex items-center gap-2">
+      {isExpiring && (
+        <svg className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#F59E0B" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      )}
+      <span className="text-sm font-medium" style={{ color: isExpiring ? "#FCD34D" : "var(--text-secondary)" }}>
+        {formatDate(m.endDate)}
+      </span>
+    </div>
+  );
+}
+
+function ActionButtons({ m, onRenew, onDelete }: { m: Membership; onRenew: (m: Membership) => void; onDelete: (m: Membership) => void }) {
+  return (
+    <>
+      {m.status !== "cancelled" && (
+        <button
+          onClick={() => onRenew(m)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer"
+          style={{ backgroundColor: "rgba(37, 99, 235, 0.15)", border: "1px solid rgba(37, 99, 235, 0.3)", color: "#60A5FA" }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(37, 99, 235, 0.28)"; e.currentTarget.style.color = "#93C5FD"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(37, 99, 235, 0.15)"; e.currentTarget.style.color = "#60A5FA"; }}
+        >
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="23 4 23 10 17 10" />
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+          </svg>
+          Renovar
+        </button>
+      )}
+      <button
+        onClick={() => onDelete(m)}
+        title="Desactivar mensualidad"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer"
+        style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
+      >
+        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
+        </svg>
+      </button>
+    </>
+  );
+}
+
+// Fila etiqueta/valor usada dentro de las tarjetas móviles.
+function CardRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{label}</span>
+      <div className="text-right">{children}</div>
+    </div>
+  );
+}
+
 interface MensualidadesTableProps {
   memberships: Membership[];
   expiringIds: number[];
@@ -78,200 +202,117 @@ export function MensualidadesTable({ memberships, expiringIds, onRenew, onDelete
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
-            {["Cliente", "Placa", "Tipo", "Empresa", "Inicio", "Vencimiento", "Estado", "Precio", "Acciones"].map((col) => (
-              <th
-                key={col}
-                className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider"
-                style={{ color: "var(--text-dim)" }}
-              >
-                {col}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {memberships.map((m, i) => {
-            const isExpiring = expiringIds.includes(m.id);
-            const status = statusConfig[m.status] ?? statusConfig.cancelled;
-            const isLast = i === memberships.length - 1;
+    <div>
+      {/* Tabla (desktop) */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+              {["Cliente", "Placa", "Tipo", "Empresa", "Inicio", "Vencimiento", "Estado", "Precio", "Acciones"].map((col) => (
+                <th
+                  key={col}
+                  className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--text-dim)" }}
+                >
+                  {col}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {memberships.map((m, i) => {
+              const isExpiring = expiringIds.includes(m.id);
+              const status = statusConfig[m.status] ?? statusConfig.cancelled;
+              const isLast = i === memberships.length - 1;
 
-            return (
-              <tr
-                key={m.id}
-                className="transition-colors duration-150"
-                style={{
-                  borderBottom: isLast ? "none" : "1px solid var(--border-row)",
-                  backgroundColor: isExpiring ? "rgba(245, 158, 11, 0.04)" : "transparent",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = isExpiring
-                    ? "rgba(245, 158, 11, 0.08)"
-                    : "var(--bg-row-hover)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = isExpiring
-                    ? "rgba(245, 158, 11, 0.04)"
-                    : "transparent";
-                }}
-              >
-                {/* Cliente */}
-                <td className="px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                      style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)" }}
-                    >
-                      {m.client?.fullName?.charAt(0).toUpperCase() ?? "?"}
+              return (
+                <tr
+                  key={m.id}
+                  className="transition-colors duration-150"
+                  style={{
+                    borderBottom: isLast ? "none" : "1px solid var(--border-row)",
+                    backgroundColor: isExpiring ? "rgba(245, 158, 11, 0.04)" : "transparent",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = isExpiring
+                      ? "rgba(245, 158, 11, 0.08)"
+                      : "var(--bg-row-hover)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = isExpiring
+                      ? "rgba(245, 158, 11, 0.04)"
+                      : "transparent";
+                  }}
+                >
+                  <td className="px-5 py-4"><ClientCell m={m} /></td>
+                  <td className="px-5 py-4"><PlateBadge m={m} /></td>
+                  <td className="px-5 py-4">
+                    <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                      {vehicleTypeLabel[m.vehicle?.type ?? ""] ?? m.vehicle?.type ?? "—"}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4"><CompanyBadge company={m.company} /></td>
+                  <td className="px-5 py-4">
+                    <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{formatDate(m.startDate)}</span>
+                  </td>
+                  <td className="px-5 py-4"><DueDate m={m} isExpiring={isExpiring} /></td>
+                  <td className="px-5 py-4"><StatusBadge status={status} /></td>
+                  <td className="px-5 py-4">
+                    <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{formatCOP(m.price)}</span>
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-2">
+                      <ActionButtons m={m} onRenew={onRenew} onDelete={onDelete} />
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-white leading-tight">
-                        {m.client?.fullName ?? `Cliente #${m.clientId}`}
-                      </p>
-                      {m.client?.phone && (
-                        <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-                          {m.client.phone}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </td>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
-                {/* Placa */}
-                <td className="px-5 py-4">
-                  <span
-                    className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider"
-                    style={{
-                      backgroundColor: "rgba(37, 99, 235, 0.12)",
-                      border: "1px solid rgba(37, 99, 235, 0.3)",
-                      color: "#93C5FD",
-                      fontFamily: "monospace",
-                    }}
-                  >
-                    {m.vehicle?.plate ?? `#${m.vehicleId}`}
-                  </span>
-                </td>
-
-                {/* Tipo */}
-                <td className="px-5 py-4">
+      {/* Tarjetas (móvil) */}
+      <div className="md:hidden p-4 space-y-3">
+        {memberships.map((m) => {
+          const isExpiring = expiringIds.includes(m.id);
+          const status = statusConfig[m.status] ?? statusConfig.cancelled;
+          return (
+            <div
+              key={m.id}
+              className="rounded-xl p-4 space-y-3"
+              style={{
+                backgroundColor: isExpiring ? "rgba(245, 158, 11, 0.06)" : "var(--bg-card)",
+                border: `1px solid ${isExpiring ? "rgba(245, 158, 11, 0.35)" : "var(--border-default)"}`,
+              }}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <ClientCell m={m} />
+                <PlateBadge m={m} />
+              </div>
+              <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
+                <CardRow label="Tipo">
                   <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
                     {vehicleTypeLabel[m.vehicle?.type ?? ""] ?? m.vehicle?.type ?? "—"}
                   </span>
-                </td>
-
-                {/* Empresa */}
-                <td className="px-5 py-4">
-                  {m.company ? (
-                    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
-                      style={{ backgroundColor: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)", color: "#C4B5FD" }}>
-                      {m.company}
-                    </span>
-                  ) : (
-                    <span className="text-sm" style={{ color: "var(--text-dim)" }}>—</span>
-                  )}
-                </td>
-
-                {/* Inicio */}
-                <td className="px-5 py-4">
-                  <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                    {formatDate(m.startDate)}
-                  </span>
-                </td>
-
-                {/* Vencimiento */}
-                <td className="px-5 py-4">
-                  <div className="flex items-center gap-2">
-                    {isExpiring && (
-                      <svg className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#F59E0B" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                        <line x1="12" y1="9" x2="12" y2="13" />
-                        <line x1="12" y1="17" x2="12.01" y2="17" />
-                      </svg>
-                    )}
-                    <span
-                      className="text-sm font-medium"
-                      style={{ color: isExpiring ? "#FCD34D" : "var(--text-secondary)" }}
-                    >
-                      {formatDate(m.endDate)}
-                    </span>
-                  </div>
-                </td>
-
-                {/* Estado */}
-                <td className="px-5 py-4">
-                  <span
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-                    style={{
-                      backgroundColor: status.bg,
-                      border: `1px solid ${status.border}`,
-                      color: status.color,
-                    }}
-                  >
-                    <span
-                      className="w-1.5 h-1.5 rounded-full"
-                      style={{ backgroundColor: status.dot }}
-                    />
-                    {status.label}
-                  </span>
-                </td>
-
-                {/* Precio */}
-                <td className="px-5 py-4">
-                  <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-                    {formatCOP(m.price)}
-                  </span>
-                </td>
-
-                {/* Acciones */}
-                <td className="px-5 py-4">
-                  <div className="flex items-center gap-2">
-                    {m.status !== "cancelled" && (
-                      <button
-                        onClick={() => onRenew(m)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer"
-                        style={{
-                          backgroundColor: "rgba(37, 99, 235, 0.15)",
-                          border: "1px solid rgba(37, 99, 235, 0.3)",
-                          color: "#60A5FA",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = "rgba(37, 99, 235, 0.28)";
-                          e.currentTarget.style.color = "#93C5FD";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = "rgba(37, 99, 235, 0.15)";
-                          e.currentTarget.style.color = "#60A5FA";
-                        }}
-                      >
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="23 4 23 10 17 10" />
-                          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-                        </svg>
-                        Renovar
-                      </button>
-                    )}
-                    <button
-                      onClick={() => onDelete(m)}
-                      title="Desactivar mensualidad"
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer"
-                      style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
-                    >
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                </CardRow>
+                <CardRow label="Empresa"><CompanyBadge company={m.company} /></CardRow>
+                <CardRow label="Inicio">
+                  <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{formatDate(m.startDate)}</span>
+                </CardRow>
+                <CardRow label="Vencimiento"><DueDate m={m} isExpiring={isExpiring} /></CardRow>
+                <CardRow label="Estado"><StatusBadge status={status} /></CardRow>
+                <CardRow label="Precio">
+                  <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{formatCOP(m.price)}</span>
+                </CardRow>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <ActionButtons m={m} onRenew={onRenew} onDelete={onDelete} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       {/* Footer count */}
       <div

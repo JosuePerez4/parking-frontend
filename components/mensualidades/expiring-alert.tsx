@@ -8,7 +8,7 @@ interface ExpiringAlertProps {
 export function ExpiringAlert({ count, onViewAll }: ExpiringAlertProps) {
   return (
     <div
-      className="mb-6 p-4 rounded-2xl flex items-center justify-between gap-4"
+      className="mb-6 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4"
       style={{
         background: "linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(234, 88, 12, 0.10))",
         border: "1px solid rgba(245, 158, 11, 0.35)",

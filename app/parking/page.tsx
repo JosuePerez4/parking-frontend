@@ -205,7 +205,7 @@ export default function ParkingPage() {
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Parking Activo</h1>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Vehículos dentro del parqueadero en este momento</p>
@@ -309,63 +309,113 @@ export default function ParkingPage() {
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>Ningún vehículo dentro coincide con &quot;{search}&quot;</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
-                  {["Placa", "Tipo", "Hora de ingreso", "Tiempo dentro", "Costo estimado", "Acción"].map((col) => (
-                    <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredVehicles.map((v, i) => (
-                  <tr key={v.id}
-                    style={{ borderBottom: i < filteredVehicles.length - 1 ? "1px solid var(--border-row)" : "none" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider"
-                        style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD", fontFamily: "monospace" }}>
-                        {v.plate}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{vehicleTypeLabel[v.vehicleType] ?? v.vehicleType}</span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{formatTime(v.entryTime)}</span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: "#F59E0B" }}>
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-                        </svg>
-                        {elapsedTime(v.entryTime)}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="text-sm font-semibold" style={{ color: "#34D399" }}>{formatCOP(v.estimatedCost)}</span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <button
-                        onClick={() => { setExitNotice(null); setExitTarget(v); }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer"
-                        style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}
-                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.25)"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.12)"; }}>
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                          <polyline points="16 17 21 12 16 7" />
-                          <line x1="21" y1="12" x2="9" y2="12" />
-                        </svg>
-                        Dar salida
-                      </button>
-                    </td>
+          <div>
+            {/* Tabla (desktop) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                    {["Placa", "Tipo", "Hora de ingreso", "Tiempo dentro", "Costo estimado", "Acción"].map((col) => (
+                      <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredVehicles.map((v, i) => (
+                    <tr key={v.id}
+                      style={{ borderBottom: i < filteredVehicles.length - 1 ? "1px solid var(--border-row)" : "none" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}>
+                      <td className="px-5 py-4">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider"
+                          style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD", fontFamily: "monospace" }}>
+                          {v.plate}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{vehicleTypeLabel[v.vehicleType] ?? v.vehicleType}</span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{formatTime(v.entryTime)}</span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: "#F59E0B" }}>
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                          </svg>
+                          {elapsedTime(v.entryTime)}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="text-sm font-semibold" style={{ color: "#34D399" }}>{formatCOP(v.estimatedCost)}</span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <button
+                          onClick={() => { setExitNotice(null); setExitTarget(v); }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer"
+                          style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}
+                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.25)"; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.12)"; }}>
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                          </svg>
+                          Dar salida
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Tarjetas (móvil) */}
+            <div className="md:hidden p-4 space-y-3">
+              {filteredVehicles.map((v) => (
+                <div key={v.id} className="rounded-xl p-4 space-y-3"
+                  style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider"
+                      style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD", fontFamily: "monospace" }}>
+                      {v.plate}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: "#F59E0B" }}>
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                      </svg>
+                      {elapsedTime(v.entryTime)}
+                    </span>
+                  </div>
+                  <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Tipo</span>
+                      <span className="text-sm text-right" style={{ color: "var(--text-secondary)" }}>{vehicleTypeLabel[v.vehicleType] ?? v.vehicleType}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Ingreso</span>
+                      <span className="text-sm text-right" style={{ color: "var(--text-secondary)" }}>{formatTime(v.entryTime)}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Costo estimado</span>
+                      <span className="text-sm font-semibold text-right" style={{ color: "#34D399" }}>{formatCOP(v.estimatedCost)}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => { setExitNotice(null); setExitTarget(v); }}
+                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer"
+                    style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    Dar salida
+                  </button>
+                </div>
+              ))}
+            </div>
+
             <div className="px-5 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
               <p className="text-xs" style={{ color: "var(--text-dim)" }}>
                 {filteredVehicles.length} vehículo{filteredVehicles.length !== 1 ? "s" : ""} · Actualización automática cada 10 segundos
