@@ -9,6 +9,8 @@ import {
 import { useAuth } from "@/components/auth-provider";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NoticeBox } from "@/components/ui/notice-box";
+import { describeSubmitError, errorNotice, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
 
 // ── Static config ────────────────────────────────────────────────────────────
 const vehicleTypeLabel: Record<string, string> = { car: "Carro", moto: "Moto", truck: "Camión" };
@@ -332,7 +334,7 @@ function SmartAssignModal({
   const [resolvedClientId, setResolvedClientId] = useState<number | null>(null);
 
   const [saving, setSaving]   = useState(false);
-  const [error, setError]     = useState<string | null>(null);
+  const [error, setError]     = useState<SubmitNotice | null>(null);
 
   // Derived
   const effectiveBrand = brand === "Otra"  ? brandCustom.trim() : brand;
@@ -353,7 +355,7 @@ function SmartAssignModal({
   function handleS2bNew()      { setStep3Variant("s3b"); setStep("s3b"); setError(null); }
 
   function handleS3aNext() {
-    if (!selectedClientId) { setError("Selecciona un cliente para continuar."); return; }
+    if (!selectedClientId) { setError(errorNotice("Selecciona un cliente para continuar.")); return; }
     setResolvedClientId(selectedClientId as number);
     setStep("s4");
     setError(null);
@@ -361,7 +363,7 @@ function SmartAssignModal({
 
   async function handleS3bNext() {
     if (!newClient.fullName.trim() || !newClient.document.trim()) {
-      setError("Nombre y documento son obligatorios.");
+      setError(errorNotice("Nombre y documento son obligatorios."));
       return;
     }
     setSaving(true);
@@ -371,7 +373,9 @@ function SmartAssignModal({
       setResolvedClientId(created.id);
       setStep("s4");
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Error al crear cliente.");
+      // Sin confirmación (red/timeout) mostramos el aviso y dejamos el modal
+      // abierto para que el operador verifique antes de reintentar.
+      setError(describeSubmitError(e));
     } finally {
       setSaving(false);
     }
@@ -387,7 +391,7 @@ function SmartAssignModal({
       await updateVehicle(vehicle.id, payload, tenantId);
       onDone();
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Error al guardar.");
+      setError(describeSubmitError(e));
       setSaving(false);
     }
   }
@@ -404,7 +408,7 @@ function SmartAssignModal({
       onDone();
       router.push(`/mensualidades?vehicleId=${vehicle.id}`);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Error al guardar.");
+      setError(describeSubmitError(e));
       setSaving(false);
     }
   }
@@ -543,7 +547,7 @@ function SmartAssignModal({
                 colorCustom={colorCustom} setColorCustom={setColorCustom}
                 disabled={saving}
               />
-              {error && <ErrorBox msg={error} />}
+              <NoticeBox notice={error} className="mt-3" />
               <button onClick={handleS2aSave} disabled={saving}
                 className="w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
                 style={btnPrimary}>
@@ -635,7 +639,7 @@ function SmartAssignModal({
                   })()}
                 </div>
               )}
-              {error && <ErrorBox msg={error} />}
+              <NoticeBox notice={error} className="mt-3" />
               <button onClick={handleS3aNext}
                 className="w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer flex items-center justify-center gap-2"
                 style={btnPrimary}>
@@ -674,7 +678,7 @@ function SmartAssignModal({
                   );
                 })}
               </div>
-              {error && <ErrorBox msg={error} />}
+              <NoticeBox notice={error} className="mt-3" />
               <button onClick={handleS3bNext} disabled={saving}
                 className="w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
                 style={btnPrimary}>
@@ -719,7 +723,7 @@ function SmartAssignModal({
                 colorCustom={colorCustom} setColorCustom={setColorCustom}
                 disabled={saving}
               />
-              {error && <ErrorBox msg={error} />}
+              <NoticeBox notice={error} className="mt-3" />
               <button onClick={handleS4Save} disabled={saving}
                 className="w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
                 style={btnGreen}>
@@ -753,14 +757,6 @@ function SmartAssignModal({
 }
 
 // ── Tiny helpers inside the modal ─────────────────────────────────────────────
-function ErrorBox({ msg }: { msg: string }) {
-  return (
-    <p className="mt-3 text-xs px-3 py-2 rounded-lg"
-      style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-      {msg}
-    </p>
-  );
-}
 function Spinner() {
   return (
     <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -782,7 +778,7 @@ export default function VehiculosPage() {
   const [assignTarget, setAssignTarget] = useState<Vehicle | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Vehicle | null>(null);
   const [deleting, setDeleting]       = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<SubmitNotice | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -811,7 +807,8 @@ export default function VehiculosPage() {
       setDeleteTarget(null);
       await load();
     } catch (err: unknown) {
-      setDeleteError(err instanceof Error ? err.message : "Error al eliminar vehículo.");
+      setDeleteError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setDeleting(false);
     }
@@ -995,11 +992,7 @@ export default function VehiculosPage() {
                 </p>
                 <p className="text-xs mt-2" style={{ color: "#F87171" }}>También se desactivarán sus mensualidades. Dejará de aparecer en los listados, pero la información queda guardada.</p>
               </div>
-              {deleteError && (
-                <p className="text-xs px-3 py-2 rounded-lg mb-4" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  {deleteError}
-                </p>
-              )}
+              <NoticeBox notice={deleteError} className="mb-4" />
               <div className="flex gap-3">
                 <button onClick={() => setDeleteTarget(null)} disabled={deleting}
                   className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"

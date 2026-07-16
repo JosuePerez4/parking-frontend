@@ -22,6 +22,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { TenantEditModal } from "@/components/admin/tenant-edit-modal";
+import { NoticeBox } from "@/components/ui/notice-box";
+import { describeSubmitError, errorNotice, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
 
 interface CreateFormState {
   name: string;
@@ -89,7 +91,7 @@ export default function AdminNegociosPage() {
   const [createStep, setCreateStep] = useState<"form" | "success">("form");
   const [createdTenant, setCreatedTenant] = useState<Tenant | null>(null);
   const [createSaving, setCreateSaving] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
+  const [createError, setCreateError] = useState<SubmitNotice | null>(null);
 
   // Edit modal (shared component)
   const [editTarget, setEditTarget] = useState<Tenant | null>(null);
@@ -97,7 +99,7 @@ export default function AdminNegociosPage() {
   // Deactivate confirm
   const [deactivateTarget, setDeactivateTarget] = useState<Tenant | null>(null);
   const [deactivating, setDeactivating] = useState(false);
-  const [deactivateError, setDeactivateError] = useState<string | null>(null);
+  const [deactivateError, setDeactivateError] = useState<SubmitNotice | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -134,12 +136,12 @@ export default function AdminNegociosPage() {
   async function handleCreateSubmit(e: FormEvent) {
     e.preventDefault();
     if (!createForm.name.trim()) {
-      setCreateError("El nombre del negocio es obligatorio.");
+      setCreateError(errorNotice("El nombre del negocio es obligatorio."));
       return;
     }
     if (!createdTenant) {
       if (!createForm.adminFullName.trim() || !createForm.adminEmail.trim() || !createForm.adminPassword) {
-        setCreateError("Nombre, email y contraseña del administrador son obligatorios.");
+        setCreateError(errorNotice("Nombre, email y contraseña del administrador son obligatorios."));
         return;
       }
     }
@@ -167,7 +169,10 @@ export default function AdminNegociosPage() {
       setCreateStep("success");
       await load();
     } catch (err) {
-      setCreateError(err instanceof Error ? err.message : "Error al crear el negocio.");
+      setCreateError(describeSubmitError(err));
+      // Error de red/timeout: la operación pudo completarse; refrescamos la
+      // lista para que el usuario verifique antes de reintentar (evita duplicar).
+      if (isUnconfirmed(err)) await load();
     } finally {
       setCreateSaving(false);
     }
@@ -182,7 +187,8 @@ export default function AdminNegociosPage() {
       setDeactivateTarget(null);
       await load();
     } catch (err) {
-      setDeactivateError(err instanceof Error ? err.message : "Error al desactivar el negocio.");
+      setDeactivateError(describeSubmitError(err));
+      if (isUnconfirmed(err)) await load();
     } finally {
       setDeactivating(false);
     }
@@ -362,11 +368,7 @@ export default function AdminNegociosPage() {
                   Sus usuarios seguirán existiendo pero el negocio quedará marcado como inactivo. Puedes reactivarlo luego editando su estado.
                 </p>
               </div>
-              {deactivateError && (
-                <p className="text-xs px-3 py-2 rounded-lg mb-4" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  {deactivateError}
-                </p>
-              )}
+              <NoticeBox notice={deactivateError} className="mb-4" />
               <div className="flex gap-3">
                 <Button type="button" variant="outline" className="flex-1 justify-center" disabled={deactivating} onClick={() => setDeactivateTarget(null)}>
                   Cancelar
@@ -491,11 +493,7 @@ export default function AdminNegociosPage() {
                     </div>
                   </div>
 
-                  {createError && (
-                    <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.3)" }}>
-                      {createError}
-                    </p>
-                  )}
+                  <NoticeBox notice={createError} />
 
                   <div className="flex gap-3 pt-1">
                     <Button type="button" variant="outline" className="flex-1 justify-center" disabled={createSaving} onClick={closeCreateModal}>
