@@ -67,7 +67,7 @@ function PlateBadge({ m }: { m: Membership }) {
 }
 
 function CompanyBadge({ company }: { company?: string | null }) {
-  if (!company) return <span className="text-sm" style={{ color: "var(--text-dim)" }}>—</span>;
+  if (!company) return <span className="text-sm text-text-dim">—</span>;
   return (
     <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
       style={{ backgroundColor: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)", color: "#C4B5FD" }}>
@@ -102,7 +102,7 @@ function ClientCell({ m }: { m: Membership }) {
           {m.client?.fullName ?? `Cliente #${m.clientId}`}
         </p>
         {m.client?.phone && (
-          <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+          <p className="text-xs mt-0.5 text-text-muted">
             {m.client.phone}
           </p>
         )}
@@ -115,7 +115,7 @@ function DueDate({ m, isExpiring }: { m: Membership; isExpiring: boolean }) {
   return (
     <div className="flex items-center gap-2">
       {isExpiring && (
-        <TriangleAlert className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#F59E0B" }} />
+        <TriangleAlert className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
       )}
       <span className="text-sm font-medium" style={{ color: isExpiring ? "#FCD34D" : "var(--text-secondary)" }}>
         {formatDate(m.endDate)}
@@ -157,7 +157,7 @@ function ActionButtons({ m, onRenew, onDelete }: { m: Membership; onRenew: (m: M
 function CardRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">{label}</span>
       <div className="text-right">{children}</div>
     </div>
   );
@@ -175,13 +175,12 @@ export function MensualidadesTable({ memberships, expiringIds, onRenew, onDelete
     return (
       <div className="flex flex-col items-center justify-center py-20 px-4">
         <div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-          style={{ backgroundColor: "rgba(37, 99, 235, 0.1)" }}
+          className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-blue-600/10"
         >
-          <Calendar className="w-8 h-8" style={{ color: "#2563EB" }} />
+          <Calendar className="w-8 h-8 text-blue-600" />
         </div>
         <p className="text-white font-semibold mb-1">Sin mensualidades</p>
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+        <p className="text-sm text-text-muted">
           No hay mensualidades en esta categoría
         </p>
       </div>
@@ -194,12 +193,11 @@ export function MensualidadesTable({ memberships, expiringIds, onRenew, onDelete
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+            <tr className="border-b border-border-soft">
               {["Cliente", "Placa", "Tipo", "Empresa", "Inicio", "Vencimiento", "Estado", "Precio", "Acciones"].map((col) => (
                 <th
                   key={col}
-                  className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: "var(--text-dim)" }}
+                  className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-text-dim"
                 >
                   {col}
                 </th>
@@ -234,18 +232,18 @@ export function MensualidadesTable({ memberships, expiringIds, onRenew, onDelete
                   <td className="px-5 py-4"><ClientCell m={m} /></td>
                   <td className="px-5 py-4"><PlateBadge m={m} /></td>
                   <td className="px-5 py-4">
-                    <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                    <span className="text-sm text-text-secondary">
                       {vehicleTypeLabel[m.vehicle?.type ?? ""] ?? m.vehicle?.type ?? "—"}
                     </span>
                   </td>
                   <td className="px-5 py-4"><CompanyBadge company={m.company} /></td>
                   <td className="px-5 py-4">
-                    <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{formatDate(m.startDate)}</span>
+                    <span className="text-sm text-text-secondary">{formatDate(m.startDate)}</span>
                   </td>
                   <td className="px-5 py-4"><DueDate m={m} isExpiring={isExpiring} /></td>
                   <td className="px-5 py-4"><StatusBadge status={status} /></td>
                   <td className="px-5 py-4">
-                    <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{formatCOP(m.price)}</span>
+                    <span className="text-sm font-semibold text-text-primary">{formatCOP(m.price)}</span>
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
@@ -277,20 +275,20 @@ export function MensualidadesTable({ memberships, expiringIds, onRenew, onDelete
                 <ClientCell m={m} />
                 <PlateBadge m={m} />
               </div>
-              <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
+              <div className="space-y-2 pt-1 border-t border-border-soft">
                 <CardRow label="Tipo">
-                  <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                  <span className="text-sm text-text-secondary">
                     {vehicleTypeLabel[m.vehicle?.type ?? ""] ?? m.vehicle?.type ?? "—"}
                   </span>
                 </CardRow>
                 <CardRow label="Empresa"><CompanyBadge company={m.company} /></CardRow>
                 <CardRow label="Inicio">
-                  <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{formatDate(m.startDate)}</span>
+                  <span className="text-sm text-text-secondary">{formatDate(m.startDate)}</span>
                 </CardRow>
                 <CardRow label="Vencimiento"><DueDate m={m} isExpiring={isExpiring} /></CardRow>
                 <CardRow label="Estado"><StatusBadge status={status} /></CardRow>
                 <CardRow label="Precio">
-                  <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{formatCOP(m.price)}</span>
+                  <span className="text-sm font-semibold text-text-primary">{formatCOP(m.price)}</span>
                 </CardRow>
               </div>
               <div className="flex items-center gap-2 pt-1">
@@ -303,10 +301,9 @@ export function MensualidadesTable({ memberships, expiringIds, onRenew, onDelete
 
       {/* Footer count */}
       <div
-        className="px-5 py-3 flex items-center justify-between"
-        style={{ borderTop: "1px solid var(--border-soft)" }}
+        className="px-5 py-3 flex items-center justify-between border-t border-border-soft"
       >
-        <p className="text-xs" style={{ color: "var(--text-dim)" }}>
+        <p className="text-xs text-text-dim">
           {memberships.length} registro{memberships.length !== 1 ? "s" : ""}
         </p>
       </div>

@@ -57,51 +57,46 @@ function ExitModal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget && !loading) onClose(); }}
     >
       <div
-        className="w-full max-w-md rounded-2xl overflow-hidden"
-        style={{ background: "var(--bg-modal)", border: "1px solid var(--border-medium)" }}
+        className="w-full max-w-md rounded-2xl overflow-hidden bg-page-modal border border-border-medium"
       >
         <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#EF4444,#DC2626)" }} />
         <div className="p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)" }}>
-              <LogOut className="w-5 h-5" style={{ color: "#FCA5A5" }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-red-500/15 border border-red-500/30">
+              <LogOut className="w-5 h-5 text-red-300" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-white">Dar Salida</h2>
-              <p className="text-xs" style={{ color: "var(--text-muted)" }}>Confirma la salida del vehículo</p>
+              <p className="text-xs text-text-muted">Confirma la salida del vehículo</p>
             </div>
           </div>
 
-          <div className="rounded-xl p-4 mb-5 space-y-3"
-            style={{ backgroundColor: "var(--bg-row-hover)", border: "1px solid var(--border-default)" }}>
+          <div className="rounded-xl p-4 mb-5 space-y-3 bg-page-row-hover border border-border-default">
             <div className="flex justify-between items-center">
-              <span className="text-xs" style={{ color: "var(--text-muted)" }}>Placa</span>
-              <span className="text-sm font-bold tracking-wider px-2.5 py-1 rounded-lg"
-                style={{ backgroundColor: "rgba(37,99,235,0.15)", color: "#93C5FD", fontFamily: "monospace" }}>
+              <span className="text-xs text-text-muted">Placa</span>
+              <span className="text-sm font-bold tracking-wider px-2.5 py-1 rounded-lg bg-blue-500/15 text-blue-300 font-mono">
                 {vehicle.plate}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs" style={{ color: "var(--text-muted)" }}>Tipo</span>
-              <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{vehicleTypeLabel[vehicle.vehicleType] ?? vehicle.vehicleType}</span>
+              <span className="text-xs text-text-muted">Tipo</span>
+              <span className="text-sm text-text-secondary">{vehicleTypeLabel[vehicle.vehicleType] ?? vehicle.vehicleType}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs" style={{ color: "var(--text-muted)" }}>Hora de ingreso</span>
-              <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{formatTime(vehicle.entryTime)}</span>
+              <span className="text-xs text-text-muted">Hora de ingreso</span>
+              <span className="text-sm text-text-secondary">{formatTime(vehicle.entryTime)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs" style={{ color: "var(--text-muted)" }}>Tiempo transcurrido</span>
-              <span className="text-sm font-semibold" style={{ color: "#F59E0B" }}>{elapsedTime(vehicle.entryTime)}</span>
+              <span className="text-xs text-text-muted">Tiempo transcurrido</span>
+              <span className="text-sm font-semibold text-amber-500">{elapsedTime(vehicle.entryTime)}</span>
             </div>
-            <div className="flex justify-between items-center pt-2" style={{ borderTop: "1px solid var(--border-soft)" }}>
-              <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>Cobro estimado</span>
-              <span className="text-base font-bold" style={{ color: "#34D399" }}>{formatCOP(vehicle.estimatedCost)}</span>
+            <div className="flex justify-between items-center pt-2 border-t border-t-border-soft">
+              <span className="text-xs font-semibold text-text-muted">Cobro estimado</span>
+              <span className="text-base font-bold text-emerald-400">{formatCOP(vehicle.estimatedCost)}</span>
             </div>
           </div>
 
@@ -109,8 +104,7 @@ function ExitModal({
 
           <div className="flex gap-3">
             <button onClick={onClose} disabled={loading}
-              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"
-              style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)", color: "var(--text-secondary)" }}>
+              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-input border border-border-medium text-text-secondary">
               Cancelar
             </button>
             <button onClick={onConfirm} disabled={loading}
@@ -198,7 +192,7 @@ export default function ParkingPage() {
       <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Parking Activo</h1>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Vehículos dentro del parqueadero en este momento</p>
+          <p className="text-sm text-text-secondary">Vehículos dentro del parqueadero en este momento</p>
         </div>
         <div className="flex items-center gap-3">
           {lastUpdate && (
@@ -212,7 +206,7 @@ export default function ParkingPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: "#10B981" }} />
               <span className="relative inline-flex rounded-full w-2 h-2" style={{ backgroundColor: "#10B981" }} />
             </span>
-            <span className="text-xs font-medium" style={{ color: "#34D399" }}>En vivo · 10s</span>
+            <span className="text-xs text-emerald-400">En vivo · 10s</span>
           </div>
         </div>
       </div>
@@ -237,9 +231,10 @@ export default function ParkingPage() {
             color: "#10B981",
           },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-2xl p-5"
-            style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
-            <p className="text-xs font-medium mb-1" style={{ color: "var(--text-muted)" }}>{stat.label}</p>
+          <div key={stat.label} className="rounded-2xl p-5 border border-border-default"
+            style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)" }}
+          >
+            <p className="text-xs font-medium mb-1 text-text-muted">{stat.label}</p>
             <p className="text-2xl font-bold" style={{ color: stat.color }}>{stat.value}</p>
           </div>
         ))}
@@ -247,8 +242,8 @@ export default function ParkingPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3"
-          style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 border border-red-500/30 text-red-300"
+          style={{ backgroundColor: "rgba(239,68,68,0.1)" }}>
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
@@ -262,18 +257,18 @@ export default function ParkingPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar por placa..."
-          className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm text-white outline-none"
-          style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)" }}
+          className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm text-white outline-none border border-border-medium"
+          style={{ backgroundColor: "var(--bg-input)" }}
         />
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl overflow-hidden"
-        style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
+      <div className="rounded-2xl overflow-hidden border border-border-default"
+        style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)" }}>
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin mb-3" style={{ color: "#2563EB" }} />
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>Cargando...</p>
+            <p className="text-sm text-text-muted">Cargando...</p>
           </div>
         ) : vehicles.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
@@ -281,12 +276,12 @@ export default function ParkingPage() {
               <Car className="w-8 h-8" style={{ color: "#2563EB" }} />
             </div>
             <p className="text-white font-semibold mb-1">Parqueadero vacío</p>
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>No hay vehículos dentro en este momento</p>
+            <p className="text-sm text-text-muted">No hay vehículos dentro en este momento</p>
           </div>
         ) : filteredVehicles.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <p className="text-white font-semibold mb-1">Sin resultados</p>
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>Ningún vehículo dentro coincide con &quot;{search}&quot;</p>
+            <p className="text-sm text-text-muted">Ningún vehículo dentro coincide con &quot;{search}&quot;</p>
           </div>
         ) : (
           <div>
@@ -294,7 +289,7 @@ export default function ParkingPage() {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                  <tr className="border-b border-b-border-soft">
                     {["Placa", "Tipo", "Hora de ingreso", "Tiempo dentro", "Costo estimado", "Acción"].map((col) => (
                       <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
                     ))}
@@ -307,31 +302,31 @@ export default function ParkingPage() {
                       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
                       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}>
                       <td className="px-5 py-4">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider"
-                          style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD", fontFamily: "monospace" }}>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider text-blue-300 font-mono"
+                          style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)" }}>
                           {v.plate}
                         </span>
                       </td>
                       <td className="px-5 py-4">
-                        <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{vehicleTypeLabel[v.vehicleType] ?? v.vehicleType}</span>
+                        <span className="text-sm text-text-secondary">{vehicleTypeLabel[v.vehicleType] ?? v.vehicleType}</span>
                       </td>
                       <td className="px-5 py-4">
-                        <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{formatTime(v.entryTime)}</span>
+                        <span className="text-sm text-text-secondary">{formatTime(v.entryTime)}</span>
                       </td>
                       <td className="px-5 py-4">
-                        <span className="inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: "#F59E0B" }}>
+                        <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-500">
                           <Clock className="w-3.5 h-3.5" />
                           {elapsedTime(v.entryTime)}
                         </span>
                       </td>
                       <td className="px-5 py-4">
-                        <span className="text-sm font-semibold" style={{ color: "#34D399" }}>{formatCOP(v.estimatedCost)}</span>
+                        <span className="text-sm font-semibold text-emerald-400">{formatCOP(v.estimatedCost)}</span>
                       </td>
                       <td className="px-5 py-4">
                         <button
                           onClick={() => { setExitNotice(null); setExitTarget(v); }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer"
-                          style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer border border-red-500/30 text-red-300"
+                          style={{ backgroundColor: "rgba(239,68,68,0.12)" }}
                           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.25)"; }}
                           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.12)"; }}>
                           <LogOut className="w-3.5 h-3.5" />
@@ -347,36 +342,36 @@ export default function ParkingPage() {
             {/* Tarjetas (móvil) */}
             <div className="md:hidden p-4 space-y-3">
               {filteredVehicles.map((v) => (
-                <div key={v.id} className="rounded-xl p-4 space-y-3"
-                  style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+                <div key={v.id} className="rounded-xl p-4 space-y-3 border border-border-default"
+                  style={{ backgroundColor: "var(--bg-card)" }}>
                   <div className="flex items-start justify-between gap-3">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider"
-                      style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD", fontFamily: "monospace" }}>
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider text-blue-300 font-mono"
+                      style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)" }}>
                       {v.plate}
                     </span>
-                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: "#F59E0B" }}>
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-500">
                       <Clock className="w-3.5 h-3.5" />
                       {elapsedTime(v.entryTime)}
                     </span>
                   </div>
-                  <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
+                  <div className="space-y-2 pt-1 border-t border-t-border-soft">
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Tipo</span>
-                      <span className="text-sm text-right" style={{ color: "var(--text-secondary)" }}>{vehicleTypeLabel[v.vehicleType] ?? v.vehicleType}</span>
+                      <span className="text-sm text-right text-text-secondary">{vehicleTypeLabel[v.vehicleType] ?? v.vehicleType}</span>
                     </div>
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Ingreso</span>
-                      <span className="text-sm text-right" style={{ color: "var(--text-secondary)" }}>{formatTime(v.entryTime)}</span>
+                      <span className="text-sm text-right text-text-secondary">{formatTime(v.entryTime)}</span>
                     </div>
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Costo estimado</span>
-                      <span className="text-sm font-semibold text-right" style={{ color: "#34D399" }}>{formatCOP(v.estimatedCost)}</span>
+                      <span className="text-sm font-semibold text-right text-emerald-400">{formatCOP(v.estimatedCost)}</span>
                     </div>
                   </div>
                     <button
                     onClick={() => { setExitNotice(null); setExitTarget(v); }}
-                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer"
-                    style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
+                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer border border-red-500/30 text-red-300"
+                    style={{ backgroundColor: "rgba(239,68,68,0.12)" }}>
                     <LogOut className="w-3.5 h-3.5" />
                     Dar salida
                   </button>
@@ -384,7 +379,7 @@ export default function ParkingPage() {
               ))}
             </div>
 
-            <div className="px-5 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
+            <div className="px-5 py-3 border-t border-t-border-soft">
               <p className="text-xs" style={{ color: "var(--text-dim)" }}>
                 {filteredVehicles.length} vehículo{filteredVehicles.length !== 1 ? "s" : ""} · Actualización automática cada 10 segundos
               </p>

@@ -75,18 +75,18 @@ function formatDate(dateStr: string): string {
 function TableSkeleton() {
   return (
     <div className="p-4 space-y-0">
-      <div className="flex items-center gap-4 px-1 pb-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
+      <div className="flex items-center gap-4 px-1 pb-3 border-b border-border-soft">
         {[160, 140, 110, 80, 90].map((w, i) => (
-          <Skeleton key={i} className="h-3 rounded" style={{ width: w, backgroundColor: "var(--bg-input)" }} />
+          <Skeleton key={i} className="h-3 rounded bg-page-input" style={{ width: w }} />
         ))}
       </div>
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="flex items-center gap-4 py-4" style={{ borderBottom: i < 2 ? "1px solid var(--border-row)" : "none" }}>
-          <Skeleton className="h-3 w-40 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-3 w-32 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-6 w-24 rounded-full" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-6 w-16 rounded-full" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-3 w-20 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-3 w-40 rounded bg-page-input" />
+          <Skeleton className="h-3 w-32 rounded bg-page-input" />
+          <Skeleton className="h-6 w-24 rounded-full bg-page-input" />
+          <Skeleton className="h-6 w-16 rounded-full bg-page-input" />
+          <Skeleton className="h-3 w-20 rounded bg-page-input" />
         </div>
       ))}
     </div>
@@ -238,8 +238,7 @@ export default function TenantDetailPage() {
       {/* Back link */}
       <Link
         href="/admin"
-        className="inline-flex items-center gap-1.5 text-xs font-medium mb-4 cursor-pointer transition-colors"
-        style={{ color: "var(--text-muted)" }}
+        className="inline-flex items-center gap-1.5 text-xs font-medium mb-4 cursor-pointer transition-colors text-text-muted"
       >
         <ChevronLeft className="w-3.5 h-3.5" />
         Volver a negocios
@@ -247,7 +246,7 @@ export default function TenantDetailPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3" style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
@@ -255,11 +254,11 @@ export default function TenantDetailPage() {
 
       {loading ? (
         <div className="space-y-6">
-          <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
-            <Skeleton className="h-5 w-48 rounded mb-3" style={{ backgroundColor: "var(--bg-input)" }} />
-            <Skeleton className="h-3 w-64 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+          <div className="rounded-2xl p-6 bg-page-card border border-border-default">
+            <Skeleton className="h-5 w-48 rounded mb-3 bg-page-input" />
+            <Skeleton className="h-3 w-64 rounded bg-page-input" />
           </div>
-          <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+          <div className="rounded-2xl overflow-hidden bg-page-card border border-border-default">
             <TableSkeleton />
           </div>
         </div>
@@ -267,8 +266,8 @@ export default function TenantDetailPage() {
         <>
           {/* Tenant info card */}
           <div
-            className="rounded-2xl p-6 mb-8 flex flex-wrap items-start justify-between gap-4"
-            style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}
+            className="rounded-2xl p-6 mb-8 flex flex-wrap items-start justify-between gap-4 bg-page-card border border-border-default"
+            style={{ backdropFilter: "blur(12px)" }}
           >
             <div className="flex items-start gap-4 min-w-0">
               <div
@@ -279,14 +278,14 @@ export default function TenantDetailPage() {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>{tenant.name}</h1>
+                  <h1 className="text-xl font-bold text-text-primary">{tenant.name}</h1>
                   <StatusBadge status={tenant.status} />
                 </div>
-                <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+                <p className="text-sm mt-1 text-text-secondary">
                   {tenant.contactEmail || "Sin email de contacto"}
                   {tenant.contactPhone ? ` · ${tenant.contactPhone}` : ""}
                 </p>
-                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Creado el {formatDate(tenant.createdAt)}</p>
+                <p className="text-xs mt-1 text-text-muted">Creado el {formatDate(tenant.createdAt)}</p>
               </div>
             </div>
             <Button variant="outline" onClick={() => setEditTenantOpen(true)} className="flex-shrink-0">
@@ -298,8 +297,8 @@ export default function TenantDetailPage() {
           {/* Users section */}
           <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
             <div>
-              <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>Usuarios</h2>
-              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Cuentas de acceso de este negocio</p>
+              <h2 className="text-lg font-bold text-text-primary">Usuarios</h2>
+              <p className="text-sm text-text-secondary">Cuentas de acceso de este negocio</p>
             </div>
             <Button onClick={openCreateUserModal}>
               <Plus className="w-4 h-4" />
@@ -307,11 +306,11 @@ export default function TenantDetailPage() {
             </Button>
           </div>
 
-          <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
+          <div className="rounded-2xl overflow-hidden bg-page-card border border-border-default" style={{ backdropFilter: "blur(12px)" }}>
             {users.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16">
-                <p className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Sin usuarios</p>
-                <p className="text-sm" style={{ color: "var(--text-muted)" }}>Crea el primer usuario con el botón superior</p>
+                <p className="font-semibold mb-1 text-text-primary">Sin usuarios</p>
+                <p className="text-sm text-text-muted">Crea el primer usuario con el botón superior</p>
               </div>
             ) : (
               <div>
@@ -319,9 +318,9 @@ export default function TenantDetailPage() {
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                      <tr className="border-b border-border-soft">
                         {["Email", "Nombre", "Rol", "Estado", "Creado", ""].map((col) => (
-                          <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
+                          <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-text-dim">{col}</th>
                         ))}
                       </tr>
                     </thead>
@@ -335,19 +334,19 @@ export default function TenantDetailPage() {
                           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
                         >
                           <td className="px-5 py-4">
-                            <span className="text-sm" style={{ color: "var(--text-primary)" }}>{u.email}</span>
+                            <span className="text-sm text-text-primary">{u.email}</span>
                           </td>
                           <td className="px-5 py-4">
-                            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{u.fullName}</span>
+                            <span className="text-sm text-text-secondary">{u.fullName}</span>
                           </td>
                           <td className="px-5 py-4">
-                            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{ROLE_LABELS[u.role] ?? u.role}</span>
+                            <span className="text-sm text-text-secondary">{ROLE_LABELS[u.role] ?? u.role}</span>
                           </td>
                           <td className="px-5 py-4">
                             <StatusBadge status={u.status} />
                           </td>
                           <td className="px-5 py-4">
-                            <span className="text-sm" style={{ color: "var(--text-muted)" }}>{formatDate(u.createdAt)}</span>
+                            <span className="text-sm text-text-muted">{formatDate(u.createdAt)}</span>
                           </td>
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-2">
@@ -384,23 +383,22 @@ export default function TenantDetailPage() {
                 {/* Tarjetas (móvil) */}
                 <div className="md:hidden p-4 space-y-3">
                   {users.map((u) => (
-                    <div key={u.id} className="rounded-xl p-4 space-y-3"
-                      style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+                    <div key={u.id} className="rounded-xl p-4 space-y-3 bg-page-card border border-border-default">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="text-sm font-medium leading-tight truncate" style={{ color: "var(--text-primary)" }}>{u.fullName}</p>
-                          <p className="text-xs mt-0.5 truncate" style={{ color: "var(--text-muted)" }}>{u.email}</p>
+                          <p className="text-sm font-medium leading-tight truncate text-text-primary">{u.fullName}</p>
+                          <p className="text-xs mt-0.5 truncate text-text-muted">{u.email}</p>
                         </div>
                         <StatusBadge status={u.status} />
                       </div>
-                      <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Rol</span>
-                          <span className="text-sm text-right" style={{ color: "var(--text-secondary)" }}>{ROLE_LABELS[u.role] ?? u.role}</span>
+                        <div className="space-y-2 pt-1 border-t border-border-soft">
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">Rol</span>
+                            <span className="text-sm text-right text-text-secondary">{ROLE_LABELS[u.role] ?? u.role}</span>
                         </div>
                         <div className="flex items-center justify-between gap-3">
-                          <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Creado</span>
-                          <span className="text-sm text-right" style={{ color: "var(--text-muted)" }}>{formatDate(u.createdAt)}</span>
+                            <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">Creado</span>
+                            <span className="text-sm text-right text-text-muted">{formatDate(u.createdAt)}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 pt-1">
@@ -427,8 +425,8 @@ export default function TenantDetailPage() {
                   ))}
                 </div>
 
-                <div className="px-5 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
-                  <p className="text-xs" style={{ color: "var(--text-dim)" }}>{users.length} usuario{users.length !== 1 ? "s" : ""}</p>
+                <div className="px-5 py-3 border-t border-border-soft">
+                  <p className="text-xs text-text-dim">{users.length} usuario{users.length !== 1 ? "s" : ""}</p>
                 </div>
               </div>
             )}
@@ -446,8 +444,8 @@ export default function TenantDetailPage() {
       {/* Create user modal */}
       <Dialog open={createUserOpen} onOpenChange={(v) => { if (!createUserSaving && !v) closeCreateUserModal(); }}>
         <DialogContent
-          className="sm:max-w-lg border-0 p-0 overflow-hidden"
-          style={{ background: "var(--bg-modal)", backdropFilter: "blur(20px)", border: "1px solid var(--border-medium)" }}
+          className="sm:max-w-lg border-0 p-0 overflow-hidden bg-page-modal border border-border-medium"
+          style={{ backdropFilter: "blur(20px)" }}
         >
           <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#2563EB,#7C3AED)" }} />
           <div className="p-6">
@@ -456,9 +454,9 @@ export default function TenantDetailPage() {
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
                   <UserPlus className="w-5 h-5" style={{ color: "#60A5FA" }} />
                 </div>
-                <DialogTitle style={{ color: "var(--text-primary)" }} className="text-lg font-bold">Nuevo Usuario</DialogTitle>
+                <DialogTitle className="text-lg font-bold text-text-primary">Nuevo Usuario</DialogTitle>
               </div>
-              <DialogDescription style={{ color: "var(--text-muted)" }} className="text-sm">
+              <DialogDescription className="text-sm text-text-muted">
                 {tenant?.name} · nueva cuenta de acceso
               </DialogDescription>
             </DialogHeader>
@@ -522,14 +520,14 @@ export default function TenantDetailPage() {
       {/* Edit user modal */}
       <Dialog open={!!editUserTarget} onOpenChange={(v) => { if (!editUserSaving && !v) setEditUserTarget(null); }}>
         <DialogContent
-          className="sm:max-w-lg border-0 p-0 overflow-hidden"
-          style={{ background: "var(--bg-modal)", backdropFilter: "blur(20px)", border: "1px solid var(--border-medium)" }}
+          className="sm:max-w-lg border-0 p-0 overflow-hidden bg-page-modal border border-border-medium"
+          style={{ backdropFilter: "blur(20px)" }}
         >
           <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#F59E0B,#D97706)" }} />
           <div className="p-6">
             <DialogHeader className="mb-5">
-              <DialogTitle style={{ color: "var(--text-primary)" }} className="text-lg font-bold">Editar Usuario</DialogTitle>
-              <DialogDescription style={{ color: "var(--text-muted)" }} className="text-sm">
+              <DialogTitle className="text-lg font-bold text-text-primary">Editar Usuario</DialogTitle>
+              <DialogDescription className="text-sm text-text-muted">
                 {editUserTarget?.email}
               </DialogDescription>
             </DialogHeader>
@@ -583,7 +581,8 @@ export default function TenantDetailPage() {
           style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
           onClick={(e) => { if (e.target === e.currentTarget && !deactivatingUser) setDeactivateUserTarget(null); }}
         >
-          <div className="w-full max-w-sm rounded-2xl overflow-hidden" style={{ background: "var(--bg-modal)", border: "1px solid rgba(239,68,68,0.25)" }}>
+          <div className="w-full max-w-sm rounded-2xl overflow-hidden bg-page-modal"
+            style={{ border: "1px solid rgba(239,68,68,0.25)" }}>
             <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#EF4444,#DC2626)" }} />
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
@@ -591,13 +590,13 @@ export default function TenantDetailPage() {
                   <Trash2 className="w-5 h-5" style={{ color: "#F87171" }} />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>¿Desactivar este usuario?</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Perderá acceso al sistema, pero sus datos se conservan</p>
+                  <h2 className="text-base font-bold text-text-primary">¿Desactivar este usuario?</h2>
+                  <p className="text-xs mt-0.5 text-text-muted">Perderá acceso al sistema, pero sus datos se conservan</p>
                 </div>
               </div>
               <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.15)" }}>
-                <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{deactivateUserTarget.fullName}</p>
-                <p className="text-xs" style={{ color: "var(--text-secondary)" }}>{deactivateUserTarget.email}</p>
+                <p className="text-sm font-medium text-text-primary">{deactivateUserTarget.fullName}</p>
+                <p className="text-xs text-text-secondary">{deactivateUserTarget.email}</p>
               </div>
               <NoticeBox notice={deactivateUserError} className="mb-4" />
               <div className="flex gap-3">

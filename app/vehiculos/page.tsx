@@ -70,21 +70,21 @@ function stepNumber(s: ModalStep): number {
 function TableSkeleton() {
   return (
     <div className="p-4 space-y-0">
-      <div className="flex items-center gap-4 px-1 pb-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
+      <div className="flex items-center gap-4 px-1 pb-3 border-b border-border-soft">
         {[80, 80, 110, 110, 80, 90, 100, 80].map((w, i) => (
-          <Skeleton key={i} className="h-3 rounded" style={{ width: w, backgroundColor: "var(--bg-input)" }} />
+          <Skeleton key={i} className="h-3 rounded bg-page-input" style={{ width: w }} />
         ))}
       </div>
       {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="flex items-center gap-4 py-4" style={{ borderBottom: i < 3 ? "1px solid var(--border-row)" : "none" }}>
-          <Skeleton className="h-6 w-16 rounded-lg" style={{ backgroundColor: "rgba(37,99,235,0.1)" }} />
-          <Skeleton className="h-3 w-14 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-3 w-24 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-3 w-24 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-6 w-16 rounded-full" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-6 w-20 rounded-full" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-3 w-20 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-6 w-24 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-6 w-16 rounded-lg bg-blue-500/10" />
+          <Skeleton className="h-3 w-14 rounded bg-page-input" />
+          <Skeleton className="h-3 w-24 rounded bg-page-input" />
+          <Skeleton className="h-3 w-24 rounded bg-page-input" />
+          <Skeleton className="h-6 w-16 rounded-full bg-page-input" />
+          <Skeleton className="h-6 w-20 rounded-full bg-page-input" />
+          <Skeleton className="h-3 w-20 rounded bg-page-input" />
+          <Skeleton className="h-6 w-24 rounded bg-page-input" />
         </div>
       ))}
     </div>
@@ -93,15 +93,14 @@ function TableSkeleton() {
 
 function VehiclePlate({ v }: { v: Vehicle }) {
   return (
-    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider"
-      style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD", fontFamily: "monospace" }}>
+    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider bg-blue-500/[0.12] border border-blue-500/30 text-blue-300 font-mono">
       {v.plate}
     </span>
   );
 }
 
 function VehicleOwner({ v }: { v: Vehicle }) {
-  if (!v.client) return <span className="text-sm" style={{ color: "var(--text-dim)" }}>Sin asignar</span>;
+  if (!v.client) return <span className="text-sm text-text-dim">Sin asignar</span>;
   return (
     <div className="flex items-center gap-2">
       <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
@@ -139,16 +138,14 @@ function VehicleActions({ v, onAssign, onDelete }: { v: Vehicle; onAssign: (v: V
   return (
     <>
       <button onClick={() => onAssign(v)}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-        style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-medium)", color: "var(--text-muted)" }}
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200 bg-page-subtle border border-border-medium text-text-muted"
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-input)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-subtle)"; e.currentTarget.style.color = "var(--text-muted)"; }}>
         <UserPlus className="w-4 h-4" />
         Asignar
       </button>
       <button onClick={() => onDelete(v)} title="Desactivar vehículo"
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-        style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200 bg-red-500/[0.08] border border-red-500/20 text-red-400"
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}>
         <CircleMinus className="w-4 h-4" />
@@ -160,7 +157,7 @@ function VehicleActions({ v, onAssign, onDelete }: { v: Vehicle; onAssign: (v: V
 function VehicleCardRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">{label}</span>
       <div className="text-right">{children}</div>
     </div>
   );
@@ -178,7 +175,7 @@ function VehicleTable({
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <p className="text-sm font-medium text-white mb-1">Sin vehículos</p>
-        <p className="text-xs" style={{ color: "var(--text-muted)" }}>{emptyText}</p>
+        <p className="text-xs text-text-muted">{emptyText}</p>
       </div>
     );
   }
@@ -188,9 +185,9 @@ function VehicleTable({
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+            <tr className="border-b border-border-soft">
               {["Placa", "Tipo", "Marca / Color", "Propietario", "Estado", "Mensualidad", "Vencimiento", ""].map((col, i) => (
-                <th key={i} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
+                <th key={i} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-text-dim">{col}</th>
               ))}
             </tr>
           </thead>
@@ -202,11 +199,11 @@ function VehicleTable({
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}>
                 <td className="px-5 py-4"><VehiclePlate v={v} /></td>
                 <td className="px-5 py-4">
-                  <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{vehicleTypeLabel[v.type] ?? v.type}</span>
+                  <span className="text-sm text-text-secondary">{vehicleTypeLabel[v.type] ?? v.type}</span>
                 </td>
                 <td className="px-5 py-4">
                   <p className="text-sm text-white font-medium leading-tight">{v.brand || "—"}</p>
-                  {v.color && <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{v.color}</p>}
+                  {v.color && <p className="text-xs mt-0.5 text-text-muted">{v.color}</p>}
                 </td>
                 <td className="px-5 py-4"><VehicleOwner v={v} /></td>
                 <td className="px-5 py-4"><VehicleStatusBadge v={v} /></td>
@@ -230,19 +227,18 @@ function VehicleTable({
       {/* Tarjetas (móvil) */}
       <div className="md:hidden p-4 space-y-3">
         {vehicles.map((v) => (
-          <div key={v.id} className="rounded-xl p-4 space-y-3"
-            style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+          <div key={v.id} className="rounded-xl p-4 space-y-3 bg-page-card border border-border-default">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <VehiclePlate v={v} />
                 <p className="text-sm text-white font-medium mt-2 leading-tight">{v.brand || "—"}</p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                <p className="text-xs mt-0.5 text-text-muted">
                   {vehicleTypeLabel[v.type] ?? v.type}{v.color ? ` · ${v.color}` : ""}
                 </p>
               </div>
               <VehicleStatusBadge v={v} />
             </div>
-            <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
+            <div className="space-y-2 pt-1 border-t border-border-soft">
               <VehicleCardRow label="Propietario"><VehicleOwner v={v} /></VehicleCardRow>
               <VehicleCardRow label="Mensualidad"><VehicleMembershipBadge v={v} /></VehicleCardRow>
               <VehicleCardRow label="Vencimiento">
@@ -258,8 +254,8 @@ function VehicleTable({
         ))}
       </div>
 
-      <div className="px-5 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
-        <p className="text-xs" style={{ color: "var(--text-dim)" }}>
+      <div className="px-5 py-3 border-t border-border-soft">
+        <p className="text-xs text-text-dim">
           {vehicles.length} vehículo{vehicles.length !== 1 ? "s" : ""}
         </p>
       </div>
@@ -279,15 +275,14 @@ function BrandColorFields({
   colorCustom: string; setColorCustom: (v: string) => void;
   disabled: boolean;
 }) {
-  const inputCls = "w-full mt-2 px-3 py-2.5 rounded-xl text-sm text-white outline-none transition-colors";
-  const inputStyle = { backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)" };
+  const inputCls = "w-full mt-2 px-3 py-2.5 rounded-xl text-sm text-white outline-none transition-colors bg-page-input border border-border-medium";
   const brandOpts = BRANDS.map((b) => ({ value: b, label: b }));
   const colorOpts = COLORS.map((c) => ({ value: c, label: c }));
 
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Marca</label>
+        <label className="block text-xs font-semibold mb-1.5 text-text-secondary">Marca</label>
         <CustomSelect
           value={brand}
           onChange={(v) => { setBrand(String(v)); if (String(v) !== "Otra") setBrandCustom(""); }}
@@ -298,7 +293,6 @@ function BrandColorFields({
         {brand === "Otra" && (
           <input
             className={inputCls}
-            style={inputStyle}
             value={brandCustom}
             onChange={(e) => setBrandCustom(e.target.value)}
             placeholder="Escribe la marca..."
@@ -307,7 +301,7 @@ function BrandColorFields({
         )}
       </div>
       <div>
-        <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Color</label>
+        <label className="block text-xs font-semibold mb-1.5 text-text-secondary">Color</label>
         <CustomSelect
           value={color}
           onChange={(v) => { setColor(String(v)); if (String(v) !== "Otro") setColorCustom(""); }}
@@ -318,7 +312,6 @@ function BrandColorFields({
         {color === "Otro" && (
           <input
             className={inputCls}
-            style={inputStyle}
             value={colorCustom}
             onChange={(e) => setColorCustom(e.target.value)}
             placeholder="Escribe el color..."
@@ -350,7 +343,7 @@ function StepIndicator({ current, total }: { current: number; total: number | nu
           );
         })}
       </div>
-      <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>
+      <span className="text-xs font-semibold text-text-muted">
         Paso {current}{total ? ` de ${total}` : ""}
       </span>
     </div>
@@ -483,8 +476,7 @@ function SmartAssignModal({
   }));
 
   // ── Shared styles ──────────────────────────────────────────────────────────
-  const inputCls = "w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none transition-colors";
-  const inputStyle = { backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)" };
+  const inputCls = "w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none transition-colors bg-page-input border border-border-medium";
 
   const btnPrimary = {
     background: "linear-gradient(135deg,#2563EB,#1D4ED8)",
@@ -513,11 +505,9 @@ function SmartAssignModal({
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)" }}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget && !saving) onClose(); }}>
-      <div className="w-full max-w-md rounded-2xl overflow-hidden flex flex-col"
-        style={{ background: "var(--bg-modal)", border: "1px solid var(--border-medium)", maxHeight: "90vh" }}>
+      <div className="w-full max-w-md rounded-2xl overflow-hidden flex flex-col bg-page-modal border border-border-medium max-h-[90vh]">
 
         {/* Gradient bar */}
         <div className="h-1 w-full flex-shrink-0"
@@ -527,14 +517,12 @@ function SmartAssignModal({
         <div className="overflow-y-auto flex-1 p-6">
           {/* Plate badge + close */}
           <div className="flex items-start justify-between mb-4">
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold tracking-wider"
-              style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD", fontFamily: "monospace" }}>
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold tracking-wider bg-blue-500/[0.12] border border-blue-500/30 text-blue-300 font-mono">
               <Car className="w-4 h-4" />
               {vehicle.plate}
             </span>
             <button onClick={onClose} disabled={saving}
-              className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50"
-              style={{ color: "var(--text-muted)" }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50 text-text-muted"
               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-input)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}>
               <X className="w-4 h-4" />
@@ -546,7 +534,7 @@ function SmartAssignModal({
 
           {/* Step title */}
           <h2 className="text-base font-bold text-white mb-0.5">{title}</h2>
-          <p className="text-xs mb-5" style={{ color: "var(--text-muted)" }}>{sub}</p>
+          <p className="text-xs mb-5 text-text-muted">{sub}</p>
 
           {/* ── Step content ── */}
 
@@ -554,32 +542,28 @@ function SmartAssignModal({
           {step === "s1" && (
             <div className="space-y-3">
               <button onClick={handleS1No}
-                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 cursor-pointer"
-                style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)" }}
+                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 cursor-pointer bg-page-input border border-border-medium"
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(100,116,139,0.5)"; e.currentTarget.style.backgroundColor = "var(--bg-subtle)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-medium)"; e.currentTarget.style.backgroundColor = "var(--bg-input)"; }}>
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: "rgba(100,116,139,0.15)", border: "1px solid rgba(100,116,139,0.3)" }}>
-                  <SquarePen className="w-5 h-5" style={{ color: "#94A3B8" }} />
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-slate-500/15 border border-slate-500/30">
+                  <SquarePen className="w-5 h-5 text-slate-400" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">No, solo actualizar datos</p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Guardar marca y color del vehículo</p>
+                  <p className="text-xs mt-0.5 text-text-muted">Guardar marca y color del vehículo</p>
                 </div>
               </button>
 
               <button onClick={handleS1Yes}
-                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 cursor-pointer"
-                style={{ backgroundColor: "rgba(37,99,235,0.08)", border: "1px solid rgba(37,99,235,0.25)" }}
+                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 cursor-pointer bg-blue-500/[0.08] border border-blue-500/25"
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.5)"; e.currentTarget.style.backgroundColor = "rgba(37,99,235,0.15)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.25)"; e.currentTarget.style.backgroundColor = "rgba(37,99,235,0.08)"; }}>
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.35)" }}>
-                  <UserPlus className="w-5 h-5" style={{ color: "#60A5FA" }} />
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-blue-500/15 border border-blue-500/35">
+                  <UserPlus className="w-5 h-5 text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: "#93C5FD" }}>Sí, registrar para mensualidad</p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Vincular cliente y crear mensualidad</p>
+                  <p className="text-sm font-semibold text-blue-300">Sí, registrar para mensualidad</p>
+                  <p className="text-xs mt-0.5 text-text-muted">Vincular cliente y crear mensualidad</p>
                 </div>
               </button>
             </div>
@@ -609,32 +593,28 @@ function SmartAssignModal({
           {step === "s2b" && (
             <div className="space-y-3">
               <button onClick={handleS2bExisting}
-                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 cursor-pointer"
-                style={{ backgroundColor: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.25)" }}
+                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 cursor-pointer bg-emerald-500/[0.08] border border-emerald-500/25"
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(16,185,129,0.5)"; e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.14)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(16,185,129,0.25)"; e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.08)"; }}>
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.35)" }}>
-                  <Search className="w-5 h-5" style={{ color: "#34D399" }} />
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-emerald-500/15 border border-emerald-500/35">
+                  <Search className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: "#34D399" }}>Sí, buscar cliente existente</p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Seleccionar de los clientes registrados</p>
+                  <p className="text-sm font-semibold text-emerald-400">Sí, buscar cliente existente</p>
+                  <p className="text-xs mt-0.5 text-text-muted">Seleccionar de los clientes registrados</p>
                 </div>
               </button>
 
               <button onClick={handleS2bNew}
-                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 cursor-pointer"
-                style={{ backgroundColor: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.25)" }}
+                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 cursor-pointer bg-violet-500/[0.08] border border-violet-500/25"
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(124,58,237,0.5)"; e.currentTarget.style.backgroundColor = "rgba(124,58,237,0.14)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(124,58,237,0.25)"; e.currentTarget.style.backgroundColor = "rgba(124,58,237,0.08)"; }}>
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.35)" }}>
-                  <UserPlus className="w-5 h-5" style={{ color: "#A78BFA" }} />
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-violet-500/15 border border-violet-500/35">
+                  <UserPlus className="w-5 h-5 text-violet-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: "#C4B5FD" }}>No, es cliente nuevo</p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Registrar nuevo propietario</p>
+                  <p className="text-sm font-semibold text-violet-300">No, es cliente nuevo</p>
+                  <p className="text-xs mt-0.5 text-text-muted">Registrar nuevo propietario</p>
                 </div>
               </button>
             </div>
@@ -644,10 +624,9 @@ function SmartAssignModal({
           {step === "s3a" && (
             <>
               <div className="mb-3 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--text-dim)" }} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-dim" />
                 <input
                   className={`${inputCls} pl-9`}
-                  style={inputStyle}
                   value={clientSearch}
                   onChange={(e) => { setClientSearch(e.target.value); setSelectedClientId(""); }}
                   placeholder="Filtrar por nombre o documento..."
@@ -660,8 +639,7 @@ function SmartAssignModal({
                 placeholder="Seleccionar cliente..."
               />
               {selectedClientId !== "" && (
-                <div className="mt-3 p-3 rounded-xl"
-                  style={{ backgroundColor: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)" }}>
+                <div className="mt-3 p-3 rounded-xl bg-emerald-500/[0.08] border border-emerald-500/20">
                   {(() => {
                     const c = clients.find((x) => x.id === selectedClientId);
                     return c ? (
@@ -672,7 +650,7 @@ function SmartAssignModal({
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-white">{c.fullName}</p>
-                          <p className="text-xs" style={{ color: "var(--text-muted)" }}>{c.document}{c.phone ? ` · ${c.phone}` : ""}</p>
+                          <p className="text-xs text-text-muted">{c.document}{c.phone ? ` · ${c.phone}` : ""}</p>
                         </div>
                       </div>
                     ) : null;
@@ -700,12 +678,11 @@ function SmartAssignModal({
                   };
                   return (
                     <div key={field}>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                      <label className="block text-xs font-semibold mb-1.5 text-text-secondary">
                         {labels[field]}
                       </label>
                       <input
                         className={inputCls}
-                        style={inputStyle}
                         type={field === "email" ? "email" : "text"}
                         value={newClient[field]}
                         onChange={(e) => setNewClient((p) => ({ ...p, [field]: e.target.value }))}
@@ -730,8 +707,7 @@ function SmartAssignModal({
           {step === "s4" && (
             <>
               {resolvedClientId && (
-                <div className="mb-4 p-3 rounded-xl flex items-center gap-3"
-                  style={{ backgroundColor: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)" }}>
+                <div className="mb-4 p-3 rounded-xl flex items-center gap-3 bg-emerald-500/[0.08] border border-emerald-500/20">
                   {(() => {
                     const c = clients.find((x) => x.id === resolvedClientId);
                     return c ? (
@@ -742,14 +718,14 @@ function SmartAssignModal({
                         </div>
                         <div>
                           <p className="text-xs font-semibold text-white">{c.fullName}</p>
-                          <p className="text-xs" style={{ color: "var(--text-muted)" }}>{c.document}</p>
+                          <p className="text-xs text-text-muted">{c.document}</p>
                         </div>
                       </>
                     ) : (
                       <p className="text-xs text-white">Cliente #{resolvedClientId}</p>
                     );
                   })()}
-                  <Check className="w-4 h-4 ml-auto flex-shrink-0" style={{ color: "#34D399" }} />
+                  <Check className="w-4 h-4 ml-auto flex-shrink-0 text-emerald-400" />
                 </div>
               )}
               <BrandColorFields
@@ -774,8 +750,7 @@ function SmartAssignModal({
           {/* Back button */}
           {canGoBack && (
             <button onClick={goBack} disabled={saving}
-              className="flex items-center gap-1.5 mt-4 text-xs cursor-pointer disabled:opacity-40 transition-colors"
-              style={{ color: "var(--text-muted)" }}
+              className="flex items-center gap-1.5 mt-4 text-xs cursor-pointer disabled:opacity-40 transition-colors text-text-muted"
               onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-secondary)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}>
               <ChevronLeft className="w-4 h-4" />
@@ -869,7 +844,7 @@ export default function VehiculosPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white mb-1">Vehículos</h1>
-        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Consulta y gestiona los vehículos registrados</p>
+        <p className="text-sm text-text-secondary">Consulta y gestiona los vehículos registrados</p>
       </div>
 
       {/* Stats */}
@@ -880,9 +855,8 @@ export default function VehiculosPage() {
             { label: "Visitantes",      value: stats.visitors,       color: "#7C3AED" },
             { label: "Con mensualidad", value: stats.withMembership, color: "#10B981" },
           ].map((s) => (
-            <div key={s.label} className="rounded-2xl p-5"
-              style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
-              <p className="text-xs font-medium mb-1" style={{ color: "var(--text-muted)" }}>{s.label}</p>
+            <div key={s.label} className="rounded-2xl p-5 bg-page-card backdrop-blur border border-border-default">
+              <p className="text-xs font-medium mb-1 text-text-muted">{s.label}</p>
               <p className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
@@ -891,8 +865,7 @@ export default function VehiculosPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3"
-          style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
@@ -900,13 +873,12 @@ export default function VehiculosPage() {
 
       {/* Search */}
       <div className="mb-6 relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--text-dim)" }} />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-dim" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar por placa, propietario o marca..."
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-white outline-none"
-          style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-default)" }}
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-white outline-none bg-page-subtle border border-border-default"
         />
       </div>
 
@@ -918,21 +890,18 @@ export default function VehiculosPage() {
           {/* Registrados */}
           <section>
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.25)" }}>
-                <Users className="w-4 h-4" style={{ color: "#60A5FA" }} />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-blue-500/[0.12] border border-blue-500/25">
+                <Users className="w-4 h-4 text-blue-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className="text-base font-semibold text-white leading-tight">Vehículos Registrados</h2>
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>Tienen cliente asignado</p>
+                <p className="text-xs text-text-muted">Tienen cliente asignado</p>
               </div>
-              <span className="flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full"
-                style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.25)", color: "#60A5FA" }}>
+              <span className="flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500/[0.12] border border-blue-500/25 text-blue-400">
                 {search ? `${filteredRegistered.length} / ${registered.length}` : registered.length}
               </span>
             </div>
-            <div className="rounded-2xl overflow-hidden"
-              style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
+            <div className="rounded-2xl overflow-hidden bg-page-card backdrop-blur border border-border-default">
               <VehicleTable
                 vehicles={filteredRegistered}
                 emptyText={search ? `No hay vehículos registrados que coincidan con "${search}"` : "No hay vehículos con cliente asignado"}
@@ -945,21 +914,18 @@ export default function VehiculosPage() {
           {/* Visitantes */}
           <section>
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ backgroundColor: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)" }}>
-                <User className="w-4 h-4" style={{ color: "#A78BFA" }} />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-violet-500/[0.12] border border-violet-500/25">
+                <User className="w-4 h-4 text-violet-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className="text-base font-semibold text-white leading-tight">Vehículos Visitantes / Ocasionales</h2>
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>Sin cliente asignado · Usa Asignar para iniciar el registro</p>
+                <p className="text-xs text-text-muted">Sin cliente asignado · Usa Asignar para iniciar el registro</p>
               </div>
-              <span className="flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full"
-                style={{ backgroundColor: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)", color: "#A78BFA" }}>
+              <span className="flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-violet-500/[0.12] border border-violet-500/25 text-violet-400">
                 {search ? `${filteredVisitors.length} / ${visitors.length}` : visitors.length}
               </span>
             </div>
-            <div className="rounded-2xl overflow-hidden"
-              style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
+            <div className="rounded-2xl overflow-hidden bg-page-card backdrop-blur border border-border-default">
               <VehicleTable
                 vehicles={filteredVisitors}
                 emptyText={search ? `No hay visitantes que coincidan con "${search}"` : "No hay vehículos sin cliente asignado"}
@@ -984,40 +950,36 @@ export default function VehiculosPage() {
 
       {/* ── Delete confirm modal ── */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
           onClick={(e) => { if (e.target === e.currentTarget && !deleting) setDeleteTarget(null); }}>
-          <div className="w-full max-w-sm rounded-2xl overflow-hidden"
-            style={{ background: "var(--bg-modal)", border: "1px solid rgba(239,68,68,0.25)" }}>
+          <div className="w-full max-w-sm rounded-2xl overflow-hidden bg-page-modal border border-red-500/25">
             <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#EF4444,#DC2626)" }} />
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  <Trash2 className="w-5 h-5" style={{ color: "#F87171" }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-red-500/12 border border-red-500/30">
+                  <Trash2 className="w-5 h-5 text-red-400" />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white">¿Desactivar este vehículo?</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Sus datos se conservan, no se borra nada</p>
+                  <p className="text-xs mt-0.5 text-text-muted">Sus datos se conservan, no se borra nada</p>
                 </div>
               </div>
-              <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.15)" }}>
-                <p className="text-sm font-bold tracking-wider" style={{ fontFamily: "monospace", color: "#93C5FD" }}>{deleteTarget.plate}</p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
+              <div className="mb-4 p-3 rounded-xl bg-red-500/[0.07] border border-red-500/15">
+                <p className="text-sm font-bold tracking-wider font-mono text-blue-300">{deleteTarget.plate}</p>
+                <p className="text-xs mt-0.5 text-text-secondary">
                   {vehicleTypeLabel[deleteTarget.type] ?? deleteTarget.type}{deleteTarget.brand ? ` · ${deleteTarget.brand}` : ""}
                 </p>
-                <p className="text-xs mt-2" style={{ color: "#F87171" }}>También se desactivarán sus mensualidades. Dejará de aparecer en los listados, pero la información queda guardada.</p>
+                <p className="text-xs mt-2 text-red-400">También se desactivarán sus mensualidades. Dejará de aparecer en los listados, pero la información queda guardada.</p>
               </div>
               <NoticeBox notice={deleteError} className="mb-4" />
               <div className="flex gap-3">
                 <button onClick={() => setDeleteTarget(null)} disabled={deleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"
-                  style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)", color: "var(--text-secondary)" }}>
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
                   Cancelar
                 </button>
                 <button onClick={handleDelete} disabled={deleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
-                  style={{ background: deleting ? "rgba(239,68,68,0.4)" : "linear-gradient(135deg,#EF4444,#DC2626)", color: "#fff", border: "1px solid rgba(239,68,68,0.4)" }}>
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 text-white"
+                  style={{ background: deleting ? "rgba(239,68,68,0.4)" : "linear-gradient(135deg,#EF4444,#DC2626)", border: "1px solid rgba(239,68,68,0.4)" }}>
                   {deleting ? (
                     <><Loader2 className="w-4 h-4 animate-spin" />Desactivando...</>
                   ) : "Sí, desactivar"}

@@ -53,8 +53,7 @@ function TarifaSection({ title, rows, accent, settings, form, onChange }: {
   onChange: (key: keyof AppSettings, value: string) => void;
 }) {
   return (
-    <div className="rounded-2xl overflow-hidden card-hover"
-      style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
+    <div className="rounded-2xl overflow-hidden card-hover bg-page-card backdrop-blur border border-border-default">
       <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
         <div className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ backgroundColor: `${accent}1a`, border: `1px solid ${accent}33` }}>
@@ -67,24 +66,23 @@ function TarifaSection({ title, rows, accent, settings, form, onChange }: {
           <div key={row.key} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div className="min-w-0">
               <p className="text-sm font-medium text-white">{row.label}</p>
-              <p className="text-xs mt-0.5" style={{ color: "var(--text-dim)" }}>{row.description}</p>
+              <p className="text-xs mt-0.5 text-text-dim">{row.description}</p>
             </div>
             <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0">
               {settings && (
-                <span className="text-xs font-medium" style={{ color: "var(--text-dim)" }}>
+                <span className="text-xs font-medium text-text-dim">
                   actual: {formatCOP(settings[row.key] as number)}
                 </span>
               )}
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium" style={{ color: "var(--text-muted)" }}>$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-text-muted">$</span>
                 <input
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"
                   value={(form[row.key] as number) ?? ""}
                   onChange={(e) => onChange(row.key, e.target.value)}
-                  className="pl-6 pr-3 py-2 rounded-lg text-sm outline-none w-32 text-right transition-colors duration-150"
-                  style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)", color: "var(--text-primary)" }}
+                  className="pl-6 pr-3 py-2 rounded-lg text-sm outline-none w-32 text-right transition-colors duration-150 bg-page-input border border-border-medium text-text-primary"
                   onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.6)"; }}
                   onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-medium)"; }}
                 />
@@ -142,15 +140,14 @@ export default function TarifasPage() {
       <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Tarifas</h1>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          <p className="text-sm text-text-secondary">
             Configura los precios por tipo de vehículo y tiempo de permanencia
           </p>
         </div>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3"
-          style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300">
           {error}
         </div>
       )}
@@ -158,8 +155,7 @@ export default function TarifasPage() {
       {/* Negocio nuevo: aún no hay tarifas configuradas. Damos la bienvenida en
           vez de mostrar un error. */}
       {!loading && !error && !settings && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-start gap-3"
-          style={{ backgroundColor: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD" }}>
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-start gap-3 bg-blue-500/10 border border-blue-500/30 text-blue-300">
           <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold text-white mb-0.5">¡Bienvenido! 👋</p>
@@ -170,7 +166,7 @@ export default function TarifasPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-24">
-          <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#2563EB" }} />
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
         </div>
       ) : (
         <form onSubmit={handleSave} className="space-y-6">
@@ -179,7 +175,7 @@ export default function TarifasPage() {
 
           <div className="flex items-center justify-end gap-4">
             {saved && (
-              <span className="text-sm flex items-center gap-1.5" style={{ color: "#34D399" }}>
+              <span className="text-sm flex items-center gap-1.5 text-emerald-400">
                 <Check className="w-4 h-4" />
                 Tarifas guardadas
               </span>

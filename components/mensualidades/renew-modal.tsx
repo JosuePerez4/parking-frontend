@@ -42,12 +42,7 @@ export function RenewModal({ membership, open, onClose, onConfirm, loading }: Re
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v && !loading) onClose(); }}>
       <DialogContent
-        className="sm:max-w-md border-0 p-0 overflow-hidden"
-        style={{
-          background: "var(--bg-modal)",
-          backdropFilter: "blur(20px)",
-          border: "1px solid var(--border-medium)",
-        }}
+        className="sm:max-w-md border-0 p-0 overflow-hidden bg-page-modal backdrop-blur-[20px] border border-border-medium"
       >
         {/* Header accent */}
         <div
@@ -59,36 +54,31 @@ export function RenewModal({ membership, open, onClose, onConfirm, loading }: Re
           <DialogHeader className="mb-5">
             <div className="flex items-center gap-3 mb-3">
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: "rgba(37, 99, 235, 0.15)", border: "1px solid rgba(37, 99, 235, 0.3)" }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-600/15 border border-blue-600/30"
               >
-                <RefreshCw className="w-5 h-5" style={{ color: "#60A5FA" }} />
+                <RefreshCw className="w-5 h-5 text-blue-400" />
               </div>
               <DialogTitle className="text-lg font-bold text-white">
                 Renovar Mensualidad
               </DialogTitle>
             </div>
-            <DialogDescription style={{ color: "var(--text-secondary)" }} className="text-sm">
+            <DialogDescription className="text-sm text-text-secondary">
               Confirma la renovación de esta mensualidad por un mes adicional.
             </DialogDescription>
           </DialogHeader>
 
           {/* Info card */}
           <div
-            className="rounded-xl p-4 mb-6 space-y-3"
-            style={{
-              backgroundColor: "var(--bg-row-hover)",
-              border: "1px solid var(--border-default)",
-            }}
+            className="rounded-xl p-4 mb-6 space-y-3 bg-page-row-hover border border-border-default"
           >
             <div className="flex justify-between items-center">
-              <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Cliente</span>
+              <span className="text-xs font-medium text-text-muted">Cliente</span>
               <span className="text-sm font-semibold text-white">
                 {membership.client?.fullName ?? `#${membership.clientId}`}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Placa</span>
+              <span className="text-xs font-medium text-text-muted">Placa</span>
               <span
                 className="text-xs font-bold tracking-wider px-2 py-0.5 rounded"
                 style={{
@@ -101,19 +91,18 @@ export function RenewModal({ membership, open, onClose, onConfirm, loading }: Re
               </span>
             </div>
             <div
-              className="border-t pt-3 flex justify-between items-center"
-              style={{ borderColor: "var(--border-soft)" }}
+              className="border-t border-border-soft pt-3 flex justify-between items-center"
             >
               <div>
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>Vencimiento actual</p>
-                <p className="text-sm font-medium mt-0.5" style={{ color: "#FCA5A5" }}>
+                <p className="text-xs text-text-muted">Vencimiento actual</p>
+                <p className="text-sm font-medium mt-0.5 text-red-300">
                   {formatDate(membership.endDate)}
                 </p>
               </div>
-              <ArrowRight className="w-4 h-4" style={{ color: "var(--text-dim)" }} />
+              <ArrowRight className="w-4 h-4 text-text-dim" />
               <div className="text-right">
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>Nuevo vencimiento</p>
-                <p className="text-sm font-semibold mt-0.5" style={{ color: "#34D399" }}>
+                <p className="text-xs text-text-muted">Nuevo vencimiento</p>
+                <p className="text-sm font-semibold mt-0.5 text-emerald-400">
                   {newEndDate}
                 </p>
               </div>
@@ -125,18 +114,7 @@ export function RenewModal({ membership, open, onClose, onConfirm, loading }: Re
             <button
               onClick={onClose}
               disabled={loading}
-              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer disabled:opacity-50"
-              style={{
-                backgroundColor: "var(--bg-input)",
-                border: "1px solid var(--border-medium)",
-                color: "var(--text-secondary)",
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) e.currentTarget.style.backgroundColor = "var(--bg-input)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--bg-input)";
-              }}
+              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary"
             >
               Cancelar
             </button>

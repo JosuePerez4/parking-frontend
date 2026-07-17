@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { NoticeBox } from "@/components/ui/notice-box";
 import { describeSubmitError, errorNotice, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
+import { cn } from "@/lib/utils";
 import { Plus, AlertCircle, Users, CircleMinus, SquarePen, Loader2, Save, Trash2, User, Car } from "lucide-react";
 
 const statusConfig = {
@@ -51,22 +52,22 @@ function formatDate(dateStr: string): string {
 function TableSkeleton() {
   return (
     <div className="p-4 space-y-0">
-      <div className="flex items-center gap-4 px-1 pb-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
+      <div className="flex items-center gap-4 px-1 pb-3 border-b border-border-soft">
         {[140, 100, 120, 150, 80, 70].map((w, i) => (
-          <Skeleton key={i} className="h-3 rounded" style={{ width: w, backgroundColor: "var(--bg-input)" }} />
+          <Skeleton key={i} className={cn("h-3 rounded bg-page-input")} style={{ width: w }} />
         ))}
       </div>
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-4 py-4" style={{ borderBottom: i < 4 ? "1px solid var(--border-row)" : "none" }}>
+        <div key={i} className={cn("flex items-center gap-4 py-4", i < 4 && "border-b border-border-row")}>
           <div className="flex items-center gap-3" style={{ minWidth: 140 }}>
-            <Skeleton className="w-8 h-8 rounded-full" style={{ backgroundColor: "var(--bg-input)" }} />
-            <Skeleton className="h-3 w-28 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+            <Skeleton className="w-8 h-8 rounded-full bg-page-input" />
+            <Skeleton className="h-3 w-28 rounded bg-page-input" />
           </div>
-          <Skeleton className="h-3 w-24 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-3 w-28 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-3 w-36 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-6 w-16 rounded-full" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-3 w-20 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-3 w-24 rounded bg-page-input" />
+          <Skeleton className="h-3 w-28 rounded bg-page-input" />
+          <Skeleton className="h-3 w-36 rounded bg-page-input" />
+          <Skeleton className="h-6 w-16 rounded-full bg-page-input" />
+          <Skeleton className="h-3 w-20 rounded bg-page-input" />
         </div>
       ))}
     </div>
@@ -80,20 +81,14 @@ function InputField({ label, name, value, onChange, type = "text", placeholder }
 }) {
   return (
     <div>
-      <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>{label}</label>
+      <label className="block text-xs font-semibold mb-1.5 text-text-secondary">{label}</label>
       <input
         type={type}
         name={name}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none transition-all duration-200"
-        style={{
-          backgroundColor: "var(--bg-input)",
-          border: "1px solid var(--border-medium)",
-        }}
-        onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.6)"; }}
-        onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-medium)"; }}
+        className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none transition-all duration-200 bg-page-input border border-border-medium focus:border-blue-600/60"
       />
     </div>
   );
@@ -251,7 +246,7 @@ export default function ClientesPage() {
       <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Clientes</h1>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Gestiona los clientes registrados en el sistema</p>
+          <p className="text-sm text-text-secondary">Gestiona los clientes registrados en el sistema</p>
         </div>
         <button
           onClick={() => { setModalOpen(true); setForm(EMPTY_FORM); setFormError(null); setStep("client"); }}
@@ -274,7 +269,7 @@ export default function ClientesPage() {
       )}
 
       {/* Table card */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
+      <div className="rounded-2xl overflow-hidden bg-card backdrop-blur-md border border-border-default">
         {loading ? (
           <TableSkeleton />
         ) : clients.length === 0 ? (
@@ -283,7 +278,7 @@ export default function ClientesPage() {
               <Users className="w-6 h-6" style={{ color: "#2563EB" }} />
             </div>
             <p className="text-white font-semibold mb-1">Sin clientes</p>
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>Crea el primer cliente con el botón superior</p>
+            <p className="text-sm text-text-muted">Crea el primer cliente con el botón superior</p>
           </div>
         ) : (
           <div>
@@ -291,9 +286,9 @@ export default function ClientesPage() {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                  <tr className="border-b border-border-soft">
                     {["Cliente", "Documento", "Teléfono", "Email", "Estado", "Registrado", ""].map((col) => (
-                      <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
+                      <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-text-dim">{col}</th>
                     ))}
                   </tr>
                 </thead>
@@ -303,8 +298,7 @@ export default function ClientesPage() {
                     return (
                       <tr
                         key={c.id}
-                        className="transition-colors duration-150 cursor-pointer"
-                        style={{ borderBottom: i < clients.length - 1 ? "1px solid var(--border-row)" : "none" }}
+                        className={cn("transition-colors duration-150 cursor-pointer", i < clients.length - 1 && "border-b border-border-row")}
                         onClick={() => openEdit(c)}
                         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
                         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
@@ -317,18 +311,18 @@ export default function ClientesPage() {
                             </div>
                             <div>
                               <p className="text-sm font-medium text-white leading-tight">{c.fullName}</p>
-                              {c.address && <p className="text-xs mt-0.5 truncate max-w-[160px]" style={{ color: "var(--text-muted)" }}>{c.address}</p>}
+                              {c.address && <p className="text-xs mt-0.5 truncate max-w-[160px] text-text-muted">{c.address}</p>}
                             </div>
                           </div>
                         </td>
                         <td className="px-5 py-4">
-                          <span className="text-sm font-mono" style={{ color: "var(--text-secondary)" }}>{c.document}</span>
+                          <span className="text-sm font-mono text-text-secondary">{c.document}</span>
                         </td>
                         <td className="px-5 py-4">
-                          <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{c.phone}</span>
+                          <span className="text-sm text-text-secondary">{c.phone}</span>
                         </td>
                         <td className="px-5 py-4">
-                          <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{c.email || "—"}</span>
+                          <span className="text-sm text-text-secondary">{c.email || "—"}</span>
                         </td>
                         <td className="px-5 py-4">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
@@ -338,7 +332,7 @@ export default function ClientesPage() {
                           </span>
                         </td>
                         <td className="px-5 py-4">
-                          <span className="text-sm" style={{ color: "var(--text-muted)" }}>{formatDate(c.createdAt)}</span>
+                          <span className="text-sm text-text-muted">{formatDate(c.createdAt)}</span>
                         </td>
                         <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                           <button
@@ -366,8 +360,7 @@ export default function ClientesPage() {
                 const st = statusConfig[c.status] ?? statusConfig.inactive;
                 return (
                   <div key={c.id} onClick={() => openEdit(c)}
-                    className="rounded-xl p-4 space-y-3 cursor-pointer"
-                    style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+                    className="rounded-xl p-4 space-y-3 cursor-pointer bg-card border border-border-default">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
@@ -376,7 +369,7 @@ export default function ClientesPage() {
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-white leading-tight truncate">{c.fullName}</p>
-                          <p className="text-xs mt-0.5 font-mono" style={{ color: "var(--text-muted)" }}>{c.document}</p>
+                          <p className="text-xs mt-0.5 font-mono text-text-muted">{c.document}</p>
                         </div>
                       </div>
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0"
@@ -385,18 +378,18 @@ export default function ClientesPage() {
                         {st.label}
                       </span>
                     </div>
-                    <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
+                    <div className="space-y-2 pt-1 border-t border-border-soft">
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Teléfono</span>
-                        <span className="text-sm text-right" style={{ color: "var(--text-secondary)" }}>{c.phone}</span>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">Teléfono</span>
+                        <span className="text-sm text-right text-text-secondary">{c.phone}</span>
                       </div>
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Email</span>
-                        <span className="text-sm text-right truncate max-w-[60%]" style={{ color: "var(--text-secondary)" }}>{c.email || "—"}</span>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">Email</span>
+                        <span className="text-sm text-right truncate max-w-[60%] text-text-secondary">{c.email || "—"}</span>
                       </div>
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Registrado</span>
-                        <span className="text-sm text-right" style={{ color: "var(--text-muted)" }}>{formatDate(c.createdAt)}</span>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">Registrado</span>
+                        <span className="text-sm text-right text-text-muted">{formatDate(c.createdAt)}</span>
                       </div>
                     </div>
                     <div className="pt-1" onClick={(e) => e.stopPropagation()}>
@@ -415,8 +408,8 @@ export default function ClientesPage() {
               })}
             </div>
 
-            <div className="px-5 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
-              <p className="text-xs" style={{ color: "var(--text-dim)" }}>{clients.length} cliente{clients.length !== 1 ? "s" : ""}</p>
+            <div className="px-5 py-3 border-t border-border-soft">
+              <p className="text-xs text-text-dim">{clients.length} cliente{clients.length !== 1 ? "s" : ""}</p>
             </div>
           </div>
         )}
@@ -424,8 +417,7 @@ export default function ClientesPage() {
 
       {/* Edit modal */}
       <Dialog open={!!editTarget} onOpenChange={(v) => { if (!editSaving && !v) setEditTarget(null); }}>
-        <DialogContent className="sm:max-w-lg border-0 p-0 overflow-hidden"
-          style={{ background: "var(--bg-modal)", backdropFilter: "blur(20px)", border: "1px solid var(--border-medium)" }}>
+        <DialogContent className="sm:max-w-lg border-0 p-0 overflow-hidden bg-modal backdrop-blur-xl border border-border-medium">
           <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#F59E0B,#D97706)" }} />
           <div className="p-6">
             <DialogHeader className="mb-5">
@@ -438,7 +430,7 @@ export default function ClientesPage() {
                   <DialogTitle className="text-lg font-bold text-white">Editar Cliente</DialogTitle>
                 </div>
               </div>
-              <DialogDescription style={{ color: "var(--text-muted)" }} className="text-sm">
+              <DialogDescription className="text-sm text-text-muted">
                 {editTarget?.fullName} · modificando datos del cliente
               </DialogDescription>
             </DialogHeader>
@@ -472,7 +464,7 @@ export default function ClientesPage() {
                     placeholder="Calle 123 #45-67" />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Estado</label>
+                  <label className="block text-xs font-semibold mb-1.5 text-text-secondary">Estado</label>
                   <CustomSelect
                     value={editForm.status ?? "active"}
                     onChange={(v) => setEditForm((p) => ({ ...p, status: v as Client["status"] }))}
@@ -485,8 +477,7 @@ export default function ClientesPage() {
 
               <div className="flex gap-3 pt-1">
                 <button type="button" onClick={() => setEditTarget(null)} disabled={editSaving}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"
-                  style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)", color: "var(--text-secondary)" }}>
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
                   Cancelar
                 </button>
                 <button type="submit" disabled={editSaving}
@@ -509,8 +500,8 @@ export default function ClientesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
           onClick={(e) => { if (e.target === e.currentTarget && !deleting) setDeleteTarget(null); }}>
-          <div className="w-full max-w-sm rounded-2xl overflow-hidden"
-            style={{ background: "var(--bg-modal)", border: "1px solid rgba(239,68,68,0.25)" }}>
+          <div className="w-full max-w-sm rounded-2xl overflow-hidden bg-modal"
+            style={{ border: "1px solid rgba(239,68,68,0.25)" }}>
             <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#EF4444,#DC2626)" }} />
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
@@ -520,12 +511,12 @@ export default function ClientesPage() {
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white">¿Desactivar este cliente?</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Sus datos se conservan, no se borra nada</p>
+                  <p className="text-xs mt-0.5 text-text-muted">Sus datos se conservan, no se borra nada</p>
                 </div>
               </div>
               <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.15)" }}>
                 <p className="text-sm text-white font-medium mb-1">{deleteTarget.fullName}</p>
-                <p className="text-xs" style={{ color: "var(--text-secondary)" }}>Doc: {deleteTarget.document}</p>
+                <p className="text-xs text-text-secondary">Doc: {deleteTarget.document}</p>
                 <p className="text-xs mt-2" style={{ color: "#F87171" }}>
                   También se desactivarán sus vehículos y mensualidades. Dejarán de aparecer en los listados, pero la información queda guardada.
                 </p>
@@ -533,8 +524,7 @@ export default function ClientesPage() {
               <NoticeBox notice={deleteError} className="mb-4" />
               <div className="flex gap-3">
                 <button onClick={() => setDeleteTarget(null)} disabled={deleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"
-                  style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)", color: "var(--text-secondary)" }}>
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
                   Cancelar
                 </button>
                 <button onClick={handleDelete} disabled={deleting}
@@ -552,8 +542,7 @@ export default function ClientesPage() {
 
       {/* Create modal */}
       <Dialog open={modalOpen} onOpenChange={(v) => { if (!saving && !vehicleSaving) { if (!v) closeModal(); } }}>
-        <DialogContent className="sm:max-w-lg border-0 p-0 overflow-hidden"
-          style={{ background: "var(--bg-modal)", backdropFilter: "blur(20px)", border: "1px solid var(--border-medium)" }}>
+        <DialogContent className="sm:max-w-lg border-0 p-0 overflow-hidden bg-modal backdrop-blur-xl border border-border-medium">
           <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#2563EB,#7C3AED)" }} />
           <div className="p-6">
             {/* Step indicator */}
@@ -584,7 +573,7 @@ export default function ClientesPage() {
                     </div>
                     <DialogTitle className="text-lg font-bold text-white">Nuevo Cliente</DialogTitle>
                   </div>
-                  <DialogDescription style={{ color: "var(--text-muted)" }} className="text-sm">
+                  <DialogDescription className="text-sm text-text-muted">
                     Completa el formulario para registrar un nuevo cliente.
                   </DialogDescription>
                 </DialogHeader>
@@ -605,9 +594,8 @@ export default function ClientesPage() {
                   <NoticeBox notice={formError} />
                   <div className="flex gap-3 pt-1">
                     <button type="button" onClick={closeModal} disabled={saving}
-                      className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"
-                      style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)", color: "var(--text-secondary)" }}>
-                      Cancelar
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
+                  Cancelar
                     </button>
                     <button type="submit" disabled={saving}
                       className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
@@ -633,7 +621,7 @@ export default function ClientesPage() {
                       <DialogTitle className="text-lg font-bold text-white">Agregar Vehículo</DialogTitle>
                     </div>
                   </div>
-                  <DialogDescription style={{ color: "var(--text-muted)" }} className="text-sm">
+                  <DialogDescription className="text-sm text-text-muted">
                     Cliente creado. Registra su vehículo o sáltate este paso.
                   </DialogDescription>
                 </DialogHeader>
@@ -642,7 +630,7 @@ export default function ClientesPage() {
                     onChange={(e) => setVehicleForm((p) => ({ ...p, plate: e.target.value.toUpperCase() }))}
                     placeholder="Ej. ABC123" />
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Tipo *</label>
+                    <label className="block text-xs font-semibold mb-1.5 text-text-secondary">Tipo *</label>
                     <CustomSelect
                       value={vehicleForm.type}
                       onChange={(v) => setVehicleForm((p) => ({ ...p, type: v as "car" | "moto" | "truck" }))}
@@ -660,8 +648,7 @@ export default function ClientesPage() {
                   <NoticeBox notice={vehicleError} />
                   <div className="flex gap-3 pt-1">
                     <button type="button" onClick={closeModal} disabled={vehicleSaving}
-                      className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"
-                      style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)", color: "var(--text-secondary)" }}>
+                      className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
                       Omitir
                     </button>
                     <button type="submit" disabled={vehicleSaving || !vehicleForm.plate}

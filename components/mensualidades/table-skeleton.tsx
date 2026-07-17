@@ -4,9 +4,9 @@ export function TableSkeleton() {
   return (
     <div className="p-4">
       {/* Header row */}
-      <div className="flex items-center gap-4 px-1 pb-3 mb-1" style={{ borderBottom: "1px solid var(--border-soft)" }}>
+      <div className="flex items-center gap-4 px-1 pb-3 mb-1 border-b border-border-soft">
         {[120, 80, 60, 80, 90, 70, 80, 60].map((w, i) => (
-          <Skeleton key={i} className="h-3 rounded" style={{ width: w, backgroundColor: "var(--bg-input)" }} />
+          <Skeleton key={i} className="h-3 rounded bg-page-input" style={{ width: w }} />
         ))}
       </div>
 
@@ -19,26 +19,26 @@ export function TableSkeleton() {
         >
           {/* Client cell */}
           <div className="flex items-center gap-3" style={{ minWidth: 120 }}>
-            <Skeleton className="w-8 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: "var(--bg-input)" }} />
+            <Skeleton className="w-8 h-8 rounded-full flex-shrink-0 bg-page-input" />
             <div className="space-y-1.5">
-              <Skeleton className="h-3 w-24 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
-              <Skeleton className="h-2 w-16 rounded" style={{ backgroundColor: "var(--bg-subtle)" }} />
+              <Skeleton className="h-3 w-24 rounded bg-page-input" />
+              <Skeleton className="h-2 w-16 rounded bg-page-subtle" />
             </div>
           </div>
           {/* Plate */}
-          <Skeleton className="h-6 w-16 rounded-lg" style={{ backgroundColor: "rgba(37, 99, 235, 0.1)" }} />
+          <Skeleton className="h-6 w-16 rounded-lg bg-blue-600/10" />
           {/* Type */}
-          <Skeleton className="h-3 w-12 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-3 w-12 rounded bg-page-input" />
           {/* Start */}
-          <Skeleton className="h-3 w-20 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-3 w-20 rounded bg-page-input" />
           {/* End */}
-          <Skeleton className="h-3 w-20 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-3 w-20 rounded bg-page-input" />
           {/* Status */}
-          <Skeleton className="h-6 w-18 rounded-full" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-6 w-18 rounded-full bg-page-input" />
           {/* Price */}
-          <Skeleton className="h-3 w-24 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-3 w-24 rounded bg-page-input" />
           {/* Action */}
-          <Skeleton className="h-7 w-20 rounded-lg" style={{ backgroundColor: "rgba(37, 99, 235, 0.08)" }} />
+          <Skeleton className="h-7 w-20 rounded-lg bg-blue-600/8" />
         </div>
       ))}
     </div>

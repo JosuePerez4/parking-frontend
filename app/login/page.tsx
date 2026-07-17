@@ -34,8 +34,7 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
-      style={{ backgroundColor: "var(--bg-page)" }}
+      className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden bg-page"
     >
       {/* Ambient gradient glow */}
       <div
@@ -50,13 +49,7 @@ export default function LoginPage() {
       />
 
       <div
-        className="w-full max-w-sm rounded-2xl p-8 card-hover relative"
-        style={{
-          backgroundColor: "var(--bg-card)",
-          border: "1px solid var(--border-soft)",
-          backdropFilter: "blur(12px)",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.25)",
-        }}
+        className="w-full max-w-sm rounded-2xl p-8 card-hover relative bg-page-card border border-border-soft backdrop-blur shadow-2xl"
       >
         <div className="flex flex-col items-center mb-6">
           <div
@@ -65,8 +58,8 @@ export default function LoginPage() {
           >
             <CircleParking className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Parking IA</h1>
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>Inicia sesión para continuar</p>
+          <h1 className="text-lg font-semibold text-text-primary">Parking IA</h1>
+          <p className="text-sm text-text-muted">Inicia sesión para continuar</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -94,7 +87,7 @@ export default function LoginPage() {
               placeholder="••••••••"
             />
           </div>
-          {error && <p className="text-sm" style={{ color: "#EF4444" }}>{error}</p>}
+          {error && <p className="text-sm text-red-500">{error}</p>}
           <Button type="submit" disabled={loading} className="w-full justify-center">
             {loading ? "Ingresando..." : "Ingresar"}
           </Button>

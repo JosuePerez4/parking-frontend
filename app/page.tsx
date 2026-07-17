@@ -39,7 +39,7 @@ export default function HomePage() {
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p style={{ color: "var(--text-secondary)" }}>Bienvenido al sistema de gestión de Parking IA</p>
+        <p className="text-text-secondary">Bienvenido al sistema de gestión de Parking IA</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -47,12 +47,7 @@ export default function HomePage() {
           <Link
             key={card.href}
             href={card.href}
-            className="group block rounded-2xl p-6 transition-all duration-200 cursor-pointer"
-            style={{
-              background: "var(--bg-card)",
-              backdropFilter: "blur(12px)",
-              border: "1px solid var(--border-default)",
-            }}
+            className="group block rounded-2xl p-6 transition-all duration-200 cursor-pointer bg-page-card backdrop-blur border border-border-default"
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLAnchorElement).style.borderColor = `${card.color}40`;
               (e.currentTarget as HTMLAnchorElement).style.background = "var(--bg-card-hover)";
@@ -69,7 +64,7 @@ export default function HomePage() {
               {card.icon}
             </div>
             <h2 className="text-lg font-semibold text-white mb-1">{card.title}</h2>
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>{card.description}</p>
+            <p className="text-sm text-text-muted">{card.description}</p>
           </Link>
         ))}
       </div>
