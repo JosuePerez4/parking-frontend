@@ -39,13 +39,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // resolver la sesión, para no dejar ver contenido antes de redirigir.
   if (isLoginRoute) {
     if (!loading && session) {
-      return <main className="min-h-screen" style={{ backgroundColor: "var(--bg-page)" }} />;
+      return <main className="min-h-screen bg-page" />;
     }
     return <main className="min-h-screen">{children}</main>;
   }
 
   if (loading || !session) {
-    return <main className="min-h-screen" style={{ backgroundColor: "var(--bg-page)" }} />;
+    return <main className="min-h-screen bg-page" />;
   }
 
   const isAdminRoute = pathname.startsWith("/admin");
@@ -53,7 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     (session.user.role === "platform_admin" && !isAdminRoute) ||
     (session.user.role !== "platform_admin" && isAdminRoute);
   if (isWrongSection) {
-    return <main className="min-h-screen" style={{ backgroundColor: "var(--bg-page)" }} />;
+    return <main className="min-h-screen bg-page" />;
   }
 
   return (
@@ -63,8 +63,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Overlay móvil: cierra el drawer al tocar fuera */}
       {drawerOpen && (
         <div
-          className="fixed inset-0 z-30 md:hidden"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          className="fixed inset-0 z-30 md:hidden bg-black/50"
           onClick={() => setDrawerOpen(false)}
           aria-hidden="true"
         />
@@ -72,18 +71,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex-1 md:ml-64 min-h-screen flex flex-col">
         {/* Topbar móvil con botón hamburguesa */}
-        <header
-          className="md:hidden sticky top-0 z-20 flex items-center gap-3 px-4 py-3"
-          style={{
-            backgroundColor: "var(--bg-sidebar)",
-            borderBottom: "1px solid var(--border-soft)",
-          }}
-        >
+        <header className="md:hidden sticky top-0 z-20 flex items-center gap-3 px-4 py-3 bg-page-sidebar border-b border-border-soft">
           <button
             onClick={() => setDrawerOpen(true)}
             aria-label="Abrir menú"
-            className="p-1.5 rounded-lg cursor-pointer transition-colors duration-150"
-            style={{ color: "var(--text-secondary)" }}
+            className="p-1.5 rounded-lg cursor-pointer transition-colors duration-150 text-text-secondary"
           >
             <Menu className="w-6 h-6" />
           </button>

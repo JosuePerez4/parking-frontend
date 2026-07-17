@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className="h-full antialiased dark">
-      <body className="min-h-full" style={{ backgroundColor: "var(--bg-page)", fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <body className="min-h-full bg-page font-sans">
         <ThemeProvider>
           <AuthProvider>
             <AppShell>{children}</AppShell>

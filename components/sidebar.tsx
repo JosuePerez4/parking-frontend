@@ -87,16 +87,11 @@ export function Sidebar({ open = false, onClose }: { open?: boolean; onClose?: (
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-full w-64 flex flex-col z-40 transition-transform duration-200 md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}
-      style={{
-        backgroundColor: "var(--bg-sidebar)",
-        borderRight: "1px solid var(--border-soft)",
-      }}
+      className={`fixed left-0 top-0 h-full w-64 flex flex-col z-40 transition-transform duration-200 md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"} bg-page-sidebar border-r border-border-soft`}
     >
       {/* Logo */}
       <div
-        className="flex items-center gap-3 px-6 py-5"
-        style={{ borderBottom: "1px solid var(--border-soft)" }}
+        className="flex items-center gap-3 px-6 py-5 border-b border-border-soft"
       >
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -105,16 +100,15 @@ export function Sidebar({ open = false, onClose }: { open?: boolean; onClose?: (
           <CircleParking className="w-5 h-5 text-white" />
         </div>
         <div>
-          <p className="font-semibold text-sm leading-tight" style={{ color: "var(--text-primary)" }}>Parking IA</p>
-          <p className="text-xs leading-tight" style={{ color: "var(--text-muted)" }}>Gestión de parqueaderos</p>
+          <p className="font-semibold text-sm leading-tight text-text-primary">Parking IA</p>
+          <p className="text-xs leading-tight text-text-muted">Gestión de parqueaderos</p>
         </div>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <p
-          className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider"
-          style={{ color: "var(--text-dim)" }}
+          className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-text-dim"
         >
           Principal
         </p>
@@ -125,22 +119,14 @@ export function Sidebar({ open = false, onClose }: { open?: boolean; onClose?: (
               key={item.href}
               href={item.href}
               onClick={onClose}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer group"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer group ${
+                isActive
+                  ? ""
+                  : "bg-transparent text-text-secondary hover:bg-page-subtle hover:text-text-primary"
+              }`}
               style={{
-                backgroundColor: isActive ? "rgba(37, 99, 235, 0.15)" : "transparent",
-                color: isActive ? "#60A5FA" : "var(--text-secondary)",
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.backgroundColor = "var(--bg-subtle)";
-                  e.currentTarget.style.color = "var(--text-primary)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "var(--text-secondary)";
-                }
+                backgroundColor: isActive ? "rgba(37, 99, 235, 0.15)" : undefined,
+                color: isActive ? "#60A5FA" : undefined,
               }}
             >
               <span style={{ color: isActive ? "#2563EB" : "inherit" }}>{item.icon}</span>
@@ -157,24 +143,11 @@ export function Sidebar({ open = false, onClose }: { open?: boolean; onClose?: (
       </nav>
 
       {/* Footer */}
-      <div className="px-4 py-4" style={{ borderTop: "1px solid var(--border-soft)" }}>
+      <div className="px-4 py-4 border-t border-border-soft">
         {/* Theme toggle */}
         <button
           onClick={toggle}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 mb-3"
-          style={{
-            backgroundColor: "var(--bg-subtle)",
-            border: "1px solid var(--border-default)",
-            color: "var(--text-secondary)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--bg-input)";
-            e.currentTarget.style.color = "var(--text-primary)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--bg-subtle)";
-            e.currentTarget.style.color = "var(--text-secondary)";
-          }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 mb-3 bg-page-subtle border border-border-default text-text-secondary hover:bg-page-input hover:text-text-primary"
         >
           <span style={{ color: isLight ? "#F59E0B" : "#60A5FA" }}>
             {isLight ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -206,10 +179,10 @@ export function Sidebar({ open = false, onClose }: { open?: boolean; onClose?: (
             {session ? session.user.fullName.charAt(0).toUpperCase() : "?"}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
+            <p className="text-sm font-medium truncate text-text-primary">
               {session ? session.user.fullName : "Invitado"}
             </p>
-            <p className="text-xs truncate" style={{ color: "var(--text-muted)" }}>
+            <p className="text-xs truncate text-text-muted">
               {session ? ROLE_LABELS[session.user.role] ?? session.user.role : "Sin sesión"}
             </p>
           </div>
@@ -217,10 +190,7 @@ export function Sidebar({ open = false, onClose }: { open?: boolean; onClose?: (
             <button
               onClick={handleLogout}
               title="Cerrar sesión"
-              className="p-1.5 rounded-lg flex-shrink-0 cursor-pointer transition-colors duration-150"
-              style={{ color: "var(--text-muted)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+              className="p-1.5 rounded-lg flex-shrink-0 cursor-pointer transition-colors duration-150 text-text-muted hover:text-red-500"
             >
               <LogOut className="w-4 h-4" />
             </button>
