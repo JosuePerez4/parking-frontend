@@ -5,8 +5,13 @@ import { AuthProvider } from "@/components/auth-provider";
 import { AppShell } from "@/components/app-shell";
 
 export const metadata: Metadata = {
-  title: "Parking IA — Dashboard",
-  description: "Sistema de gestión de parqueaderos",
+  title: {
+    template: "%s — Parking IA",
+    default: "Parking IA — Sistema de Gestión de Parqueaderos",
+  },
+  description:
+    "Sistema integral de gestión de parqueaderos con control de clientes, vehículos, mensualidades y reportes",
+  keywords: ["parking", "parqueadero", "gestión", "vehículos", "mensualidades"],
 };
 
 export default function RootLayout({
