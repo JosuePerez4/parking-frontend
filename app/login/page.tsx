@@ -7,6 +7,7 @@ import { useAuth } from "@/components/auth-provider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { CircleParking } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -62,10 +63,7 @@ export default function LoginPage() {
             className="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
             style={{ background: "linear-gradient(135deg, #2563EB, #1D4ED8)" }}
           >
-            <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
-            </svg>
+            <CircleParking className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Parking IA</h1>
           <p className="text-sm" style={{ color: "var(--text-muted)" }}>Inicia sesión para continuar</p>

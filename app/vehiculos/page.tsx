@@ -6,6 +6,7 @@ import {
   getVehicles, getClients, deleteVehicle, updateVehicle, createClient,
   type Vehicle, type Client, type CreateClientDto,
 } from "@/lib/api";
+import { UserPlus, CircleMinus, Car, X, SquarePen, Search, ChevronRight, Check, ChevronLeft, Loader2, AlertCircle, Users, User, Trash2 } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -142,10 +143,7 @@ function VehicleActions({ v, onAssign, onDelete }: { v: Vehicle; onAssign: (v: V
         style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-medium)", color: "var(--text-muted)" }}
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-input)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-subtle)"; e.currentTarget.style.color = "var(--text-muted)"; }}>
-        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-          <line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" />
-        </svg>
+        <UserPlus className="w-4 h-4" />
         Asignar
       </button>
       <button onClick={() => onDelete(v)} title="Desactivar vehículo"
@@ -153,9 +151,7 @@ function VehicleActions({ v, onAssign, onDelete }: { v: Vehicle; onAssign: (v: V
         style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}>
-        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
-        </svg>
+        <CircleMinus className="w-4 h-4" />
       </button>
     </>
   );
@@ -533,10 +529,7 @@ function SmartAssignModal({
           <div className="flex items-start justify-between mb-4">
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold tracking-wider"
               style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD", fontFamily: "monospace" }}>
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-              </svg>
+              <Car className="w-4 h-4" />
               {vehicle.plate}
             </span>
             <button onClick={onClose} disabled={saving}
@@ -544,9 +537,7 @@ function SmartAssignModal({
               style={{ color: "var(--text-muted)" }}
               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-input)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}>
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
+              <X className="w-4 h-4" />
             </button>
           </div>
 
@@ -569,10 +560,7 @@ function SmartAssignModal({
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-medium)"; e.currentTarget.style.backgroundColor = "var(--bg-input)"; }}>
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: "rgba(100,116,139,0.15)", border: "1px solid rgba(100,116,139,0.3)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#94A3B8" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
+                  <SquarePen className="w-5 h-5" style={{ color: "#94A3B8" }} />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">No, solo actualizar datos</p>
@@ -587,10 +575,7 @@ function SmartAssignModal({
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.25)"; e.currentTarget.style.backgroundColor = "rgba(37,99,235,0.08)"; }}>
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.35)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#60A5FA" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                    <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
-                  </svg>
+                  <UserPlus className="w-5 h-5" style={{ color: "#60A5FA" }} />
                 </div>
                 <div>
                   <p className="text-sm font-semibold" style={{ color: "#93C5FD" }}>Sí, registrar para mensualidad</p>
@@ -630,9 +615,7 @@ function SmartAssignModal({
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(16,185,129,0.25)"; e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.08)"; }}>
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.35)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#34D399" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                  </svg>
+                  <Search className="w-5 h-5" style={{ color: "#34D399" }} />
                 </div>
                 <div>
                   <p className="text-sm font-semibold" style={{ color: "#34D399" }}>Sí, buscar cliente existente</p>
@@ -647,11 +630,7 @@ function SmartAssignModal({
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(124,58,237,0.25)"; e.currentTarget.style.backgroundColor = "rgba(124,58,237,0.08)"; }}>
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.35)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#A78BFA" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
-                  </svg>
+                  <UserPlus className="w-5 h-5" style={{ color: "#A78BFA" }} />
                 </div>
                 <div>
                   <p className="text-sm font-semibold" style={{ color: "#C4B5FD" }}>No, es cliente nuevo</p>
@@ -665,9 +644,7 @@ function SmartAssignModal({
           {step === "s3a" && (
             <>
               <div className="mb-3 relative">
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--text-dim)" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--text-dim)" }} />
                 <input
                   className={`${inputCls} pl-9`}
                   style={inputStyle}
@@ -707,9 +684,7 @@ function SmartAssignModal({
                 className="w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer flex items-center justify-center gap-2"
                 style={btnPrimary}>
                 Continuar
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="9 18 15 12 9 6"/>
-                </svg>
+                <ChevronRight className="w-4 h-4" />
               </button>
             </>
           )}
@@ -774,9 +749,7 @@ function SmartAssignModal({
                       <p className="text-xs text-white">Cliente #{resolvedClientId}</p>
                     );
                   })()}
-                  <svg className="w-4 h-4 ml-auto flex-shrink-0" style={{ color: "#34D399" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
+                  <Check className="w-4 h-4 ml-auto flex-shrink-0" style={{ color: "#34D399" }} />
                 </div>
               )}
               <BrandColorFields
@@ -791,9 +764,7 @@ function SmartAssignModal({
                 className="w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
                 style={btnGreen}>
                 {saving ? <Spinner /> : (
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
+                  <Check className="w-4 h-4" />
                 )}
                 {saving ? "Guardando..." : "Guardar y crear mensualidad"}
               </button>
@@ -807,9 +778,7 @@ function SmartAssignModal({
               style={{ color: "var(--text-muted)" }}
               onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-secondary)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}>
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"/>
-              </svg>
+              <ChevronLeft className="w-4 h-4" />
               Volver
             </button>
           )}
@@ -822,10 +791,7 @@ function SmartAssignModal({
 // ── Tiny helpers inside the modal ─────────────────────────────────────────────
 function Spinner() {
   return (
-    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-    </svg>
+    <Loader2 className="w-4 h-4 animate-spin" />
   );
 }
 
@@ -927,18 +893,14 @@ export default function VehiculosPage() {
       {error && (
         <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3"
           style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
-          <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
       )}
 
       {/* Search */}
       <div className="mb-6 relative">
-        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--text-dim)" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--text-dim)" }} />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -958,10 +920,7 @@ export default function VehiculosPage() {
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                 style={{ backgroundColor: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.25)" }}>
-                <svg className="w-4 h-4" style={{ color: "#60A5FA" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
+                <Users className="w-4 h-4" style={{ color: "#60A5FA" }} />
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className="text-base font-semibold text-white leading-tight">Vehículos Registrados</h2>
@@ -988,10 +947,7 @@ export default function VehiculosPage() {
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                 style={{ backgroundColor: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)" }}>
-                <svg className="w-4 h-4" style={{ color: "#A78BFA" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                  <line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
-                </svg>
+                <User className="w-4 h-4" style={{ color: "#A78BFA" }} />
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className="text-base font-semibold text-white leading-tight">Vehículos Visitantes / Ocasionales</h2>
@@ -1038,10 +994,7 @@ export default function VehiculosPage() {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#F87171" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                  </svg>
+                  <Trash2 className="w-5 h-5" style={{ color: "#F87171" }} />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white">¿Desactivar este vehículo?</h2>
@@ -1066,10 +1019,7 @@ export default function VehiculosPage() {
                   className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
                   style={{ background: deleting ? "rgba(239,68,68,0.4)" : "linear-gradient(135deg,#EF4444,#DC2626)", color: "#fff", border: "1px solid rgba(239,68,68,0.4)" }}>
                   {deleting ? (
-                    <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                    </svg>Desactivando...</>
+                    <><Loader2 className="w-4 h-4 animate-spin" />Desactivando...</>
                   ) : "Sí, desactivar"}
                 </button>
               </div>

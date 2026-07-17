@@ -5,6 +5,7 @@ import { getActiveVehicles, exitVehicle, type ActiveVehicle } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
 import { NoticeBox } from "@/components/ui/notice-box";
 import { describeSubmitError, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
+import { LogOut, Loader2, AlertCircle, Search, Car, Clock } from "lucide-react";
 
 // Backend returns "DD/MM/YYYY HH:mm:ss" via DateFormatterInterceptor
 function parseColombianDate(dateStr: string): Date {
@@ -69,11 +70,7 @@ function ExitModal({
           <div className="flex items-center gap-3 mb-5">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{ backgroundColor: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)" }}>
-              <svg className="w-5 h-5" style={{ color: "#FCA5A5" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
+              <LogOut className="w-5 h-5" style={{ color: "#FCA5A5" }} />
             </div>
             <div>
               <h2 className="text-lg font-bold text-white">Dar Salida</h2>
@@ -120,16 +117,9 @@ function ExitModal({
               className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
               style={{ background: "linear-gradient(135deg,#EF4444,#DC2626)", color: "#fff", border: "1px solid rgba(239,68,68,0.4)" }}>
               {loading ? (
-                <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>Procesando...</>
+                <><Loader2 className="w-4 h-4 animate-spin" />Procesando...</>
               ) : (
-                <><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>Confirmar Salida</>
+                <><LogOut className="w-4 h-4" />Confirmar Salida</>
               )}
             </button>
           </div>
@@ -259,18 +249,14 @@ export default function ParkingPage() {
       {error && (
         <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3"
           style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
-          <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
       )}
 
       {/* Search */}
       <div className="mb-6 relative max-w-sm">
-        <svg className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-dim)" }}>
-          <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-        </svg>
+        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--text-dim)" }} />
         <input
           type="text"
           value={search}
@@ -286,19 +272,13 @@ export default function ParkingPage() {
         style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <svg className="w-8 h-8 animate-spin mb-3" style={{ color: "#2563EB" }} viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
+            <Loader2 className="w-8 h-8 animate-spin mb-3" style={{ color: "#2563EB" }} />
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>Cargando...</p>
           </div>
         ) : vehicles.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: "rgba(37,99,235,0.1)" }}>
-              <svg className="w-8 h-8" style={{ color: "#2563EB" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="3" width="15" height="13" rx="2" /><path d="M16 8h4l3 5v3h-7V8z" />
-                <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
-              </svg>
+              <Car className="w-8 h-8" style={{ color: "#2563EB" }} />
             </div>
             <p className="text-white font-semibold mb-1">Parqueadero vacío</p>
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>No hay vehículos dentro en este momento</p>
@@ -340,9 +320,7 @@ export default function ParkingPage() {
                       </td>
                       <td className="px-5 py-4">
                         <span className="inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: "#F59E0B" }}>
-                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-                          </svg>
+                          <Clock className="w-3.5 h-3.5" />
                           {elapsedTime(v.entryTime)}
                         </span>
                       </td>
@@ -356,11 +334,7 @@ export default function ParkingPage() {
                           style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}
                           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.25)"; }}
                           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.12)"; }}>
-                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                            <polyline points="16 17 21 12 16 7" />
-                            <line x1="21" y1="12" x2="9" y2="12" />
-                          </svg>
+                          <LogOut className="w-3.5 h-3.5" />
                           Dar salida
                         </button>
                       </td>
@@ -381,9 +355,7 @@ export default function ParkingPage() {
                       {v.plate}
                     </span>
                     <span className="inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: "#F59E0B" }}>
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-                      </svg>
+                      <Clock className="w-3.5 h-3.5" />
                       {elapsedTime(v.entryTime)}
                     </span>
                   </div>
@@ -401,15 +373,11 @@ export default function ParkingPage() {
                       <span className="text-sm font-semibold text-right" style={{ color: "#34D399" }}>{formatCOP(v.estimatedCost)}</span>
                     </div>
                   </div>
-                  <button
+                    <button
                     onClick={() => { setExitNotice(null); setExitTarget(v); }}
                     className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer"
                     style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
+                    <LogOut className="w-3.5 h-3.5" />
                     Dar salida
                   </button>
                 </div>

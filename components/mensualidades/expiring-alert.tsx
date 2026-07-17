@@ -1,5 +1,7 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
+
 interface ExpiringAlertProps {
   count: number;
   onViewAll: () => void;
@@ -20,11 +22,7 @@ export function ExpiringAlert({ count, onViewAll }: ExpiringAlertProps) {
           className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
           style={{ backgroundColor: "rgba(245, 158, 11, 0.2)" }}
         >
-          <svg className="w-5 h-5" style={{ color: "#F59E0B" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-            <line x1="12" y1="9" x2="12" y2="13" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
+          <TriangleAlert className="w-5 h-5" style={{ color: "#F59E0B" }} />
         </div>
         <div>
           <p className="font-semibold text-sm" style={{ color: "#FCD34D" }}>

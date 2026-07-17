@@ -1,6 +1,7 @@
 "use client";
 
 import { type Membership } from "@/lib/api";
+import { TriangleAlert, RefreshCw, CircleMinus, Calendar } from "lucide-react";
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return "—";
@@ -114,11 +115,7 @@ function DueDate({ m, isExpiring }: { m: Membership; isExpiring: boolean }) {
   return (
     <div className="flex items-center gap-2">
       {isExpiring && (
-        <svg className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#F59E0B" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-          <line x1="12" y1="9" x2="12" y2="13" />
-          <line x1="12" y1="17" x2="12.01" y2="17" />
-        </svg>
+        <TriangleAlert className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#F59E0B" }} />
       )}
       <span className="text-sm font-medium" style={{ color: isExpiring ? "#FCD34D" : "var(--text-secondary)" }}>
         {formatDate(m.endDate)}
@@ -138,10 +135,7 @@ function ActionButtons({ m, onRenew, onDelete }: { m: Membership; onRenew: (m: M
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(37, 99, 235, 0.28)"; e.currentTarget.style.color = "#93C5FD"; }}
           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(37, 99, 235, 0.15)"; e.currentTarget.style.color = "#60A5FA"; }}
         >
-          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="23 4 23 10 17 10" />
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-          </svg>
+          <RefreshCw className="w-3.5 h-3.5" />
           Renovar
         </button>
       )}
@@ -153,9 +147,7 @@ function ActionButtons({ m, onRenew, onDelete }: { m: Membership; onRenew: (m: M
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
       >
-        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
-        </svg>
+        <CircleMinus className="w-3.5 h-3.5" />
       </button>
     </>
   );
@@ -186,12 +178,7 @@ export function MensualidadesTable({ memberships, expiringIds, onRenew, onDelete
           className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
           style={{ backgroundColor: "rgba(37, 99, 235, 0.1)" }}
         >
-          <svg className="w-8 h-8" style={{ color: "#2563EB" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
+          <Calendar className="w-8 h-8" style={{ color: "#2563EB" }} />
         </div>
         <p className="text-white font-semibold mb-1">Sin mensualidades</p>
         <p className="text-sm" style={{ color: "var(--text-muted)" }}>

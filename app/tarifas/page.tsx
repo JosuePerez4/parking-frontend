@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getSettings, updateSettings, type AppSettings } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
+import { Car, Info, Loader2, Check, Save } from "lucide-react";
 
 const EMPTY_SETTINGS: Omit<AppSettings, "id" | "tenantId"> = {
   fraccionCarro: 0,
@@ -57,10 +58,7 @@ function TarifaSection({ title, rows, accent, settings, form, onChange }: {
       <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
         <div className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ backgroundColor: `${accent}1a`, border: `1px solid ${accent}33` }}>
-          <svg className="w-4 h-4" style={{ color: accent }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="1" y="3" width="15" height="13" rx="2" /><path d="M16 8h4l3 5v3h-7V8z" />
-            <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
-          </svg>
+          <Car className="w-4 h-4" style={{ color: accent }} />
         </div>
         <h2 className="text-sm font-bold text-white">{title}</h2>
       </div>
@@ -162,9 +160,7 @@ export default function TarifasPage() {
       {!loading && !error && !settings && (
         <div className="mb-6 p-4 rounded-xl text-sm flex items-start gap-3"
           style={{ backgroundColor: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.3)", color: "#93C5FD" }}>
-          <svg className="w-5 h-5 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
-          </svg>
+          <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold text-white mb-0.5">¡Bienvenido! 👋</p>
             <p>Aún no has configurado las tarifas de tu negocio. Ingresa los precios por tipo de vehículo y guárdalos para empezar a operar.</p>
@@ -174,10 +170,7 @@ export default function TarifasPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-24">
-          <svg className="w-8 h-8 animate-spin" style={{ color: "#2563EB" }} viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#2563EB" }} />
         </div>
       ) : (
         <form onSubmit={handleSave} className="space-y-6">
@@ -187,9 +180,7 @@ export default function TarifasPage() {
           <div className="flex items-center justify-end gap-4">
             {saved && (
               <span className="text-sm flex items-center gap-1.5" style={{ color: "#34D399" }}>
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+                <Check className="w-4 h-4" />
                 Tarifas guardadas
               </span>
             )}
@@ -197,16 +188,9 @@ export default function TarifasPage() {
               className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60"
               style={{ background: "linear-gradient(135deg,#2563EB,#1D4ED8)", color: "#fff", border: "1px solid rgba(37,99,235,0.5)" }}>
               {saving ? (
-                <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>Guardando...</>
+                <><Loader2 className="w-4 h-4 animate-spin" />Guardando...</>
               ) : (
-                <><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                  <polyline points="17 21 17 13 7 13 7 21" />
-                  <polyline points="7 3 7 8 15 8" />
-                </svg>Guardar Tarifas</>
+                <><Save className="w-4 h-4" />Guardar Tarifas</>
               )}
             </button>
           </div>

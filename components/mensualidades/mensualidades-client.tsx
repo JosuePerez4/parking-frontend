@@ -14,6 +14,7 @@ import { MensualidadesTable } from "./mensualidades-table";
 import { ExpiringAlert } from "./expiring-alert";
 import { RenewModal } from "./renew-modal";
 import { TableSkeleton } from "./table-skeleton";
+import { Plus, AlertCircle, Search, Trash2, Loader2 } from "lucide-react";
 
 type FilterTab = "todas" | "activas" | "vencidas" | "proximas";
 const tabs: { value: FilterTab; label: string }[] = [
@@ -230,9 +231,7 @@ export function MensualidadesClient() {
         <button onClick={() => { setCreateOpen(true); setCreateError(null); }}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer"
           style={{ background: "linear-gradient(135deg,#2563EB,#1D4ED8)", color: "#fff", border: "1px solid rgba(37,99,235,0.5)" }}>
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          <Plus className="w-4 h-4" />
           Nueva Mensualidad
         </button>
       </div>
@@ -244,9 +243,7 @@ export function MensualidadesClient() {
       {error && (
         <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3"
           style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
-          <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
       )}
@@ -275,9 +272,7 @@ export function MensualidadesClient() {
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
             <div className="relative w-full sm:w-64">
-              <svg className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-dim)" }}>
-                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--text-dim)" }} />
               <input
                 type="text"
                 value={search}
@@ -321,10 +316,7 @@ export function MensualidadesClient() {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#F87171" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                  </svg>
+                  <Trash2 className="w-5 h-5" style={{ color: "#F87171" }} />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white">¿Desactivar esta mensualidad?</h2>
@@ -347,10 +339,7 @@ export function MensualidadesClient() {
                   className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
                   style={{ background: deleting ? "rgba(239,68,68,0.4)" : "linear-gradient(135deg,#EF4444,#DC2626)", color: "#fff", border: "1px solid rgba(239,68,68,0.4)" }}>
                   {deleting ? (
-                    <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>Desactivando...</>
+                    <><Loader2 className="w-4 h-4 animate-spin" />Desactivando...</>
                   ) : "Sí, desactivar"}
                 </button>
               </div>

@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { NoticeBox } from "@/components/ui/notice-box";
 import { describeSubmitError, errorNotice, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
+import { Plus, AlertCircle, Users, CircleMinus, SquarePen, Loader2, Save, Trash2, User, Car } from "lucide-react";
 
 const statusConfig = {
   active:   { label: "Activo",    bg: "rgba(16,185,129,0.15)",  border: "rgba(16,185,129,0.35)",  color: "#34D399", dot: "#10B981" },
@@ -259,9 +260,7 @@ export default function ClientesPage() {
           onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; }}
           onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
         >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          <Plus className="w-4 h-4" />
           Nuevo Cliente
         </button>
       </div>
@@ -269,9 +268,7 @@ export default function ClientesPage() {
       {/* Error */}
       {error && (
         <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3" style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
-          <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
       )}
@@ -283,10 +280,7 @@ export default function ClientesPage() {
         ) : clients.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: "rgba(37,99,235,0.1)" }}>
-              <svg className="w-8 h-8" style={{ color: "#2563EB" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
+              <Users className="w-6 h-6" style={{ color: "#2563EB" }} />
             </div>
             <p className="text-white font-semibold mb-1">Sin clientes</p>
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>Crea el primer cliente con el botón superior</p>
@@ -355,9 +349,7 @@ export default function ClientesPage() {
                             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
                             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
                           >
-                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
-                            </svg>
+                            <CircleMinus className="w-3.5 h-3.5" />
                             Desactivar
                           </button>
                         </td>
@@ -414,9 +406,7 @@ export default function ClientesPage() {
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
                         style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
                       >
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
-                        </svg>
+                        <CircleMinus className="w-3.5 h-3.5" />
                         Desactivar
                       </button>
                     </div>
@@ -442,10 +432,7 @@ export default function ClientesPage() {
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center"
                   style={{ backgroundColor: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.3)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#FCD34D" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                  </svg>
+                  <SquarePen className="w-5 h-5" style={{ color: "#FCD34D" }} />
                 </div>
                 <div>
                   <DialogTitle className="text-lg font-bold text-white">Editar Cliente</DialogTitle>
@@ -506,16 +493,9 @@ export default function ClientesPage() {
                   className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
                   style={{ background: editSaving ? "rgba(245,158,11,0.4)" : "linear-gradient(135deg,#F59E0B,#D97706)", color: "#fff", border: "1px solid rgba(245,158,11,0.4)" }}>
                   {editSaving ? (
-                    <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>Guardando...</>
+                    <><Loader2 className="w-4 h-4 animate-spin" />Guardando...</>
                   ) : (
-                    <><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                      <polyline points="17 21 17 13 7 13 7 21" />
-                      <polyline points="7 3 7 8 15 8" />
-                    </svg>Guardar cambios</>
+                    <><Save className="w-4 h-4" />Guardar cambios</>
                   )}
                 </button>
               </div>
@@ -536,10 +516,7 @@ export default function ClientesPage() {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#F87171" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                  </svg>
+                  <Trash2 className="w-5 h-5" style={{ color: "#F87171" }} />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white">¿Desactivar este cliente?</h2>
@@ -564,10 +541,7 @@ export default function ClientesPage() {
                   className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
                   style={{ background: deleting ? "rgba(239,68,68,0.4)" : "linear-gradient(135deg,#EF4444,#DC2626)", color: "#fff", border: "1px solid rgba(239,68,68,0.4)" }}>
                   {deleting ? (
-                    <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>Desactivando...</>
+                    <><Loader2 className="w-4 h-4 animate-spin" />Desactivando...</>
                   ) : "Sí, desactivar"}
                 </button>
               </div>
@@ -606,9 +580,7 @@ export default function ClientesPage() {
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center"
                       style={{ backgroundColor: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
-                      <svg className="w-5 h-5" style={{ color: "#60A5FA" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-                      </svg>
+                      <User className="w-5 h-5" style={{ color: "#60A5FA" }} />
                     </div>
                     <DialogTitle className="text-lg font-bold text-white">Nuevo Cliente</DialogTitle>
                   </div>
@@ -641,14 +613,9 @@ export default function ClientesPage() {
                       className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
                       style={{ background: saving ? "rgba(37,99,235,0.5)" : "linear-gradient(135deg,#2563EB,#1D4ED8)", color: "#fff", border: "1px solid rgba(37,99,235,0.5)" }}>
                       {saving ? (
-                        <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>Guardando...</>
+                        <><Loader2 className="w-4 h-4 animate-spin" />Guardando...</>
                       ) : (
-                        <><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>Crear Cliente</>
+                        <><Plus className="w-4 h-4" />Crear Cliente</>
                       )}
                     </button>
                   </div>
@@ -660,10 +627,7 @@ export default function ClientesPage() {
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center"
                       style={{ backgroundColor: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)" }}>
-                      <svg className="w-5 h-5" style={{ color: "#34D399" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="1" y="3" width="15" height="13" rx="2" /><path d="M16 8h4l3 5v3h-7V8z" />
-                        <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
-                      </svg>
+                      <Car className="w-5 h-5" style={{ color: "#34D399" }} />
                     </div>
                     <div>
                       <DialogTitle className="text-lg font-bold text-white">Agregar Vehículo</DialogTitle>
@@ -704,10 +668,7 @@ export default function ClientesPage() {
                       className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
                       style={{ background: "linear-gradient(135deg,#10B981,#059669)", color: "#fff", border: "1px solid rgba(16,185,129,0.4)" }}>
                       {vehicleSaving ? (
-                        <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>Guardando...</>
+                        <><Loader2 className="w-4 h-4 animate-spin" />Guardando...</>
                       ) : "Agregar Vehículo"}
                     </button>
                   </div>

@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { CustomSelect } from "@/components/ui/custom-select";
 import { NoticeBox } from "@/components/ui/notice-box";
 import { describeSubmitError, errorNotice, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
+import { Plus, AlertCircle, Users, User, SquarePen, CircleMinus } from "lucide-react";
 
 const STATUS_OPTIONS = [
   { value: "active", label: "Activo" },
@@ -193,9 +194,7 @@ export default function UsuariosPage() {
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Gestiona los operadores de tu negocio</p>
         </div>
         <Button onClick={() => { setCreateOpen(true); setCreateForm(EMPTY_CREATE_FORM); setCreateError(null); }}>
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          <Plus className="w-4 h-4" />
           Crear operador
         </Button>
       </div>
@@ -203,9 +202,7 @@ export default function UsuariosPage() {
       {/* Error */}
       {error && (
         <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3" style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
-          <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
       )}
@@ -217,10 +214,7 @@ export default function UsuariosPage() {
         ) : users.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: "rgba(37,99,235,0.1)" }}>
-              <svg className="w-8 h-8" style={{ color: "#2563EB" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
+              <Users className="w-6 h-6" style={{ color: "#2563EB" }} />
             </div>
             <p className="text-white font-semibold mb-1">Sin usuarios</p>
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>Crea el primer operador con el botón superior</p>
@@ -350,9 +344,7 @@ export default function UsuariosPage() {
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center"
                   style={{ backgroundColor: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#60A5FA" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-                  </svg>
+                  <User className="w-5 h-5" style={{ color: "#60A5FA" }} />
                 </div>
                 <DialogTitle className="text-lg font-bold text-white">Crear Operador</DialogTitle>
               </div>
@@ -415,10 +407,7 @@ export default function UsuariosPage() {
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center"
                   style={{ backgroundColor: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.3)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#FCD34D" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                  </svg>
+                  <SquarePen className="w-5 h-5" style={{ color: "#FCD34D" }} />
                 </div>
                 <DialogTitle className="text-lg font-bold text-white">Editar Usuario</DialogTitle>
               </div>
@@ -470,9 +459,7 @@ export default function UsuariosPage() {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#F87171" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
-                  </svg>
+                  <CircleMinus className="w-5 h-5" style={{ color: "#F87171" }} />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white">¿Desactivar este usuario?</h2>
