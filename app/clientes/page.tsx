@@ -1,98 +1,15 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getClients, createClient, createVehicle, updateClient, deleteClient, type Client, type CreateClientDto, type UpdateClientDto } from "@/lib/api";
+import { getClients, updateClient, deleteClient, type Client, type CreateClientDto, type UpdateClientDto } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
-import { CustomSelect } from "@/components/ui/custom-select";
+import { Dialog } from "@/components/ui/dialog";
 import { NoticeBox } from "@/components/ui/notice-box";
 import { describeSubmitError, errorNotice, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
-import { cn } from "@/lib/utils";
-import { Plus, AlertCircle, Users, CircleMinus, SquarePen, Loader2, Save, Trash2, User, Car } from "lucide-react";
-
-const statusConfig = {
-  active:   { label: "Activo",    bg: "rgba(16,185,129,0.15)",  border: "rgba(16,185,129,0.35)",  color: "#34D399", dot: "#10B981" },
-  inactive: { label: "Inactivo",  bg: "rgba(100,116,139,0.15)", border: "rgba(100,116,139,0.3)",  color: "var(--text-secondary)", dot: "#64748B" },
-  blocked:  { label: "Bloqueado", bg: "rgba(239,68,68,0.15)",   border: "rgba(239,68,68,0.35)",   color: "#FCA5A5", dot: "#EF4444" },
-};
-
-const CLIENT_STATUS_OPTIONS = [
-  { value: "active", label: "Activo" },
-  { value: "inactive", label: "Inactivo" },
-  { value: "blocked", label: "Bloqueado" },
-];
-
-const VEHICLE_TYPE_OPTIONS = [
-  { value: "car", label: "Carro" },
-  { value: "moto", label: "Moto" },
-  { value: "truck", label: "Camión" },
-];
-
-const EMPTY_FORM: Omit<CreateClientDto, "tenantId"> = { fullName: "", document: "", phone: "", email: "", address: "" };
-const EMPTY_VEHICLE = { plate: "", type: "car" as "car" | "moto" | "truck", brand: "", color: "" };
-
-function formatDate(dateStr: string): string {
-  if (!dateStr) return "—";
-  // Backend interceptor returns "DD/MM/YYYY HH:mm:ss"
-  const datePart = dateStr.split(" ")[0];
-  if (datePart?.includes("/")) return datePart;
-  // Fallback for raw ISO strings
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric" });
-}
-
-function TableSkeleton() {
-  return (
-    <div className="p-4 space-y-0">
-      <div className="flex items-center gap-4 px-1 pb-3 border-b border-border-soft">
-        {[140, 100, 120, 150, 80, 70].map((w, i) => (
-          <Skeleton key={i} className={cn("h-3 rounded bg-page-input")} style={{ width: w }} />
-        ))}
-      </div>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className={cn("flex items-center gap-4 py-4", i < 4 && "border-b border-border-row")}>
-          <div className="flex items-center gap-3" style={{ minWidth: 140 }}>
-            <Skeleton className="w-8 h-8 rounded-full bg-page-input" />
-            <Skeleton className="h-3 w-28 rounded bg-page-input" />
-          </div>
-          <Skeleton className="h-3 w-24 rounded bg-page-input" />
-          <Skeleton className="h-3 w-28 rounded bg-page-input" />
-          <Skeleton className="h-3 w-36 rounded bg-page-input" />
-          <Skeleton className="h-6 w-16 rounded-full bg-page-input" />
-          <Skeleton className="h-3 w-20 rounded bg-page-input" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function InputField({ label, name, value, onChange, type = "text", placeholder }: {
-  label: string; name: string; value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  type?: string; placeholder?: string;
-}) {
-  return (
-    <div>
-      <label className="block text-xs font-semibold mb-1.5 text-text-secondary">{label}</label>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none transition-all duration-200 bg-page-input border border-border-medium focus:border-blue-600/60"
-      />
-    </div>
-  );
-}
+import { ClientTable } from "@/components/clients/ClientTable";
+import { ClientForm } from "@/components/clients/ClientForm";
+import { ClientFilters } from "@/components/clients/ClientFilters";
+import { Plus, AlertCircle, Loader2, Trash2 } from "lucide-react";
 
 export default function ClientesPage() {
   const { session } = useAuth();
@@ -100,21 +17,17 @@ export default function ClientesPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [form, setForm] = useState<Omit<CreateClientDto, "tenantId">>(EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
-  const [formError, setFormError] = useState<SubmitNotice | null>(null);
-  const [step, setStep] = useState<"client" | "vehicle">("client");
-  const [newClientId, setNewClientId] = useState<number | null>(null);
-  const [vehicleForm, setVehicleForm] = useState(EMPTY_VEHICLE);
-  const [vehicleSaving, setVehicleSaving] = useState(false);
-  const [vehicleError, setVehicleError] = useState<SubmitNotice | null>(null);
+
+  // Search and filter
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  // Create modal
+  const [createOpen, setCreateOpen] = useState(false);
 
   // Edit modal
   const [editTarget, setEditTarget] = useState<Client | null>(null);
-  const [editForm, setEditForm] = useState<UpdateClientDto>({});
   const [editSaving, setEditSaving] = useState(false);
-  const [editError, setEditError] = useState<SubmitNotice | null>(null);
 
   // Delete modal
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null);
@@ -133,74 +46,41 @@ export default function ClientesPage() {
     }
   }, [tenantId]);
 
-  // Carga inicial al montar — load() actualiza estado de forma asíncrona, no en el cuerpo del efecto.
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const filteredClients = clients.filter((c) => {
+    const matchesSearch = !search ||
+      c.fullName.toLowerCase().includes(search.toLowerCase()) ||
+      c.document.toLowerCase().includes(search.toLowerCase()) ||
+      c.phone.toLowerCase().includes(search.toLowerCase()) ||
+      (c.email && c.email.toLowerCase().includes(search.toLowerCase()));
+    const matchesStatus = !statusFilter || c.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async function handleCreateSubmit(_data: CreateClientDto | UpdateClientDto) {
+    setCreateOpen(false);
+    await load();
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!form.fullName || !form.document || !form.phone) {
-      setFormError(errorNotice("Nombre, documento y teléfono son obligatorios."));
-      return;
+  async function handleEditSubmit(data: UpdateClientDto) {
+    if (!editTarget) return;
+    if (!data.fullName || !data.document || !data.phone) {
+      throw errorNotice("Nombre, documento y teléfono son obligatorios.");
     }
-    setSaving(true);
-    setFormError(null);
+    setEditSaving(true);
     try {
-      const client = await createClient({ ...form, tenantId });
-      setNewClientId(client.id);
-      setVehicleForm(EMPTY_VEHICLE);
-      setVehicleError(null);
-      setStep("vehicle");
+      await updateClient(editTarget.id, data, tenantId);
+      setEditTarget(null);
       await load();
     } catch (err: unknown) {
-      setFormError(describeSubmitError(err));
-      if (isUnconfirmed(err)) await load();
+      setEditSaving(false);
+      throw err;
     } finally {
-      setSaving(false);
+      setEditSaving(false);
     }
-  }
-
-  async function handleAddVehicle(e: React.FormEvent) {
-    e.preventDefault();
-    if (!vehicleForm.plate || !newClientId) return;
-    setVehicleSaving(true);
-    setVehicleError(null);
-    try {
-      await createVehicle({ ...vehicleForm, clientId: newClientId, tenantId });
-      closeModal();
-    } catch (err: unknown) {
-      setVehicleError(describeSubmitError(err));
-      if (isUnconfirmed(err)) await load();
-    } finally {
-      setVehicleSaving(false);
-    }
-  }
-
-  function closeModal() {
-    setModalOpen(false);
-    setForm(EMPTY_FORM);
-    setStep("client");
-    setNewClientId(null);
-    setVehicleForm(EMPTY_VEHICLE);
-    setVehicleError(null);
-    setFormError(null);
-  }
-
-  function openEdit(client: Client) {
-    setEditTarget(client);
-    setEditForm({
-      fullName: client.fullName,
-      document: client.document,
-      phone: client.phone ?? "",
-      email: client.email ?? "",
-      address: client.address ?? "",
-      status: client.status,
-    });
-    setEditError(null);
   }
 
   async function handleDelete() {
@@ -219,25 +99,8 @@ export default function ClientesPage() {
     }
   }
 
-  async function handleUpdate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!editTarget) return;
-    if (!editForm.fullName || !editForm.document || !editForm.phone) {
-      setEditError(errorNotice("Nombre, documento y teléfono son obligatorios."));
-      return;
-    }
-    setEditSaving(true);
-    setEditError(null);
-    try {
-      await updateClient(editTarget.id, editForm, tenantId);
-      setEditTarget(null);
-      await load();
-    } catch (err: unknown) {
-      setEditError(describeSubmitError(err));
-      if (isUnconfirmed(err)) await load();
-    } finally {
-      setEditSaving(false);
-    }
+  function openEdit(client: Client) {
+    setEditTarget(client);
   }
 
   return (
@@ -249,7 +112,7 @@ export default function ClientesPage() {
           <p className="text-sm text-text-secondary">Gestiona los clientes registrados en el sistema</p>
         </div>
         <button
-          onClick={() => { setModalOpen(true); setForm(EMPTY_FORM); setFormError(null); setStep("client"); }}
+          onClick={() => setCreateOpen(true)}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer"
           style={{ background: "linear-gradient(135deg,#2563EB,#1D4ED8)", color: "#fff", border: "1px solid rgba(37,99,235,0.5)" }}
           onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; }}
@@ -268,231 +131,41 @@ export default function ClientesPage() {
         </div>
       )}
 
-      {/* Table card */}
-      <div className="rounded-2xl overflow-hidden bg-card backdrop-blur-md border border-border-default">
-        {loading ? (
-          <TableSkeleton />
-        ) : clients.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: "rgba(37,99,235,0.1)" }}>
-              <Users className="w-6 h-6" style={{ color: "#2563EB" }} />
-            </div>
-            <p className="text-white font-semibold mb-1">Sin clientes</p>
-            <p className="text-sm text-text-muted">Crea el primer cliente con el botón superior</p>
-          </div>
-        ) : (
-          <div>
-            {/* Tabla (desktop) */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border-soft">
-                    {["Cliente", "Documento", "Teléfono", "Email", "Estado", "Registrado", ""].map((col) => (
-                      <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-text-dim">{col}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {clients.map((c, i) => {
-                    const st = statusConfig[c.status] ?? statusConfig.inactive;
-                    return (
-                      <tr
-                        key={c.id}
-                        className={cn("transition-colors duration-150 cursor-pointer", i < clients.length - 1 && "border-b border-border-row")}
-                        onClick={() => openEdit(c)}
-                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-row-hover)"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
-                      >
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                              style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
-                              {c.fullName.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-white leading-tight">{c.fullName}</p>
-                              {c.address && <p className="text-xs mt-0.5 truncate max-w-[160px] text-text-muted">{c.address}</p>}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="text-sm font-mono text-text-secondary">{c.document}</span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="text-sm text-text-secondary">{c.phone}</span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="text-sm text-text-secondary">{c.email || "—"}</span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-                            style={{ backgroundColor: st.bg, border: `1px solid ${st.border}`, color: st.color }}>
-                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: st.dot }} />
-                            {st.label}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="text-sm text-text-muted">{formatDate(c.createdAt)}</span>
-                        </td>
-                        <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            onClick={() => { setDeleteError(null); setDeleteTarget(c); }}
-                            title="Desactivar cliente"
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                            style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
-                          >
-                            <CircleMinus className="w-3.5 h-3.5" />
-                            Desactivar
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+      {/* Filters */}
+      <ClientFilters
+        search={search}
+        onSearchChange={setSearch}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+      />
 
-            {/* Tarjetas (móvil) */}
-            <div className="md:hidden p-4 space-y-3">
-              {clients.map((c) => {
-                const st = statusConfig[c.status] ?? statusConfig.inactive;
-                return (
-                  <div key={c.id} onClick={() => openEdit(c)}
-                    className="rounded-xl p-4 space-y-3 cursor-pointer bg-card border border-border-default">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                          style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
-                          {c.fullName.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-white leading-tight truncate">{c.fullName}</p>
-                          <p className="text-xs mt-0.5 font-mono text-text-muted">{c.document}</p>
-                        </div>
-                      </div>
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0"
-                        style={{ backgroundColor: st.bg, border: `1px solid ${st.border}`, color: st.color }}>
-                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: st.dot }} />
-                        {st.label}
-                      </span>
-                    </div>
-                    <div className="space-y-2 pt-1 border-t border-border-soft">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">Teléfono</span>
-                        <span className="text-sm text-right text-text-secondary">{c.phone}</span>
-                      </div>
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">Email</span>
-                        <span className="text-sm text-right truncate max-w-[60%] text-text-secondary">{c.email || "—"}</span>
-                      </div>
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">Registrado</span>
-                        <span className="text-sm text-right text-text-muted">{formatDate(c.createdAt)}</span>
-                      </div>
-                    </div>
-                    <div className="pt-1" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={() => { setDeleteError(null); setDeleteTarget(c); }}
-                        title="Desactivar cliente"
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                        style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
-                      >
-                        <CircleMinus className="w-3.5 h-3.5" />
-                        Desactivar
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="px-5 py-3 border-t border-border-soft">
-              <p className="text-xs text-text-dim">{clients.length} cliente{clients.length !== 1 ? "s" : ""}</p>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Table */}
+      <ClientTable
+        clients={filteredClients}
+        loading={loading}
+        onEdit={openEdit}
+        onDelete={(c) => { setDeleteError(null); setDeleteTarget(c); }}
+      />
 
       {/* Edit modal */}
       <Dialog open={!!editTarget} onOpenChange={(v) => { if (!editSaving && !v) setEditTarget(null); }}>
-        <DialogContent className="sm:max-w-lg border-0 p-0 overflow-hidden bg-modal backdrop-blur-xl border border-border-medium">
-          <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#F59E0B,#D97706)" }} />
-          <div className="p-6">
-            <DialogHeader className="mb-5">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.3)" }}>
-                  <SquarePen className="w-5 h-5" style={{ color: "#FCD34D" }} />
-                </div>
-                <div>
-                  <DialogTitle className="text-lg font-bold text-white">Editar Cliente</DialogTitle>
-                </div>
-              </div>
-              <DialogDescription className="text-sm text-text-muted">
-                {editTarget?.fullName} · modificando datos del cliente
-              </DialogDescription>
-            </DialogHeader>
-
-            <form onSubmit={handleUpdate} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <InputField label="Nombre completo *" name="fullName"
-                    value={editForm.fullName ?? ""}
-                    onChange={(e) => setEditForm((p) => ({ ...p, fullName: e.target.value }))}
-                    placeholder="Ej. Juan Pérez García" />
-                </div>
-                <InputField label="Documento *" name="document"
-                  value={editForm.document ?? ""}
-                  onChange={(e) => setEditForm((p) => ({ ...p, document: e.target.value }))}
-                  placeholder="Cédula o NIT" />
-                <InputField label="Teléfono *" name="phone" type="tel"
-                  value={editForm.phone ?? ""}
-                  onChange={(e) => setEditForm((p) => ({ ...p, phone: e.target.value }))}
-                  placeholder="300 123 4567" />
-                <div className="col-span-2">
-                  <InputField label="Email" name="email" type="email"
-                    value={editForm.email ?? ""}
-                    onChange={(e) => setEditForm((p) => ({ ...p, email: e.target.value }))}
-                    placeholder="correo@ejemplo.com" />
-                </div>
-                <div className="col-span-2">
-                  <InputField label="Dirección" name="address"
-                    value={editForm.address ?? ""}
-                    onChange={(e) => setEditForm((p) => ({ ...p, address: e.target.value }))}
-                    placeholder="Calle 123 #45-67" />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs font-semibold mb-1.5 text-text-secondary">Estado</label>
-                  <CustomSelect
-                    value={editForm.status ?? "active"}
-                    onChange={(v) => setEditForm((p) => ({ ...p, status: v as Client["status"] }))}
-                    options={CLIENT_STATUS_OPTIONS}
-                  />
-                </div>
-              </div>
-
-              <NoticeBox notice={editError} />
-
-              <div className="flex gap-3 pt-1">
-                <button type="button" onClick={() => setEditTarget(null)} disabled={editSaving}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
-                  Cancelar
-                </button>
-                <button type="submit" disabled={editSaving}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
-                  style={{ background: editSaving ? "rgba(245,158,11,0.4)" : "linear-gradient(135deg,#F59E0B,#D97706)", color: "#fff", border: "1px solid rgba(245,158,11,0.4)" }}>
-                  {editSaving ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" />Guardando...</>
-                  ) : (
-                    <><Save className="w-4 h-4" />Guardar cambios</>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </DialogContent>
+        {editTarget && (
+          <ClientForm
+            mode="edit"
+            initialData={{
+              fullName: editTarget.fullName,
+              document: editTarget.document,
+              phone: editTarget.phone ?? "",
+              email: editTarget.email ?? "",
+              address: editTarget.address ?? "",
+              status: editTarget.status,
+              id: editTarget.id,
+            }}
+            onSubmit={handleEditSubmit}
+            onCancel={() => setEditTarget(null)}
+            loading={editSaving}
+          />
+        )}
       </Dialog>
 
       {/* Delete confirmation modal */}
@@ -541,129 +214,13 @@ export default function ClientesPage() {
       )}
 
       {/* Create modal */}
-      <Dialog open={modalOpen} onOpenChange={(v) => { if (!saving && !vehicleSaving) { if (!v) closeModal(); } }}>
-        <DialogContent className="sm:max-w-lg border-0 p-0 overflow-hidden bg-modal backdrop-blur-xl border border-border-medium">
-          <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#2563EB,#7C3AED)" }} />
-          <div className="p-6">
-            {/* Step indicator */}
-            <div className="flex items-center gap-2 mb-5">
-              {(["client", "vehicle"] as const).map((s, i) => (
-                <div key={s} className="flex items-center gap-2">
-                  {i > 0 && <div className="w-8 h-px" style={{ backgroundColor: step === "vehicle" ? "rgba(37,99,235,0.5)" : "var(--border-medium)" }} />}
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
-                      style={{ backgroundColor: step === s || (s === "client" && step === "vehicle") ? "#2563EB" : "var(--bg-input)", color: "#fff" }}>
-                      {i + 1}
-                    </div>
-                    <span className="text-xs font-medium" style={{ color: step === s ? "#60A5FA" : "var(--text-dim)" }}>
-                      {s === "client" ? "Datos cliente" : "Vehículo"}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {step === "client" ? (
-              <>
-                <DialogHeader className="mb-5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                      style={{ backgroundColor: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
-                      <User className="w-5 h-5" style={{ color: "#60A5FA" }} />
-                    </div>
-                    <DialogTitle className="text-lg font-bold text-white">Nuevo Cliente</DialogTitle>
-                  </div>
-                  <DialogDescription className="text-sm text-text-muted">
-                    Completa el formulario para registrar un nuevo cliente.
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                      <InputField label="Nombre completo *" name="fullName" value={form.fullName} onChange={handleChange} placeholder="Ej. Juan Pérez García" />
-                    </div>
-                    <InputField label="Documento *" name="document" value={form.document} onChange={handleChange} placeholder="Cédula o NIT" />
-                    <InputField label="Teléfono *" name="phone" value={form.phone} onChange={handleChange} type="tel" placeholder="300 123 4567" />
-                    <div className="col-span-2">
-                      <InputField label="Email" name="email" value={form.email} onChange={handleChange} type="email" placeholder="correo@ejemplo.com" />
-                    </div>
-                    <div className="col-span-2">
-                      <InputField label="Dirección" name="address" value={form.address} onChange={handleChange} placeholder="Calle 123 #45-67" />
-                    </div>
-                  </div>
-                  <NoticeBox notice={formError} />
-                  <div className="flex gap-3 pt-1">
-                    <button type="button" onClick={closeModal} disabled={saving}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
-                  Cancelar
-                    </button>
-                    <button type="submit" disabled={saving}
-                      className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
-                      style={{ background: saving ? "rgba(37,99,235,0.5)" : "linear-gradient(135deg,#2563EB,#1D4ED8)", color: "#fff", border: "1px solid rgba(37,99,235,0.5)" }}>
-                      {saving ? (
-                        <><Loader2 className="w-4 h-4 animate-spin" />Guardando...</>
-                      ) : (
-                        <><Plus className="w-4 h-4" />Crear Cliente</>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <>
-                <DialogHeader className="mb-5">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                      style={{ backgroundColor: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)" }}>
-                      <Car className="w-5 h-5" style={{ color: "#34D399" }} />
-                    </div>
-                    <div>
-                      <DialogTitle className="text-lg font-bold text-white">Agregar Vehículo</DialogTitle>
-                    </div>
-                  </div>
-                  <DialogDescription className="text-sm text-text-muted">
-                    Cliente creado. Registra su vehículo o sáltate este paso.
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleAddVehicle} className="space-y-4">
-                  <InputField label="Placa *" name="plate" value={vehicleForm.plate}
-                    onChange={(e) => setVehicleForm((p) => ({ ...p, plate: e.target.value.toUpperCase() }))}
-                    placeholder="Ej. ABC123" />
-                  <div>
-                    <label className="block text-xs font-semibold mb-1.5 text-text-secondary">Tipo *</label>
-                    <CustomSelect
-                      value={vehicleForm.type}
-                      onChange={(v) => setVehicleForm((p) => ({ ...p, type: v as "car" | "moto" | "truck" }))}
-                      options={VEHICLE_TYPE_OPTIONS}
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <InputField label="Marca" name="brand" value={vehicleForm.brand}
-                      onChange={(e) => setVehicleForm((p) => ({ ...p, brand: e.target.value }))}
-                      placeholder="Ej. Chevrolet" />
-                    <InputField label="Color" name="color" value={vehicleForm.color}
-                      onChange={(e) => setVehicleForm((p) => ({ ...p, color: e.target.value }))}
-                      placeholder="Ej. Blanco" />
-                  </div>
-                  <NoticeBox notice={vehicleError} />
-                  <div className="flex gap-3 pt-1">
-                    <button type="button" onClick={closeModal} disabled={vehicleSaving}
-                      className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
-                      Omitir
-                    </button>
-                    <button type="submit" disabled={vehicleSaving || !vehicleForm.plate}
-                      className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
-                      style={{ background: "linear-gradient(135deg,#10B981,#059669)", color: "#fff", border: "1px solid rgba(16,185,129,0.4)" }}>
-                      {vehicleSaving ? (
-                        <><Loader2 className="w-4 h-4 animate-spin" />Guardando...</>
-                      ) : "Agregar Vehículo"}
-                    </button>
-                  </div>
-                </form>
-              </>
-            )}
-          </div>
-        </DialogContent>
+      <Dialog open={createOpen} onOpenChange={(v) => { if (!v) setCreateOpen(false); }}>
+        <ClientForm
+          mode="create"
+          onSubmit={handleCreateSubmit}
+          onCancel={() => setCreateOpen(false)}
+          loading={false}
+        />
       </Dialog>
     </div>
   );
