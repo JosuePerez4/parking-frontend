@@ -24,6 +24,7 @@ import { StatusBadge } from "@/components/admin/status-badge";
 import { TenantEditModal } from "@/components/admin/tenant-edit-modal";
 import { NoticeBox } from "@/components/ui/notice-box";
 import { describeSubmitError, errorNotice, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
+import { Plus, AlertCircle, Building, Users, SquarePen, CircleMinus, Trash2, Check } from "lucide-react";
 
 interface CreateFormState {
   name: string;
@@ -57,21 +58,21 @@ function formatDate(dateStr: string): string {
 function TableSkeleton() {
   return (
     <div className="p-4 space-y-0">
-      <div className="flex items-center gap-4 px-1 pb-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
+      <div className="flex items-center gap-4 px-1 pb-3 border-b border-border-soft">
         {[160, 140, 120, 90, 80].map((w, i) => (
-          <Skeleton key={i} className="h-3 rounded" style={{ width: w, backgroundColor: "var(--bg-input)" }} />
+          <Skeleton key={i} className="h-3 rounded bg-page-input" style={{ width: w }} />
         ))}
       </div>
       {Array.from({ length: 5 }).map((_, i) => (
         <div key={i} className="flex items-center gap-4 py-4" style={{ borderBottom: i < 4 ? "1px solid var(--border-row)" : "none" }}>
           <div className="flex items-center gap-3" style={{ minWidth: 160 }}>
-            <Skeleton className="w-8 h-8 rounded-full" style={{ backgroundColor: "var(--bg-input)" }} />
-            <Skeleton className="h-3 w-32 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+            <Skeleton className="w-8 h-8 rounded-full bg-page-input" />
+            <Skeleton className="h-3 w-32 rounded bg-page-input" />
           </div>
-          <Skeleton className="h-3 w-36 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-3 w-24 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-6 w-16 rounded-full" style={{ backgroundColor: "var(--bg-input)" }} />
-          <Skeleton className="h-3 w-20 rounded" style={{ backgroundColor: "var(--bg-input)" }} />
+          <Skeleton className="h-3 w-36 rounded bg-page-input" />
+          <Skeleton className="h-3 w-24 rounded bg-page-input" />
+          <Skeleton className="h-6 w-16 rounded-full bg-page-input" />
+          <Skeleton className="h-3 w-20 rounded bg-page-input" />
         </div>
       ))}
     </div>
@@ -199,42 +200,36 @@ export default function AdminNegociosPage() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Negocios</h1>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          <h1 className="text-2xl font-bold text-text-primary">Negocios</h1>
+          <p className="text-sm text-text-secondary">
             Administra los negocios que usan Parking IA y sus cuentas de acceso
           </p>
         </div>
         <Button onClick={openCreateModal}>
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          <Plus className="w-4 h-4" />
           Crear negocio
         </Button>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3" style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
-          <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300">
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
       )}
 
       {/* Table card */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
+      <div className="rounded-2xl overflow-hidden bg-page-card border border-border-default" style={{ backdropFilter: "blur(12px)" }}>
         {loading ? (
           <TableSkeleton />
         ) : tenants.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: "rgba(37,99,235,0.1)" }}>
-              <svg className="w-8 h-8" style={{ color: "#2563EB" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 21h18" /><path d="M5 21V7l7-4 7 4v14" /><path d="M9 21v-6h6v6" />
-              </svg>
+              <Building className="w-8 h-8" style={{ color: "#2563EB" }} />
             </div>
-            <p className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Sin negocios registrados</p>
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>Crea el primer negocio con el botón superior</p>
+            <p className="font-semibold mb-1 text-text-primary">Sin negocios registrados</p>
+            <p className="text-sm text-text-muted">Crea el primer negocio con el botón superior</p>
           </div>
         ) : (
           <div>
@@ -242,9 +237,9 @@ export default function AdminNegociosPage() {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                  <tr className="border-b border-border-soft">
                     {["Negocio", "Contacto", "Estado", "Creado", ""].map((col) => (
-                      <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>{col}</th>
+                      <th key={col} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-text-dim">{col}</th>
                     ))}
                   </tr>
                 </thead>
@@ -266,33 +261,29 @@ export default function AdminNegociosPage() {
                           >
                             {t.name.charAt(0).toUpperCase()}
                           </div>
-                          <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-primary)" }}>{t.name}</p>
+                          <p className="text-sm font-medium leading-tight text-text-primary">{t.name}</p>
                         </div>
                       </td>
                       <td className="px-5 py-4">
-                        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{t.contactEmail || "—"}</p>
-                        {t.contactPhone && <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{t.contactPhone}</p>}
+                        <p className="text-sm text-text-secondary">{t.contactEmail || "—"}</p>
+                        {t.contactPhone && <p className="text-xs mt-0.5 text-text-muted">{t.contactPhone}</p>}
                       </td>
                       <td className="px-5 py-4">
                         <StatusBadge status={t.status} />
                       </td>
                       <td className="px-5 py-4">
-                        <span className="text-sm" style={{ color: "var(--text-muted)" }}>{formatDate(t.createdAt)}</span>
+                        <span className="text-sm text-text-muted">{formatDate(t.createdAt)}</span>
                       </td>
                       <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => router.push(`/admin/negocios/${t.id}`)}
                             title="Ver usuarios"
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                            style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-medium)", color: "var(--text-muted)" }}
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200 bg-page-subtle border border-border-medium text-text-muted"
                             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-input)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
                             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "var(--bg-subtle)"; e.currentTarget.style.color = "var(--text-muted)"; }}
                           >
-                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-                              <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg>
+                            <Users className="w-3.5 h-3.5" />
                             Usuarios
                           </button>
                           <button
@@ -303,10 +294,7 @@ export default function AdminNegociosPage() {
                             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(245,158,11,0.18)"; e.currentTarget.style.borderColor = "rgba(245,158,11,0.4)"; }}
                             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(245,158,11,0.08)"; e.currentTarget.style.borderColor = "rgba(245,158,11,0.2)"; }}
                           >
-                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                            </svg>
+                            <SquarePen className="w-3.5 h-3.5" />
                           </button>
                           {t.status === "active" && (
                             <button
@@ -317,9 +305,7 @@ export default function AdminNegociosPage() {
                               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
                               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
                             >
-                              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
-                              </svg>
+                              <CircleMinus className="w-3.5 h-3.5" />
                             </button>
                           )}
                         </div>
@@ -334,8 +320,7 @@ export default function AdminNegociosPage() {
             <div className="md:hidden p-4 space-y-3">
               {tenants.map((t) => (
                 <div key={t.id} onClick={() => router.push(`/admin/negocios/${t.id}`)}
-                  className="rounded-xl p-4 space-y-3 cursor-pointer"
-                  style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border-default)" }}>
+                  className="rounded-xl p-4 space-y-3 cursor-pointer bg-page-card border border-border-default">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
@@ -343,34 +328,30 @@ export default function AdminNegociosPage() {
                         {t.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium leading-tight truncate" style={{ color: "var(--text-primary)" }}>{t.name}</p>
-                        <p className="text-xs mt-0.5 truncate" style={{ color: "var(--text-muted)" }}>{t.contactEmail || "—"}</p>
+                        <p className="text-sm font-medium leading-tight truncate text-text-primary">{t.name}</p>
+                        <p className="text-xs mt-0.5 truncate text-text-muted">{t.contactEmail || "—"}</p>
                       </div>
                     </div>
                     <StatusBadge status={t.status} />
                   </div>
-                  <div className="space-y-2 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
+                  <div className="space-y-2 pt-1 border-t border-border-soft">
                     {t.contactPhone && (
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Teléfono</span>
-                        <span className="text-sm text-right" style={{ color: "var(--text-secondary)" }}>{t.contactPhone}</span>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">Teléfono</span>
+                        <span className="text-sm text-right text-text-secondary">{t.contactPhone}</span>
                       </div>
                     )}
                     <div className="flex items-center justify-between gap-3">
-                      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Creado</span>
-                      <span className="text-sm text-right" style={{ color: "var(--text-muted)" }}>{formatDate(t.createdAt)}</span>
+                      <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">Creado</span>
+                      <span className="text-sm text-right text-text-muted">{formatDate(t.createdAt)}</span>
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => router.push(`/admin/negocios/${t.id}`)}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                      style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-medium)", color: "var(--text-muted)" }}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200 bg-page-subtle border border-border-medium text-text-muted"
                     >
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
+                      <Users className="w-3.5 h-3.5" />
                       Usuarios
                     </button>
                     <button
@@ -378,10 +359,7 @@ export default function AdminNegociosPage() {
                       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
                       style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#FCD34D" }}
                     >
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                      </svg>
+                      <SquarePen className="w-3.5 h-3.5" />
                       Editar
                     </button>
                     {t.status === "active" && (
@@ -390,9 +368,7 @@ export default function AdminNegociosPage() {
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
                         style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
                       >
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
-                        </svg>
+                        <CircleMinus className="w-3.5 h-3.5" />
                         Desactivar
                       </button>
                     )}
@@ -401,8 +377,8 @@ export default function AdminNegociosPage() {
               ))}
             </div>
 
-            <div className="px-5 py-3" style={{ borderTop: "1px solid var(--border-soft)" }}>
-              <p className="text-xs" style={{ color: "var(--text-dim)" }}>{tenants.length} negocio{tenants.length !== 1 ? "s" : ""}</p>
+            <div className="px-5 py-3 border-t border-border-soft">
+              <p className="text-xs text-text-dim">{tenants.length} negocio{tenants.length !== 1 ? "s" : ""}</p>
             </div>
           </div>
         )}
@@ -422,23 +398,21 @@ export default function AdminNegociosPage() {
           style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
           onClick={(e) => { if (e.target === e.currentTarget && !deactivating) setDeactivateTarget(null); }}
         >
-          <div className="w-full max-w-sm rounded-2xl overflow-hidden" style={{ background: "var(--bg-modal)", border: "1px solid rgba(239,68,68,0.25)" }}>
+          <div className="w-full max-w-sm rounded-2xl overflow-hidden bg-page-modal"
+            style={{ border: "1px solid rgba(239,68,68,0.25)" }}>
             <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#EF4444,#DC2626)" }} />
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#F87171" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                  </svg>
+                  <Trash2 className="w-5 h-5" style={{ color: "#F87171" }} />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>¿Desactivar este negocio?</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Sus datos se conservan, no se borra nada</p>
+                  <h2 className="text-base font-bold text-text-primary">¿Desactivar este negocio?</h2>
+                  <p className="text-xs mt-0.5 text-text-muted">Sus datos se conservan, no se borra nada</p>
                 </div>
               </div>
               <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.15)" }}>
-                <p className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>{deactivateTarget.name}</p>
+                <p className="text-sm font-medium mb-1 text-text-primary">{deactivateTarget.name}</p>
                 <p className="text-xs" style={{ color: "#F87171" }}>
                   Sus usuarios seguirán existiendo pero el negocio quedará marcado como inactivo. Puedes reactivarlo luego editando su estado.
                 </p>
@@ -460,21 +434,19 @@ export default function AdminNegociosPage() {
       {/* Create modal */}
       <Dialog open={createOpen} onOpenChange={(v) => { if (!createSaving && !v) closeCreateModal(); }}>
         <DialogContent
-          className="sm:max-w-lg border-0 p-0 overflow-hidden"
-          style={{ background: "var(--bg-modal)", backdropFilter: "blur(20px)", border: "1px solid var(--border-medium)" }}
+          className="sm:max-w-lg border-0 p-0 overflow-hidden bg-page-modal border border-border-medium"
+          style={{ backdropFilter: "blur(20px)" }}
         >
           <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#2563EB,#7C3AED)" }} />
           <div className="p-6">
             {createStep === "success" ? (
               <div className="text-center py-4">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)" }}>
-                  <svg className="w-7 h-7" style={{ color: "#34D399" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-emerald-500/15" style={{ border: "1px solid rgba(16,185,129,0.3)" }}>
+                  <Check className="w-7 h-7 text-emerald-400" />
                 </div>
-                <h2 className="text-lg font-bold mb-1" style={{ color: "var(--text-primary)" }}>Negocio creado</h2>
-                <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>
-                  Credenciales enviadas a <strong style={{ color: "var(--text-primary)" }}>{createForm.adminEmail}</strong>.
+                <h2 className="text-lg font-bold mb-1 text-text-primary">Negocio creado</h2>
+                <p className="text-sm mb-6 text-text-secondary">
+                  Credenciales enviadas a <strong className="text-text-primary">{createForm.adminEmail}</strong>.
                   El administrador ya puede iniciar sesión con ese correo y la contraseña asignada.
                 </p>
                 <Button className="w-full justify-center" onClick={closeCreateModal}>Listo</Button>
@@ -484,20 +456,18 @@ export default function AdminNegociosPage() {
                 <DialogHeader className="mb-5">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
-                      <svg className="w-5 h-5" style={{ color: "#60A5FA" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 21h18" /><path d="M5 21V7l7-4 7 4v14" /><path d="M9 21v-6h6v6" />
-                      </svg>
+                      <Building className="w-5 h-5" style={{ color: "#60A5FA" }} />
                     </div>
-                    <DialogTitle style={{ color: "var(--text-primary)" }} className="text-lg font-bold">Nuevo Negocio</DialogTitle>
+                    <DialogTitle className="text-lg font-bold text-text-primary">Nuevo Negocio</DialogTitle>
                   </div>
-                  <DialogDescription style={{ color: "var(--text-muted)" }} className="text-sm">
+                  <DialogDescription className="text-sm text-text-muted">
                     Registra el negocio y su primera cuenta de administrador.
                   </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleCreateSubmit} className="space-y-5">
                   <div className="space-y-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-dim)" }}>Datos del negocio</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-text-dim">Datos del negocio</p>
                     <div>
                       <Label htmlFor="create-name">Nombre del negocio *</Label>
                       <Input
@@ -534,8 +504,8 @@ export default function AdminNegociosPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-4 pt-1" style={{ borderTop: "1px solid var(--border-soft)" }}>
-                    <p className="text-xs font-semibold uppercase tracking-wider pt-4" style={{ color: "var(--text-dim)" }}>Administrador inicial</p>
+                  <div className="space-y-4 pt-1 border-t border-border-soft">
+                    <p className="text-xs font-semibold uppercase tracking-wider pt-4 text-text-dim">Administrador inicial</p>
                     <div>
                       <Label htmlFor="create-admin-name">Nombre completo *</Label>
                       <Input

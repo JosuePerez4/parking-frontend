@@ -5,8 +5,13 @@ import { AuthProvider } from "@/components/auth-provider";
 import { AppShell } from "@/components/app-shell";
 
 export const metadata: Metadata = {
-  title: "Parking IA — Dashboard",
-  description: "Sistema de gestión de parqueaderos",
+  title: {
+    template: "%s — Parking IA",
+    default: "Parking IA — Sistema de Gestión de Parqueaderos",
+  },
+  description:
+    "Sistema integral de gestión de parqueaderos con control de clientes, vehículos, mensualidades y reportes",
+  keywords: ["parking", "parqueadero", "gestión", "vehículos", "mensualidades"],
 };
 
 export default function RootLayout({
@@ -16,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className="h-full antialiased dark">
-      <body className="min-h-full" style={{ backgroundColor: "var(--bg-page)", fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <body className="min-h-full bg-page font-sans">
         <ThemeProvider>
           <AuthProvider>
             <AppShell>{children}</AppShell>

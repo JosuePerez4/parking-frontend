@@ -1,6 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Calendar, CircleParking, Users, Car } from "lucide-react";
+import { useAuth } from "@/components/auth-provider";
+import {
+  getActiveVehicles,
+  getMemberships,
+  getClients,
+  getVehicles,
+  getExpiringMemberships,
+} from "@/lib/api";
 
 const cards = [
   {
@@ -8,63 +18,119 @@ const cards = [
     title: "Mensualidades",
     description: "Gestiona y renueva mensualidades de vehículos",
     color: "#2563EB",
-    icon: (
-      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-        <line x1="16" y1="2" x2="16" y2="6" />
-        <line x1="8" y1="2" x2="8" y2="6" />
-        <line x1="3" y1="10" x2="21" y2="10" />
-      </svg>
-    ),
+    icon: <Calendar className="w-6 h-6" />,
+    metricKey: "memberships" as const,
+    metricLabel: "activas",
   },
   {
     href: "/parking",
     title: "Parking Activo",
     description: "Monitorea los vehículos dentro del parqueadero",
     color: "#10B981",
-    icon: (
-      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
-      </svg>
-    ),
+    icon: <CircleParking className="w-6 h-6" />,
+    metricKey: "activeVehicles" as const,
+    metricLabel: "en parqueadero",
   },
   {
     href: "/clientes",
     title: "Clientes",
     description: "Administra los clientes registrados",
     color: "#8B5CF6",
-    icon: (
-      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
+    icon: <Users className="w-6 h-6" />,
+    metricKey: "clients" as const,
+    metricLabel: "registrados",
   },
   {
     href: "/vehiculos",
     title: "Vehículos",
     description: "Consulta y gestiona vehículos registrados",
     color: "#F59E0B",
-    icon: (
-      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="1" y="3" width="15" height="13" rx="2" />
-        <path d="M16 8h4l3 5v3h-7V8z" />
-        <circle cx="5.5" cy="18.5" r="2.5" />
-        <circle cx="18.5" cy="18.5" r="2.5" />
-      </svg>
-    ),
+    icon: <Car className="w-6 h-6" />,
+    metricKey: "vehicles" as const,
+    metricLabel: "registrados",
   },
 ];
 
+interface Metrics {
+  activeVehicles: number | null;
+  memberships: number | null;
+  expiringMemberships: number | null;
+  clients: number | null;
+  vehicles: number | null;
+}
+
 export default function HomePage() {
+  const { session } = useAuth();
+  const tenantId = session?.user.tenantId;
+
+  const [metrics, setMetrics] = useState<Metrics>({
+    activeVehicles: null,
+    memberships: null,
+    expiringMemberships: null,
+    clients: null,
+    vehicles: null,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!tenantId) return;
+
+    async function fetchMetrics() {
+      try {
+        const [active, memberships, expiring, clients, vehicles] =
+          await Promise.all([
+            getActiveVehicles(tenantId!),
+            getMemberships(tenantId!),
+            getExpiringMemberships(tenantId!),
+            getClients(tenantId!),
+            getVehicles(tenantId!),
+          ]);
+
+        setMetrics({
+          activeVehicles: active.length,
+          memberships: memberships.filter((m) => m.status === "active").length,
+          expiringMemberships: expiring.length,
+          clients: clients.length,
+          vehicles: vehicles.length,
+        });
+      } catch {
+        setMetrics({
+          activeVehicles: null,
+          memberships: null,
+          expiringMemberships: null,
+          clients: null,
+          vehicles: null,
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchMetrics();
+  }, [tenantId]);
+
+  function getMetricDisplay(card: (typeof cards)[number]) {
+    if (loading) return "...";
+    const value = metrics[card.metricKey];
+    if (value === null) return "—";
+    if (card.metricKey === "memberships" && metrics.expiringMemberships !== null) {
+      return `${value} (${metrics.expiringMemberships} por vencer)`;
+    }
+    return value;
+  }
+
+  function getMetricLabel(card: (typeof cards)[number]) {
+    if (card.metricKey === "memberships") return "activas";
+    return card.metricLabel;
+  }
+
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p style={{ color: "var(--text-secondary)" }}>Bienvenido al sistema de gestión de Parking IA</p>
+        <p className="text-text-secondary">
+          Bienvenido al sistema de gestión de Parking IA
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -72,29 +138,44 @@ export default function HomePage() {
           <Link
             key={card.href}
             href={card.href}
-            className="group block rounded-2xl p-6 transition-all duration-200 cursor-pointer"
-            style={{
-              background: "var(--bg-card)",
-              backdropFilter: "blur(12px)",
-              border: "1px solid var(--border-default)",
-            }}
+            className="group block rounded-2xl p-6 transition-all duration-200 cursor-pointer bg-page-card backdrop-blur border border-border-default"
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.borderColor = `${card.color}40`;
-              (e.currentTarget as HTMLAnchorElement).style.background = "var(--bg-card-hover)";
+              (e.currentTarget as HTMLAnchorElement).style.borderColor =
+                `${card.color}40`;
+              (e.currentTarget as HTMLAnchorElement).style.background =
+                "var(--bg-card-hover)";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--border-default)";
-              (e.currentTarget as HTMLAnchorElement).style.background = "var(--bg-card)";
+              (e.currentTarget as HTMLAnchorElement).style.borderColor =
+                "var(--border-default)";
+              (e.currentTarget as HTMLAnchorElement).style.background =
+                "var(--bg-card)";
             }}
           >
             <div
               className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-              style={{ backgroundColor: `${card.color}20`, color: card.color }}
+              style={{
+                backgroundColor: `${card.color}20`,
+                color: card.color,
+              }}
             >
               {card.icon}
             </div>
-            <h2 className="text-lg font-semibold text-white mb-1">{card.title}</h2>
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>{card.description}</p>
+            <h2 className="text-lg font-semibold text-white mb-1">
+              {card.title}
+            </h2>
+            <p className="text-sm text-text-muted">{card.description}</p>
+            <div className="mt-3 flex items-baseline gap-1">
+              <span
+                className="text-2xl font-bold"
+                style={{ color: card.color }}
+              >
+                {getMetricDisplay(card)}
+              </span>
+              <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                {getMetricLabel(card)}
+              </span>
+            </div>
           </Link>
         ))}
       </div>

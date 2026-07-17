@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { useAuth } from "@/components/auth-provider";
+import { Menu, CircleParking } from "lucide-react";
 
 const NO_SIDEBAR_ROUTES = ["/login"];
 
@@ -38,13 +39,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // resolver la sesión, para no dejar ver contenido antes de redirigir.
   if (isLoginRoute) {
     if (!loading && session) {
-      return <main className="min-h-screen" style={{ backgroundColor: "var(--bg-page)" }} />;
+      return <main className="min-h-screen bg-page" />;
     }
     return <main className="min-h-screen">{children}</main>;
   }
 
   if (loading || !session) {
-    return <main className="min-h-screen" style={{ backgroundColor: "var(--bg-page)" }} />;
+    return <main className="min-h-screen bg-page" />;
   }
 
   const isAdminRoute = pathname.startsWith("/admin");
@@ -52,7 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     (session.user.role === "platform_admin" && !isAdminRoute) ||
     (session.user.role !== "platform_admin" && isAdminRoute);
   if (isWrongSection) {
-    return <main className="min-h-screen" style={{ backgroundColor: "var(--bg-page)" }} />;
+    return <main className="min-h-screen bg-page" />;
   }
 
   return (
@@ -62,8 +63,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Overlay móvil: cierra el drawer al tocar fuera */}
       {drawerOpen && (
         <div
-          className="fixed inset-0 z-30 md:hidden"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          className="fixed inset-0 z-30 md:hidden bg-black/50"
           onClick={() => setDrawerOpen(false)}
           aria-hidden="true"
         />
@@ -71,34 +71,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex-1 md:ml-64 min-h-screen flex flex-col">
         {/* Topbar móvil con botón hamburguesa */}
-        <header
-          className="md:hidden sticky top-0 z-20 flex items-center gap-3 px-4 py-3"
-          style={{
-            backgroundColor: "var(--bg-sidebar)",
-            borderBottom: "1px solid var(--border-soft)",
-          }}
-        >
+        <header className="md:hidden sticky top-0 z-20 flex items-center gap-3 px-4 py-3 bg-page-sidebar border-b border-border-soft">
           <button
             onClick={() => setDrawerOpen(true)}
             aria-label="Abrir menú"
-            className="p-1.5 rounded-lg cursor-pointer transition-colors duration-150"
-            style={{ color: "var(--text-secondary)" }}
+            className="p-1.5 rounded-lg cursor-pointer transition-colors duration-150 text-text-secondary"
           >
-            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
+            <Menu className="w-6 h-6" />
           </button>
           <div className="flex items-center gap-2">
             <div
               className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
               style={{ background: "linear-gradient(135deg, #2563EB, #1D4ED8)" }}
             >
-              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
-              </svg>
+              <CircleParking className="w-4 h-4 text-white" />
             </div>
             <span className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>Parking IA</span>
           </div>

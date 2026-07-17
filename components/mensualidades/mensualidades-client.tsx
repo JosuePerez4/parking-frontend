@@ -14,6 +14,7 @@ import { MensualidadesTable } from "./mensualidades-table";
 import { ExpiringAlert } from "./expiring-alert";
 import { RenewModal } from "./renew-modal";
 import { TableSkeleton } from "./table-skeleton";
+import { Plus, AlertCircle, Search, Trash2, Loader2 } from "lucide-react";
 
 type FilterTab = "todas" | "activas" | "vencidas" | "proximas";
 const tabs: { value: FilterTab; label: string }[] = [
@@ -213,26 +214,21 @@ export function MensualidadesClient() {
     proximas: expiring.length,
   };
 
-  const inputStyle = {
-    backgroundColor: "var(--bg-input)",
-    border: "1px solid var(--border-medium)",
-  };
+
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Mensualidades</h1>
-          <p style={{ color: "var(--text-secondary)" }} className="text-sm">
+          <p className="text-sm text-text-secondary">
             Gestiona y renueva las mensualidades de vehículos registrados
           </p>
         </div>
         <button onClick={() => { setCreateOpen(true); setCreateError(null); }}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer"
           style={{ background: "linear-gradient(135deg,#2563EB,#1D4ED8)", color: "#fff", border: "1px solid rgba(37,99,235,0.5)" }}>
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          <Plus className="w-4 h-4" />
           Nueva Mensualidad
         </button>
       </div>
@@ -242,21 +238,17 @@ export function MensualidadesClient() {
       )}
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3"
-          style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
-          <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300">
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
       )}
 
-      <div className="rounded-2xl overflow-hidden"
-        style={{ background: "var(--bg-card)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid var(--border-default)" }}>
+      <div className="rounded-2xl overflow-hidden bg-page-card backdrop-blur-[12px] border border-border-default">
         {/* Tabs + company filter */}
         <div className="flex items-center justify-between flex-wrap gap-3 p-4">
           <div className="min-w-0 max-w-full overflow-x-auto">
-            <div className="flex items-center gap-1 p-1 rounded-xl w-fit" style={{ backgroundColor: "rgba(0,0,0,0.3)" }}>
+            <div className="flex items-center gap-1 p-1 rounded-xl w-fit bg-black/30">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.value;
                 return (
@@ -275,16 +267,13 @@ export function MensualidadesClient() {
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
             <div className="relative w-full sm:w-64">
-              <svg className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-dim)" }}>
-                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-dim" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Buscar por placa o cliente..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm text-white outline-none"
-                style={inputStyle}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm text-white outline-none bg-page-input border border-border-medium"
               />
             </div>
             {companies.length > 0 && (
@@ -311,46 +300,36 @@ export function MensualidadesClient() {
 
       {/* Delete confirmation modal */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
           onClick={(e) => { if (e.target === e.currentTarget && !deleting) setDeleteTarget(null); }}>
-          <div className="w-full max-w-sm rounded-2xl overflow-hidden"
-            style={{ background: "var(--bg-modal)", border: "1px solid rgba(239,68,68,0.25)" }}>
+          <div className="w-full max-w-sm rounded-2xl overflow-hidden bg-page-modal border border-red-500/25">
             <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#EF4444,#DC2626)" }} />
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  <svg className="w-5 h-5" style={{ color: "#F87171" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                  </svg>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-red-500/12 border border-red-500/30">
+                  <Trash2 className="w-5 h-5 text-red-400" />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white">¿Desactivar esta mensualidad?</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Sus datos se conservan, no se borra nada</p>
+                  <p className="text-xs mt-0.5 text-text-muted">Sus datos se conservan, no se borra nada</p>
                 </div>
               </div>
-              <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.15)" }}>
+              <div className="mb-4 p-3 rounded-xl bg-red-500/7 border border-red-500/15">
                 <p className="text-sm text-white font-medium">{deleteTarget.client?.fullName ?? `Cliente #${deleteTarget.clientId}`}</p>
-                <p className="text-xs mt-0.5 font-mono" style={{ color: "#93C5FD" }}>{deleteTarget.vehicle?.plate ?? `Vehículo #${deleteTarget.vehicleId}`}</p>
-                <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>Vence: {deleteTarget.endDate}</p>
+                <p className="text-xs mt-0.5 font-mono text-blue-300">{deleteTarget.vehicle?.plate ?? `Vehículo #${deleteTarget.vehicleId}`}</p>
+                <p className="text-xs mt-1 text-text-secondary">Vence: {deleteTarget.endDate}</p>
               </div>
               <NoticeBox notice={deleteError} className="mb-4" />
               <div className="flex gap-3">
                 <button onClick={() => setDeleteTarget(null)} disabled={deleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"
-                  style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)", color: "var(--text-secondary)" }}>
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
                   Cancelar
                 </button>
                 <button onClick={handleDelete} disabled={deleting}
                   className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
                   style={{ background: deleting ? "rgba(239,68,68,0.4)" : "linear-gradient(135deg,#EF4444,#DC2626)", color: "#fff", border: "1px solid rgba(239,68,68,0.4)" }}>
                   {deleting ? (
-                    <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>Desactivando...</>
+                    <><Loader2 className="w-4 h-4 animate-spin" />Desactivando...</>
                   ) : "Sí, desactivar"}
                 </button>
               </div>
@@ -361,18 +340,16 @@ export function MensualidadesClient() {
 
       {/* Create modal */}
       {createOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
           onClick={(e) => { if (e.target === e.currentTarget && !creating) setCreateOpen(false); }}>
-          <div className="w-full max-w-md rounded-2xl"
-            style={{ background: "var(--bg-modal)", border: "1px solid var(--border-medium)" }}>
+          <div className="w-full max-w-md rounded-2xl bg-page-modal border border-border-medium">
             <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#2563EB,#7C3AED)", borderRadius: "0.875rem 0.875rem 0 0" }} />
             <div className="p-6">
               <h2 className="text-lg font-bold text-white mb-1">Nueva Mensualidad</h2>
-              <p className="text-xs mb-5" style={{ color: "var(--text-muted)" }}>Registra una mensualidad para un vehículo</p>
+              <p className="text-xs mb-5 text-text-muted">Registra una mensualidad para un vehículo</p>
               <form onSubmit={handleCreate} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Vehículo *</label>
+                  <label className="block text-xs font-semibold mb-1.5 text-text-secondary">Vehículo *</label>
                   <CustomSelect
                     value={createForm.vehicleId}
                     onChange={(val) => {
@@ -392,35 +369,34 @@ export function MensualidadesClient() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Inicio</label>
+                    <label className="block text-xs font-semibold mb-1.5 text-text-secondary">Inicio</label>
                     <input type="date" value={createForm.startDate}
                       onChange={(e) => setCreateForm((p) => ({ ...p, startDate: e.target.value }))}
-                      className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none" style={inputStyle} />
+                      className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none bg-page-input border border-border-medium" />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Vencimiento</label>
+                    <label className="block text-xs font-semibold mb-1.5 text-text-secondary">Vencimiento</label>
                     <input type="date" value={createForm.endDate}
                       onChange={(e) => setCreateForm((p) => ({ ...p, endDate: e.target.value }))}
-                      className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none" style={inputStyle} />
+                      className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none bg-page-input border border-border-medium" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Precio (COP) *</label>
+                  <label className="block text-xs font-semibold mb-1.5 text-text-secondary">Precio (COP) *</label>
                   <input type="number" value={createForm.price}
                     onChange={(e) => setCreateForm((p) => ({ ...p, price: e.target.value }))}
-                    placeholder="120000" className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none" style={inputStyle} />
+                    placeholder="120000" className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none bg-page-input border border-border-medium" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Empresa / Organización</label>
+                  <label className="block text-xs font-semibold mb-1.5 text-text-secondary">Empresa / Organización</label>
                   <input type="text" value={createForm.company}
                     onChange={(e) => setCreateForm((p) => ({ ...p, company: e.target.value }))}
-                    placeholder="Ej. Empresa ABC (opcional)" className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none" style={inputStyle} />
+                    placeholder="Ej. Empresa ABC (opcional)" className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none bg-page-input border border-border-medium" />
                 </div>
                 <NoticeBox notice={createError} />
                 <div className="flex gap-3 pt-1">
                   <button type="button" onClick={() => setCreateOpen(false)} disabled={creating}
-                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50"
-                    style={{ backgroundColor: "var(--bg-input)", border: "1px solid var(--border-medium)", color: "var(--text-secondary)" }}>
+                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
                     Cancelar
                   </button>
                   <button type="submit" disabled={creating}
