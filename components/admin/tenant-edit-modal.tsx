@@ -96,24 +96,21 @@ export function TenantEditModal({
   return (
     <Dialog open={!!tenant} onOpenChange={(v) => { if (!saving && !v) onClose(); }}>
       <DialogContent
-        className="sm:max-w-lg border-0 p-0 overflow-hidden"
-        style={{ background: "var(--bg-modal)", backdropFilter: "blur(20px)", border: "1px solid var(--border-medium)" }}
+        className="sm:max-w-lg border-0 p-0 overflow-hidden bg-page-modal border border-border-medium"
+        style={{ backdropFilter: "blur(20px)" }}
       >
-        <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#F59E0B,#D97706)" }} />
+        <div className="h-1 w-full bg-primary" />
         <div className="p-6">
           <DialogHeader className="mb-5">
             <div className="flex items-center gap-3 mb-2">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.3)" }}
-              >
-                <SquarePen className="w-5 h-5" style={{ color: "#FCD34D" }} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary-dim border border-primary/30">
+                <SquarePen className="w-5 h-5 text-primary" />
               </div>
-              <DialogTitle style={{ color: "var(--text-primary)" }} className="text-lg font-bold">
+              <DialogTitle className="text-lg font-bold text-text-primary">
                 Editar Negocio
               </DialogTitle>
             </div>
-            <DialogDescription style={{ color: "var(--text-muted)" }} className="text-sm">
+            <DialogDescription className="text-sm text-text-muted">
               {tenant?.name} · modificando datos del negocio
             </DialogDescription>
           </DialogHeader>

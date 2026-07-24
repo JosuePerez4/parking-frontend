@@ -41,7 +41,7 @@ function InputField({ label, name, value, onChange, type = "text", placeholder }
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none transition-all duration-200 bg-page-input border border-border-medium focus:border-blue-600/60"
+        className="w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none transition-all duration-200 bg-page-input border border-border-medium focus:border-primary"
       />
     </div>
   );
@@ -115,13 +115,12 @@ export function ClientForm({ mode, initialData, onSubmit, onCancel, loading }: C
   if (mode === "edit") {
     return (
       <DialogContent className="sm:max-w-lg border-0 p-0 overflow-hidden bg-modal backdrop-blur-xl border border-border-medium">
-        <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#F59E0B,#D97706)" }} />
+        <div className="h-1 w-full bg-primary" />
         <div className="p-6">
           <DialogHeader className="mb-5">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.3)" }}>
-                <SquarePen className="w-5 h-5" style={{ color: "#FCD34D" }} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary-dim border border-primary/30">
+                <SquarePen className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <DialogTitle className="text-lg font-bold text-white">Editar Cliente</DialogTitle>
@@ -179,8 +178,7 @@ export function ClientForm({ mode, initialData, onSubmit, onCancel, loading }: C
                 Cancelar
               </button>
               <button type="submit" disabled={loading}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
-                style={{ background: loading ? "rgba(245,158,11,0.4)" : "linear-gradient(135deg,#F59E0B,#D97706)", color: "#fff", border: "1px solid rgba(245,158,11,0.4)" }}>
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 bg-primary text-primary-foreground">
                 {loading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" />Guardando...</>
                 ) : (
@@ -196,19 +194,18 @@ export function ClientForm({ mode, initialData, onSubmit, onCancel, loading }: C
 
   return (
     <DialogContent className="sm:max-w-lg border-0 p-0 overflow-hidden bg-modal backdrop-blur-xl border border-border-medium">
-      <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#2563EB,#7C3AED)" }} />
+      <div className="h-1 w-full bg-primary" />
       <div className="p-6">
         {/* Step indicator */}
         <div className="flex items-center gap-2 mb-5">
           {(["client", "vehicle"] as const).map((s, i) => (
             <div key={s} className="flex items-center gap-2">
-              {i > 0 && <div className="w-8 h-px" style={{ backgroundColor: step === "vehicle" ? "rgba(37,99,235,0.5)" : "var(--border-medium)" }} />}
+              {i > 0 && <div className={`w-8 h-px ${step === "vehicle" ? "bg-primary/50" : "bg-border-medium"}`} />}
               <div className="flex items-center gap-1.5">
-                <div className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
-                  style={{ backgroundColor: step === s || (s === "client" && step === "vehicle") ? "#2563EB" : "var(--bg-input)", color: "#fff" }}>
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${step === s || (s === "client" && step === "vehicle") ? "bg-primary text-primary-foreground" : "bg-page-input text-text-primary"}`}>
                   {i + 1}
                 </div>
-                <span className="text-xs font-medium" style={{ color: step === s ? "#60A5FA" : "var(--text-dim)" }}>
+                <span className={`text-xs font-medium ${step === s ? "text-primary" : "text-text-dim"}`}>
                   {s === "client" ? "Datos cliente" : "Vehículo"}
                 </span>
               </div>
@@ -220,9 +217,8 @@ export function ClientForm({ mode, initialData, onSubmit, onCancel, loading }: C
           <>
             <DialogHeader className="mb-5">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
-                  <User className="w-5 h-5" style={{ color: "#60A5FA" }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary-dim border border-primary/30">
+                  <User className="w-5 h-5 text-primary" />
                 </div>
                 <DialogTitle className="text-lg font-bold text-white">Nuevo Cliente</DialogTitle>
               </div>
@@ -251,8 +247,7 @@ export function ClientForm({ mode, initialData, onSubmit, onCancel, loading }: C
                   Cancelar
                 </button>
                 <button type="submit" disabled={loading}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
-                  style={{ background: loading ? "rgba(37,99,235,0.5)" : "linear-gradient(135deg,#2563EB,#1D4ED8)", color: "#fff", border: "1px solid rgba(37,99,235,0.5)" }}>
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 bg-primary text-primary-foreground">
                   {loading ? (
                     <><Loader2 className="w-4 h-4 animate-spin" />Guardando...</>
                   ) : (
@@ -266,9 +261,8 @@ export function ClientForm({ mode, initialData, onSubmit, onCancel, loading }: C
           <>
             <DialogHeader className="mb-5">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)" }}>
-                  <Car className="w-5 h-5" style={{ color: "#34D399" }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-ok-dim border border-ok/30">
+                  <Car className="w-5 h-5 text-ok" />
                 </div>
                 <div>
                   <DialogTitle className="text-lg font-bold text-white">Agregar Vehículo</DialogTitle>
@@ -305,8 +299,7 @@ export function ClientForm({ mode, initialData, onSubmit, onCancel, loading }: C
                   Omitir
                 </button>
                 <button type="submit" disabled={vehicleSaving || !vehicleForm.plate}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
-                  style={{ background: "linear-gradient(135deg,#10B981,#059669)", color: "#fff", border: "1px solid rgba(16,185,129,0.4)" }}>
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 bg-ok text-black">
                   {vehicleSaving ? (
                     <><Loader2 className="w-4 h-4 animate-spin" />Guardando...</>
                   ) : "Agregar Vehículo"}

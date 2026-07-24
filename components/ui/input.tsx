@@ -7,7 +7,7 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
       data-slot="input"
       className={cn(
         "w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all duration-150",
-        "border border-[color:var(--border-medium)] focus:border-[color:rgba(37,99,235,0.6)]",
+        "border border-[color:var(--border-medium)] focus:border-[color:var(--primary)]",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         className,
       )}

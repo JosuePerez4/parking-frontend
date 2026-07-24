@@ -60,8 +60,8 @@ export function ClientTable({ clients, loading, onEdit, onDelete }: ClientTableP
     return (
       <div className="rounded-2xl overflow-hidden bg-card backdrop-blur-md border border-border-default">
         <div className="flex flex-col items-center justify-center py-20">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: "rgba(37,99,235,0.1)" }}>
-            <Users className="w-6 h-6" style={{ color: "#2563EB" }} />
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-primary-dim">
+            <Users className="w-6 h-6 text-primary" />
           </div>
           <p className="text-white font-semibold mb-1">Sin clientes</p>
           <p className="text-sm text-text-muted">Crea el primer cliente con el botón superior</p>
@@ -94,8 +94,7 @@ export function ClientTable({ clients, loading, onEdit, onDelete }: ClientTableP
                 >
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                        style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-primary text-primary-foreground">
                         {c.fullName.charAt(0).toUpperCase()}
                       </div>
                       <div>
@@ -123,10 +122,7 @@ export function ClientTable({ clients, loading, onEdit, onDelete }: ClientTableP
                     <button
                       onClick={() => onDelete(c)}
                       title="Desactivar cliente"
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                      style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors duration-200 bg-danger-dim border border-destructive/20 text-destructive hover:bg-destructive/20 hover:border-destructive/40"
                     >
                       <CircleMinus className="w-3.5 h-3.5" />
                       Desactivar
@@ -145,8 +141,7 @@ export function ClientTable({ clients, loading, onEdit, onDelete }: ClientTableP
               className="rounded-xl p-4 space-y-3 cursor-pointer bg-card border border-border-default">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                    style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-primary text-primary-foreground">
                     {c.fullName.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0">
@@ -174,8 +169,7 @@ export function ClientTable({ clients, loading, onEdit, onDelete }: ClientTableP
                 <button
                   onClick={() => onDelete(c)}
                   title="Desactivar cliente"
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                  style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors duration-200 bg-danger-dim border border-destructive/20 text-destructive"
                 >
                   <CircleMinus className="w-3.5 h-3.5" />
                   Desactivar

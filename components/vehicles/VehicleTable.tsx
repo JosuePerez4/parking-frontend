@@ -7,7 +7,7 @@ import { vehicleTypeLabel, vehicleStatusConfig, membershipStatusConfig, formatDa
 
 function VehiclePlate({ v }: { v: Vehicle }) {
   return (
-    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider bg-blue-500/[0.12] border border-blue-500/30 text-blue-300 font-mono">
+    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider bg-primary-dim border border-primary/30 text-primary font-mono">
       {v.plate}
     </span>
   );
@@ -17,8 +17,7 @@ function VehicleOwner({ v }: { v: Vehicle }) {
   if (!v.client) return <span className="text-sm text-text-dim">Sin asignar</span>;
   return (
     <div className="flex items-center gap-2">
-      <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-        style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+      <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-primary text-primary-foreground">
         {v.client.fullName.charAt(0).toUpperCase()}
       </div>
       <span className="text-sm text-white">{v.client.fullName}</span>
@@ -59,9 +58,7 @@ function VehicleActions({ v, onAssign, onDelete }: { v: Vehicle; onAssign: (v: V
         Asignar
       </button>
       <button onClick={() => onDelete(v)} title="Desactivar vehículo"
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200 bg-red-500/[0.08] border border-red-500/20 text-red-400"
-        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}>
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors duration-200 bg-danger-dim border border-destructive/20 text-destructive hover:bg-destructive/20 hover:border-destructive/40">
         <CircleMinus className="w-4 h-4" />
       </button>
     </>
@@ -87,7 +84,7 @@ export function TableSkeleton() {
       </div>
       {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="flex items-center gap-4 py-4" style={{ borderBottom: i < 3 ? "1px solid var(--border-row)" : "none" }}>
-          <Skeleton className="h-6 w-16 rounded-lg bg-blue-500/10" />
+          <Skeleton className="h-6 w-16 rounded-lg bg-primary-dim" />
           <Skeleton className="h-3 w-14 rounded bg-page-input" />
           <Skeleton className="h-3 w-24 rounded bg-page-input" />
           <Skeleton className="h-3 w-24 rounded bg-page-input" />
@@ -147,7 +144,7 @@ export function VehicleTable({
                 <td className="px-5 py-4"><VehicleStatusBadge v={v} /></td>
                 <td className="px-5 py-4"><VehicleMembershipBadge v={v} /></td>
                 <td className="px-5 py-4">
-                  <span className="text-sm" style={{ color: v.membership?.status === "expired" ? "#FCA5A5" : "var(--text-muted)" }}>
+                  <span className={`text-sm ${v.membership?.status === "expired" ? "text-destructive" : "text-text-muted"}`}>
                     {v.membership?.endDate ? formatDate(v.membership.endDate) : "—"}
                   </span>
                 </td>
@@ -180,7 +177,7 @@ export function VehicleTable({
               <VehicleCardRow label="Propietario"><VehicleOwner v={v} /></VehicleCardRow>
               <VehicleCardRow label="Mensualidad"><VehicleMembershipBadge v={v} /></VehicleCardRow>
               <VehicleCardRow label="Vencimiento">
-                <span className="text-sm" style={{ color: v.membership?.status === "expired" ? "#FCA5A5" : "var(--text-muted)" }}>
+                <span className={`text-sm ${v.membership?.status === "expired" ? "text-destructive" : "text-text-muted"}`}>
                   {v.membership?.endDate ? formatDate(v.membership.endDate) : "—"}
                 </span>
               </VehicleCardRow>

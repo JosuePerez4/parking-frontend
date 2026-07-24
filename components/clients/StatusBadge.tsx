@@ -1,9 +1,9 @@
 import type { Client } from "@/lib/api";
 
 const statusConfig = {
-  active:   { label: "Activo",    bg: "rgba(16,185,129,0.15)",  border: "rgba(16,185,129,0.35)",  color: "#34D399", dot: "#10B981" },
-  inactive: { label: "Inactivo",  bg: "rgba(100,116,139,0.15)", border: "rgba(100,116,139,0.3)",  color: "var(--text-secondary)", dot: "#64748B" },
-  blocked:  { label: "Bloqueado", bg: "rgba(239,68,68,0.15)",   border: "rgba(239,68,68,0.35)",   color: "#FCA5A5", dot: "#EF4444" },
+  active:   { label: "Activo",    bg: "var(--ok-dim)",     border: "color-mix(in srgb, var(--ok) 45%, transparent)",     color: "var(--ok)", dot: "var(--ok)" },
+  inactive: { label: "Inactivo",  bg: "var(--bg-subtle)",  border: "var(--border-medium)",  color: "var(--text-secondary)", dot: "var(--text-dim)" },
+  blocked:  { label: "Bloqueado", bg: "var(--danger-dim)", border: "color-mix(in srgb, var(--destructive) 45%, transparent)", color: "var(--destructive)", dot: "var(--destructive)" },
 };
 
 export function StatusBadge({ status }: { status: Client["status"] }) {

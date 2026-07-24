@@ -113,10 +113,7 @@ export default function ClientesPage() {
         </div>
         <button
           onClick={() => setCreateOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer"
-          style={{ background: "linear-gradient(135deg,#2563EB,#1D4ED8)", color: "#fff", border: "1px solid rgba(37,99,235,0.5)" }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-200 cursor-pointer bg-primary text-primary-foreground hover:bg-primary-hover"
         >
           <Plus className="w-4 h-4" />
           Nuevo Cliente
@@ -125,7 +122,7 @@ export default function ClientesPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3" style={{ backgroundColor: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-danger-dim border border-destructive/30 text-destructive">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
@@ -168,46 +165,42 @@ export default function ClientesPage() {
         )}
       </Dialog>
 
-      {/* Delete confirmation modal */}
+      {/* Delete confirmation drawer */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
-          onClick={(e) => { if (e.target === e.currentTarget && !deleting) setDeleteTarget(null); }}>
-          <div className="w-full max-w-sm rounded-2xl overflow-hidden bg-modal"
-            style={{ border: "1px solid rgba(239,68,68,0.25)" }}>
-            <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#EF4444,#DC2626)" }} />
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  <Trash2 className="w-5 h-5" style={{ color: "#F87171" }} />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-white">¿Desactivar este cliente?</h2>
-                  <p className="text-xs mt-0.5 text-text-muted">Sus datos se conservan, no se borra nada</p>
-                </div>
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
+            onClick={() => { if (!deleting) setDeleteTarget(null); }} />
+          <div className="drawer-in relative w-full max-w-sm h-full bg-page-modal border-l border-border-medium flex flex-col">
+            <div className="flex items-center gap-3 px-6 py-5 border-b border-border-soft">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-danger-dim border border-destructive/30">
+                <Trash2 className="w-5 h-5 text-destructive" />
               </div>
-              <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.15)" }}>
+              <div>
+                <h2 className="text-base font-bold text-white">¿Desactivar este cliente?</h2>
+                <p className="text-xs mt-0.5 text-text-muted">Sus datos se conservan, no se borra nada</p>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-6 py-6">
+              <div className="mb-4 p-3 rounded-xl bg-danger-dim border border-destructive/15">
                 <p className="text-sm text-white font-medium mb-1">{deleteTarget.fullName}</p>
                 <p className="text-xs text-text-secondary">Doc: {deleteTarget.document}</p>
-                <p className="text-xs mt-2" style={{ color: "#F87171" }}>
+                <p className="text-xs mt-2 text-destructive">
                   También se desactivarán sus vehículos y mensualidades. Dejarán de aparecer en los listados, pero la información queda guardada.
                 </p>
               </div>
-              <NoticeBox notice={deleteError} className="mb-4" />
-              <div className="flex gap-3">
-                <button onClick={() => setDeleteTarget(null)} disabled={deleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
-                  Cancelar
-                </button>
-                <button onClick={handleDelete} disabled={deleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
-                  style={{ background: deleting ? "rgba(239,68,68,0.4)" : "linear-gradient(135deg,#EF4444,#DC2626)", color: "#fff", border: "1px solid rgba(239,68,68,0.4)" }}>
-                  {deleting ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" />Desactivando...</>
-                  ) : "Sí, desactivar"}
-                </button>
-              </div>
+              <NoticeBox notice={deleteError} />
+            </div>
+            <div className="flex gap-3 px-6 py-5 border-t border-border-soft">
+              <button onClick={() => setDeleteTarget(null)} disabled={deleting}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
+                Cancelar
+              </button>
+              <button onClick={handleDelete} disabled={deleting}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 text-white bg-destructive">
+                {deleting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" />Desactivando...</>
+                ) : "Sí, desactivar"}
+              </button>
             </div>
           </div>
         </div>

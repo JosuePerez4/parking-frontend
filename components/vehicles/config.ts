@@ -3,15 +3,15 @@ import type { Vehicle } from "@/lib/api";
 export const vehicleTypeLabel: Record<string, string> = { car: "Carro", moto: "Moto", truck: "Camión" };
 
 export const vehicleStatusConfig = {
-  active:   { label: "Activo",   bg: "rgba(16,185,129,0.15)",  border: "rgba(16,185,129,0.35)",  color: "#34D399", dot: "#10B981" },
-  inactive: { label: "Inactivo", bg: "rgba(100,116,139,0.15)", border: "rgba(100,116,139,0.3)",  color: "var(--text-secondary)", dot: "#64748B" },
+  active:   { label: "Activo",   bg: "var(--ok-dim)",    border: "color-mix(in srgb, var(--ok) 45%, transparent)",   color: "var(--ok)" , dot: "var(--ok)" },
+  inactive: { label: "Inactivo", bg: "var(--bg-subtle)", border: "var(--border-medium)", color: "var(--text-secondary)", dot: "var(--text-dim)" },
 };
 
 export const membershipStatusConfig = {
-  active:    { label: "Al día",      bg: "rgba(16,185,129,0.12)",  border: "rgba(16,185,129,0.3)",   color: "#34D399" },
-  expired:   { label: "Vencida",     bg: "rgba(239,68,68,0.12)",   border: "rgba(239,68,68,0.3)",    color: "#FCA5A5" },
-  cancelled: { label: "Cancelada",   bg: "rgba(100,116,139,0.12)", border: "rgba(100,116,139,0.25)", color: "var(--text-secondary)" },
-  none:      { label: "Sin mensual.", bg: "rgba(245,158,11,0.1)",  border: "rgba(245,158,11,0.25)",  color: "#FCD34D" },
+  active:    { label: "Al día",      bg: "var(--ok-dim)",     border: "color-mix(in srgb, var(--ok) 40%, transparent)",     color: "var(--ok)" },
+  expired:   { label: "Vencida",     bg: "var(--danger-dim)", border: "color-mix(in srgb, var(--destructive) 40%, transparent)", color: "var(--destructive)" },
+  cancelled: { label: "Cancelada",   bg: "var(--bg-subtle)",  border: "var(--border-medium)", color: "var(--text-secondary)" },
+  none:      { label: "Sin mensual.", bg: "var(--warn-dim)",  border: "color-mix(in srgb, var(--warn) 35%, transparent)",   color: "var(--warn)" },
 };
 
 export const BRAND_OPTIONS = ["Chevrolet","Renault","Mazda","Toyota","Nissan","Kia","Hyundai","Ford","Volkswagen","Honda","Suzuki","Mitsubishi","Jeep","Ram","Dodge"];

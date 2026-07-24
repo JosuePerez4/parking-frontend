@@ -32,7 +32,7 @@ export function ClientFilters({
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Buscar por nombre, documento, teléfono..."
-          className="w-full pl-9 pr-3 py-2.5 rounded-xl text-sm text-white outline-none transition-all duration-200 bg-page-input border border-border-medium focus:border-blue-600/60"
+          className="w-full pl-9 pr-3 py-2.5 rounded-xl text-sm text-white outline-none transition-all duration-200 bg-page-input border border-border-medium focus:border-primary"
         />
       </div>
       <div className="flex items-center gap-2">

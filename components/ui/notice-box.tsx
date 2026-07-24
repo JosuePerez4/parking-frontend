@@ -3,14 +3,14 @@ import type { SubmitNotice } from "@/lib/submit-error";
 
 const toneStyle: Record<SubmitNotice["tone"], CSSProperties> = {
   error: {
-    backgroundColor: "rgba(239,68,68,0.1)",
-    color: "#FCA5A5",
-    border: "1px solid rgba(239,68,68,0.3)",
+    backgroundColor: "var(--danger-dim)",
+    color: "var(--destructive)",
+    border: "1px solid color-mix(in srgb, var(--destructive) 35%, transparent)",
   },
   warning: {
-    backgroundColor: "rgba(245,158,11,0.1)",
-    color: "#FCD34D",
-    border: "1px solid rgba(245,158,11,0.35)",
+    backgroundColor: "var(--warn-dim)",
+    color: "var(--warn)",
+    border: "1px solid color-mix(in srgb, var(--warn) 40%, transparent)",
   },
 };
 

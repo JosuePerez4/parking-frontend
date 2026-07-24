@@ -27,24 +27,24 @@ const vehicleTypeLabel: Record<string, string> = {
 const statusConfig = {
   active: {
     label: "Activa",
-    bg: "rgba(16, 185, 129, 0.15)",
-    border: "rgba(16, 185, 129, 0.35)",
-    color: "#34D399",
-    dot: "#10B981",
+    bg: "var(--ok-dim)",
+    border: "color-mix(in srgb, var(--ok) 45%, transparent)",
+    color: "var(--ok)",
+    dot: "var(--ok)",
   },
   expired: {
     label: "Vencida",
-    bg: "rgba(239, 68, 68, 0.15)",
-    border: "rgba(239, 68, 68, 0.35)",
-    color: "#FCA5A5",
-    dot: "#EF4444",
+    bg: "var(--danger-dim)",
+    border: "color-mix(in srgb, var(--destructive) 45%, transparent)",
+    color: "var(--destructive)",
+    dot: "var(--destructive)",
   },
   cancelled: {
     label: "Cancelada",
-    bg: "rgba(100, 116, 139, 0.15)",
-    border: "rgba(100, 116, 139, 0.3)",
+    bg: "var(--bg-subtle)",
+    border: "var(--border-medium)",
     color: "var(--text-secondary)",
-    dot: "#64748B",
+    dot: "var(--text-dim)",
   },
 };
 
@@ -52,15 +52,7 @@ const statusConfig = {
 
 function PlateBadge({ m }: { m: Membership }) {
   return (
-    <span
-      className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider"
-      style={{
-        backgroundColor: "rgba(37, 99, 235, 0.12)",
-        border: "1px solid rgba(37, 99, 235, 0.3)",
-        color: "#93C5FD",
-        fontFamily: "monospace",
-      }}
-    >
+    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wider font-mono bg-primary-dim border border-primary/30 text-primary">
       {m.vehicle?.plate ?? `#${m.vehicleId}`}
     </span>
   );
@@ -69,8 +61,7 @@ function PlateBadge({ m }: { m: Membership }) {
 function CompanyBadge({ company }: { company?: string | null }) {
   if (!company) return <span className="text-sm text-text-dim">—</span>;
   return (
-    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
-      style={{ backgroundColor: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)", color: "#C4B5FD" }}>
+    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-page-subtle border border-border-medium text-text-secondary">
       {company}
     </span>
   );
@@ -91,10 +82,7 @@ function StatusBadge({ status }: { status: (typeof statusConfig)[keyof typeof st
 function ClientCell({ m }: { m: Membership }) {
   return (
     <div className="flex items-center gap-3">
-      <div
-        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-        style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)" }}
-      >
+      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-primary text-primary-foreground">
         {m.client?.fullName?.charAt(0).toUpperCase() ?? "?"}
       </div>
       <div className="min-w-0">
@@ -115,9 +103,9 @@ function DueDate({ m, isExpiring }: { m: Membership; isExpiring: boolean }) {
   return (
     <div className="flex items-center gap-2">
       {isExpiring && (
-        <TriangleAlert className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
+        <TriangleAlert className="w-3.5 h-3.5 flex-shrink-0 text-warn" />
       )}
-      <span className="text-sm font-medium" style={{ color: isExpiring ? "#FCD34D" : "var(--text-secondary)" }}>
+      <span className={`text-sm font-medium ${isExpiring ? "text-warn" : "text-text-secondary"}`}>
         {formatDate(m.endDate)}
       </span>
     </div>
@@ -130,10 +118,7 @@ function ActionButtons({ m, onRenew, onDelete }: { m: Membership; onRenew: (m: M
       {m.status !== "cancelled" && (
         <button
           onClick={() => onRenew(m)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer"
-          style={{ backgroundColor: "rgba(37, 99, 235, 0.15)", border: "1px solid rgba(37, 99, 235, 0.3)", color: "#60A5FA" }}
-          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(37, 99, 235, 0.28)"; e.currentTarget.style.color = "#93C5FD"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(37, 99, 235, 0.15)"; e.currentTarget.style.color = "#60A5FA"; }}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-200 cursor-pointer bg-primary-dim border border-primary/30 text-primary hover:bg-primary/25"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           Renovar
@@ -142,10 +127,7 @@ function ActionButtons({ m, onRenew, onDelete }: { m: Membership; onRenew: (m: M
       <button
         onClick={() => onDelete(m)}
         title="Desactivar mensualidad"
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer"
-        style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
-        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200 cursor-pointer bg-danger-dim border border-destructive/20 text-destructive hover:bg-destructive/20 hover:border-destructive/40"
       >
         <CircleMinus className="w-3.5 h-3.5" />
       </button>
@@ -174,10 +156,8 @@ export function MensualidadesTable({ memberships, expiringIds, onRenew, onDelete
   if (memberships.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 px-4">
-        <div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-blue-600/10"
-        >
-          <Calendar className="w-8 h-8 text-blue-600" />
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-primary-dim">
+          <Calendar className="w-8 h-8 text-primary" />
         </div>
         <p className="text-white font-semibold mb-1">Sin mensualidades</p>
         <p className="text-sm text-text-muted">
@@ -213,21 +193,7 @@ export function MensualidadesTable({ memberships, expiringIds, onRenew, onDelete
               return (
                 <tr
                   key={m.id}
-                  className="transition-colors duration-150"
-                  style={{
-                    borderBottom: isLast ? "none" : "1px solid var(--border-row)",
-                    backgroundColor: isExpiring ? "rgba(245, 158, 11, 0.04)" : "transparent",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = isExpiring
-                      ? "rgba(245, 158, 11, 0.08)"
-                      : "var(--bg-row-hover)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = isExpiring
-                      ? "rgba(245, 158, 11, 0.04)"
-                      : "transparent";
-                  }}
+                  className={`transition-colors duration-150 ${isLast ? "" : "border-b border-border-row"} ${isExpiring ? "bg-warn/[0.04] hover:bg-warn/[0.08]" : "hover:bg-page-row-hover"}`}
                 >
                   <td className="px-5 py-4"><ClientCell m={m} /></td>
                   <td className="px-5 py-4"><PlateBadge m={m} /></td>
@@ -265,11 +231,7 @@ export function MensualidadesTable({ memberships, expiringIds, onRenew, onDelete
           return (
             <div
               key={m.id}
-              className="rounded-xl p-4 space-y-3"
-              style={{
-                backgroundColor: isExpiring ? "rgba(245, 158, 11, 0.06)" : "var(--bg-card)",
-                border: `1px solid ${isExpiring ? "rgba(245, 158, 11, 0.35)" : "var(--border-default)"}`,
-              }}
+              className={`rounded-xl p-4 space-y-3 ${isExpiring ? "bg-warn/[0.06] border border-warn/35" : "bg-page-card border border-border-default"}`}
             >
               <div className="flex items-start justify-between gap-3">
                 <ClientCell m={m} />

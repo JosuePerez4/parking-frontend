@@ -233,8 +233,7 @@ export default function ReportesPage() {
         <div className="flex items-center gap-3">
           {lastUpdated && !loading && <span className="text-xs text-text-dim">Actualizado {lastUpdated}</span>}
           <button onClick={load} disabled={loading}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-50"
-            style={{ backgroundColor: "rgba(37,99,235,0.15)", color: "#60A5FA", border: "1px solid rgba(37,99,235,0.3)" }}>
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-50 bg-primary-dim text-primary border border-primary/30">
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             Actualizar
           </button>
@@ -242,7 +241,7 @@ export default function ReportesPage() {
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300">
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-danger-dim border border-destructive/30 text-destructive">
           {error}
         </div>
       )}
@@ -250,18 +249,18 @@ export default function ReportesPage() {
       {/* Ingresos */}
       <h2 className="text-xs font-semibold uppercase tracking-wider mb-3 text-text-dim">Ingresos</h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <StatCard label="Ingresos hoy" value={formatCOP(incomeToday)} accent="#10B981" loading={loading} />
-        <StatCard label="Ingresos últimos 7 días" value={formatCOP(incomeWeek)} accent="#2563EB" loading={loading} />
-        <StatCard label="Ingresos últimos 30 días" value={formatCOP(incomeMonth)} accent="#7C3AED" loading={loading} />
+        <StatCard label="Ingresos hoy" value={formatCOP(incomeToday)} accent="var(--ok)" loading={loading} />
+        <StatCard label="Ingresos últimos 7 días" value={formatCOP(incomeWeek)} accent="var(--primary)" loading={loading} />
+        <StatCard label="Ingresos últimos 30 días" value={formatCOP(incomeMonth)} accent="var(--text-secondary)" loading={loading} />
       </div>
 
       {/* Vehículos y mensualidades */}
       <h2 className="text-xs font-semibold uppercase tracking-wider mb-3 text-text-dim">General</h2>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-        <StatCard label="Clientes" value={String(clientCount)} accent="#2563EB" loading={loading} />
-        <StatCard label="Vehículos" value={String(vehicleCount)} accent="#7C3AED" loading={loading} />
-        <StatCard label="Mensualidades activas" value={String(activeMemberships)} accent="#10B981" loading={loading} />
-        <StatCard label="Mensualidades vencidas" value={String(expiredMemberships)} accent="#EF4444" loading={loading} />
+        <StatCard label="Clientes" value={String(clientCount)} accent="var(--primary)" loading={loading} />
+        <StatCard label="Vehículos" value={String(vehicleCount)} accent="var(--text-secondary)" loading={loading} />
+        <StatCard label="Mensualidades activas" value={String(activeMemberships)} accent="var(--ok)" loading={loading} />
+        <StatCard label="Mensualidades vencidas" value={String(expiredMemberships)} accent="var(--destructive)" loading={loading} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -278,7 +277,7 @@ export default function ReportesPage() {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                  <tr className="border-b border-border-soft">
                     {["Empresa", "Total mensualidades", "Activas", "Vencidas"].map((c) => (
                       <th key={c} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-text-dim">{c}</th>
                     ))}
@@ -286,16 +285,15 @@ export default function ReportesPage() {
                 </thead>
                 <tbody>
                   {companyRows.map(([company, { count, active }], i) => (
-                    <tr key={company} style={{ borderBottom: i < companyRows.length - 1 ? "1px solid var(--border-row)" : "none" }}>
+                    <tr key={company} className={i < companyRows.length - 1 ? "border-b border-border-row" : ""}>
                       <td className="px-5 py-3">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium"
-                          style={{ backgroundColor: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)", color: "#C4B5FD" }}>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-page-subtle border border-border-medium text-text-secondary">
                           {company}
                         </span>
                       </td>
                       <td className="px-5 py-3 text-sm text-white">{count}</td>
-                      <td className="px-5 py-3 text-sm font-semibold text-emerald-400">{active}</td>
-                      <td className="px-5 py-3 text-sm text-red-300">{count - active}</td>
+                      <td className="px-5 py-3 text-sm font-semibold text-ok">{active}</td>
+                      <td className="px-5 py-3 text-sm text-destructive">{count - active}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -305,10 +303,8 @@ export default function ReportesPage() {
             {/* Tarjetas (móvil) */}
             <div className="md:hidden p-4 space-y-3">
               {companyRows.map(([company, { count, active }]) => (
-                <div key={company} className="rounded-xl p-4 space-y-3"
-                  style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border-default)" }}>
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium"
-                    style={{ backgroundColor: "rgba(124,58,237,0.12)", border: "1px solid rgba(124,58,237,0.25)", color: "#C4B5FD" }}>
+                <div key={company} className="rounded-xl p-4 space-y-3 bg-page-subtle border border-border-default">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-page-input border border-border-medium text-text-secondary">
                     {company}
                   </span>
                   <div className="grid grid-cols-3 gap-2 text-center">
@@ -317,11 +313,11 @@ export default function ReportesPage() {
                       <p className="text-xs text-text-dim">Total</p>
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-emerald-400">{active}</p>
+                      <p className="text-lg font-bold text-ok">{active}</p>
                       <p className="text-xs text-text-dim">Activas</p>
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-red-300">{count - active}</p>
+                      <p className="text-lg font-bold text-destructive">{count - active}</p>
                       <p className="text-xs text-text-dim">Vencidas</p>
                     </div>
                   </div>

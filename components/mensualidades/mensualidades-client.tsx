@@ -226,8 +226,7 @@ export function MensualidadesClient() {
           </p>
         </div>
         <button onClick={() => { setCreateOpen(true); setCreateError(null); }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer"
-          style={{ background: "linear-gradient(135deg,#2563EB,#1D4ED8)", color: "#fff", border: "1px solid rgba(37,99,235,0.5)" }}>
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer bg-primary text-primary-foreground hover:bg-primary-hover transition-colors duration-150">
           <Plus className="w-4 h-4" />
           Nueva Mensualidad
         </button>
@@ -238,7 +237,7 @@ export function MensualidadesClient() {
       )}
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300">
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-danger-dim border border-destructive/30 text-destructive">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
@@ -253,11 +252,9 @@ export function MensualidadesClient() {
                 const isActive = activeTab === tab.value;
                 return (
                   <button key={tab.value} onClick={() => setActiveTab(tab.value)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium cursor-pointer whitespace-nowrap"
-                    style={{ backgroundColor: isActive ? "#2563EB" : "transparent", color: isActive ? "#fff" : "#94A3B8" }}>
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium cursor-pointer whitespace-nowrap ${isActive ? "bg-primary text-primary-foreground" : "text-text-secondary"}`}>
                     {tab.label}
-                    <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold"
-                      style={{ backgroundColor: isActive ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)", color: isActive ? "#fff" : "#64748B" }}>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${isActive ? "bg-black/20 text-primary-foreground" : "bg-page-input text-text-dim"}`}>
                       {counts[tab.value]}
                     </span>
                   </button>
@@ -298,41 +295,40 @@ export function MensualidadesClient() {
 
       <RenewModal membership={renewTarget} open={!!renewTarget} onClose={() => setRenewTarget(null)} onConfirm={handleRenew} loading={renewing} />
 
-      {/* Delete confirmation modal */}
+      {/* Delete confirmation drawer */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={(e) => { if (e.target === e.currentTarget && !deleting) setDeleteTarget(null); }}>
-          <div className="w-full max-w-sm rounded-2xl overflow-hidden bg-page-modal border border-red-500/25">
-            <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#EF4444,#DC2626)" }} />
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-red-500/12 border border-red-500/30">
-                  <Trash2 className="w-5 h-5 text-red-400" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-white">¿Desactivar esta mensualidad?</h2>
-                  <p className="text-xs mt-0.5 text-text-muted">Sus datos se conservan, no se borra nada</p>
-                </div>
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
+            onClick={() => { if (!deleting) setDeleteTarget(null); }} />
+          <div className="drawer-in relative w-full max-w-sm h-full bg-page-modal border-l border-border-medium flex flex-col">
+            <div className="flex items-center gap-3 px-6 py-5 border-b border-border-soft">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-danger-dim border border-destructive/30">
+                <Trash2 className="w-5 h-5 text-destructive" />
               </div>
-              <div className="mb-4 p-3 rounded-xl bg-red-500/7 border border-red-500/15">
+              <div>
+                <h2 className="text-base font-bold text-white">¿Desactivar esta mensualidad?</h2>
+                <p className="text-xs mt-0.5 text-text-muted">Sus datos se conservan, no se borra nada</p>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-6 py-6">
+              <div className="mb-4 p-3 rounded-xl bg-danger-dim border border-destructive/15">
                 <p className="text-sm text-white font-medium">{deleteTarget.client?.fullName ?? `Cliente #${deleteTarget.clientId}`}</p>
-                <p className="text-xs mt-0.5 font-mono text-blue-300">{deleteTarget.vehicle?.plate ?? `Vehículo #${deleteTarget.vehicleId}`}</p>
+                <p className="text-xs mt-0.5 font-mono text-primary">{deleteTarget.vehicle?.plate ?? `Vehículo #${deleteTarget.vehicleId}`}</p>
                 <p className="text-xs mt-1 text-text-secondary">Vence: {deleteTarget.endDate}</p>
               </div>
-              <NoticeBox notice={deleteError} className="mb-4" />
-              <div className="flex gap-3">
-                <button onClick={() => setDeleteTarget(null)} disabled={deleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
-                  Cancelar
-                </button>
-                <button onClick={handleDelete} disabled={deleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
-                  style={{ background: deleting ? "rgba(239,68,68,0.4)" : "linear-gradient(135deg,#EF4444,#DC2626)", color: "#fff", border: "1px solid rgba(239,68,68,0.4)" }}>
-                  {deleting ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" />Desactivando...</>
-                  ) : "Sí, desactivar"}
-                </button>
-              </div>
+              <NoticeBox notice={deleteError} />
+            </div>
+            <div className="flex gap-3 px-6 py-5 border-t border-border-soft">
+              <button onClick={() => setDeleteTarget(null)} disabled={deleting}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
+                Cancelar
+              </button>
+              <button onClick={handleDelete} disabled={deleting}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 text-white bg-destructive">
+                {deleting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" />Desactivando...</>
+                ) : "Sí, desactivar"}
+              </button>
             </div>
           </div>
         </div>
@@ -343,7 +339,7 @@ export function MensualidadesClient() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
           onClick={(e) => { if (e.target === e.currentTarget && !creating) setCreateOpen(false); }}>
           <div className="w-full max-w-md rounded-2xl bg-page-modal border border-border-medium">
-            <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#2563EB,#7C3AED)", borderRadius: "0.875rem 0.875rem 0 0" }} />
+            <div className="h-1 w-full bg-primary" style={{ borderRadius: "0.875rem 0.875rem 0 0" }} />
             <div className="p-6">
               <h2 className="text-lg font-bold text-white mb-1">Nueva Mensualidad</h2>
               <p className="text-xs mb-5 text-text-muted">Registra una mensualidad para un vehículo</p>
@@ -400,8 +396,7 @@ export function MensualidadesClient() {
                     Cancelar
                   </button>
                   <button type="submit" disabled={creating}
-                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
-                    style={{ background: "linear-gradient(135deg,#2563EB,#1D4ED8)", color: "#fff", border: "1px solid rgba(37,99,235,0.5)" }}>
+                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 bg-primary text-primary-foreground">
                     {creating ? "Guardando..." : "Crear Mensualidad"}
                   </button>
                 </div>

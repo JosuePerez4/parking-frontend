@@ -63,15 +63,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Overlay móvil: cierra el drawer al tocar fuera */}
       {drawerOpen && (
         <div
-          className="fixed inset-0 z-30 md:hidden bg-black/50"
+          className="fixed inset-0 z-30 lg:hidden bg-black/50"
           onClick={() => setDrawerOpen(false)}
           aria-hidden="true"
         />
       )}
 
-      <div className="flex-1 md:ml-64 min-h-screen flex flex-col">
+      <div className="flex-1 lg:ml-[76px] min-h-screen flex flex-col">
         {/* Topbar móvil con botón hamburguesa */}
-        <header className="md:hidden sticky top-0 z-20 flex items-center gap-3 px-4 py-3 bg-page-sidebar border-b border-border-soft">
+        <header className="lg:hidden sticky top-0 z-20 flex items-center gap-3 px-4 py-3 bg-page-sidebar border-b border-border-soft">
           <button
             onClick={() => setDrawerOpen(true)}
             aria-label="Abrir menú"
@@ -80,13 +80,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex items-center gap-2">
-            <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: "linear-gradient(135deg, #2563EB, #1D4ED8)" }}
-            >
-              <CircleParking className="w-4 h-4 text-white" />
+            <div className="w-7 h-7 rounded-[8px] flex items-center justify-center flex-shrink-0 bg-primary text-primary-foreground">
+              <CircleParking className="w-4 h-4" strokeWidth={2} />
             </div>
-            <span className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>Parking IA</span>
+            <span className="font-semibold text-sm text-text-primary">Parki</span>
           </div>
         </header>
 
