@@ -350,7 +350,7 @@ export interface Vehicle {
 
 export interface CreateVehicleDto {
   tenantId: number;
-  clientId: number;
+  clientId?: number;
   plate: string;
   type: "car" | "moto" | "truck";
   brand?: string;
@@ -420,6 +420,26 @@ export interface ActiveVehicle {
 export async function getActiveVehicles(tenantId: number): Promise<ActiveVehicle[]> {
   const res = await apiFetch(`/parking/active?tenantId=${tenantId}`, { cache: "no-store" });
   await ensureOk(res, "Error al cargar parking activo");
+  return res.json();
+}
+
+export async function registerVehicleEntry(
+  tenantId: number,
+  plate: string,
+  vehicleType: "car" | "moto",
+): Promise<{
+  id: number;
+  plate: string;
+  entryTime: string;
+  vehicleType: string;
+  action: "GRANTED" | "ALERT" | "VISITOR";
+}> {
+  const res = await apiFetch(`/parking/entry`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ tenantId, plate, vehicleType }),
+  });
+  await ensureOk(res, "Error al registrar entrada");
   return res.json();
 }
 

@@ -6,8 +6,8 @@ import { AppShell } from "@/components/app-shell";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s — Parking IA",
-    default: "Parking IA — Sistema de Gestión de Parqueaderos",
+    template: "%s — Parki",
+    default: "Parki — Sistema de Gestión de Parqueaderos",
   },
   description:
     "Sistema integral de gestión de parqueaderos con control de clientes, vehículos, mensualidades y reportes",

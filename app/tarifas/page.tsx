@@ -44,24 +44,22 @@ const motoRows: TarifaRow[] = [
   { key: "mensualidadMoto", label: "Mensualidad",         description: "Tarifa mensual fija" },
 ];
 
-function TarifaSection({ title, rows, accent, settings, form, onChange }: {
+function TarifaSection({ title, rows, settings, form, onChange }: {
   title: string;
   rows: TarifaRow[];
-  accent: string;
   settings: AppSettings | null;
   form: Partial<AppSettings>;
   onChange: (key: keyof AppSettings, value: string) => void;
 }) {
   return (
     <div className="rounded-2xl overflow-hidden card-hover bg-page-card backdrop-blur border border-border-default">
-      <div className="px-6 py-4 flex items-center gap-3" style={{ borderBottom: "1px solid var(--border-soft)" }}>
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ backgroundColor: `${accent}1a`, border: `1px solid ${accent}33` }}>
-          <Car className="w-4 h-4" style={{ color: accent }} />
+      <div className="px-6 py-4 flex items-center gap-3 border-b border-border-soft">
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary-dim border border-primary/20">
+          <Car className="w-4 h-4 text-primary" />
         </div>
         <h2 className="text-sm font-bold text-white">{title}</h2>
       </div>
-      <div className="divide-y" style={{ borderColor: "var(--bg-row-hover)" }}>
+      <div className="divide-y divide-border-soft">
         {rows.map((row) => (
           <div key={row.key} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div className="min-w-0">
@@ -83,7 +81,7 @@ function TarifaSection({ title, rows, accent, settings, form, onChange }: {
                   value={(form[row.key] as number) ?? ""}
                   onChange={(e) => onChange(row.key, e.target.value)}
                   className="pl-6 pr-3 py-2 rounded-lg text-sm outline-none w-32 text-right transition-colors duration-150 bg-page-input border border-border-medium text-text-primary"
-                  onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.6)"; }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = "var(--primary)"; }}
                   onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-medium)"; }}
                 />
               </div>
@@ -147,7 +145,7 @@ export default function TarifasPage() {
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300">
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-danger-dim border border-destructive/30 text-destructive">
           {error}
         </div>
       )}
@@ -155,10 +153,10 @@ export default function TarifasPage() {
       {/* Negocio nuevo: aún no hay tarifas configuradas. Damos la bienvenida en
           vez de mostrar un error. */}
       {!loading && !error && !settings && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-start gap-3 bg-blue-500/10 border border-blue-500/30 text-blue-300">
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-start gap-3 bg-primary-dim border border-primary/30 text-primary">
           <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-white mb-0.5">¡Bienvenido! 👋</p>
+            <p className="font-semibold text-white mb-0.5">¡Bienvenido!</p>
             <p>Aún no has configurado las tarifas de tu negocio. Ingresa los precios por tipo de vehículo y guárdalos para empezar a operar.</p>
           </div>
         </div>
@@ -166,23 +164,22 @@ export default function TarifasPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-24">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       ) : (
         <form onSubmit={handleSave} className="space-y-6">
-          <TarifaSection title="Carro / Taxi" rows={carroRows} accent="#2563EB" settings={settings} form={form} onChange={handleChange} />
-          <TarifaSection title="Moto" rows={motoRows} accent="#7C3AED" settings={settings} form={form} onChange={handleChange} />
+          <TarifaSection title="Carro / Taxi" rows={carroRows} settings={settings} form={form} onChange={handleChange} />
+          <TarifaSection title="Moto" rows={motoRows} settings={settings} form={form} onChange={handleChange} />
 
           <div className="flex items-center justify-end gap-4">
             {saved && (
-              <span className="text-sm flex items-center gap-1.5 text-emerald-400">
+              <span className="text-sm flex items-center gap-1.5 text-ok">
                 <Check className="w-4 h-4" />
                 Tarifas guardadas
               </span>
             )}
             <button type="submit" disabled={saving}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60"
-              style={{ background: "linear-gradient(135deg,#2563EB,#1D4ED8)", color: "#fff", border: "1px solid rgba(37,99,235,0.5)" }}>
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60 bg-primary text-primary-foreground hover:bg-primary-hover transition-colors duration-150">
               {saving ? (
                 <><Loader2 className="w-4 h-4 animate-spin" />Guardando...</>
               ) : (

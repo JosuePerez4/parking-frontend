@@ -3,7 +3,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { AuthUser } from "@/lib/api";
 
-const STORAGE_KEY = "parkingia_session";
+const STORAGE_KEY = "parki_session";
+const LEGACY_STORAGE_KEY = "parkingia_session";
 
 export interface AuthSession {
   accessToken: string;
@@ -12,7 +13,17 @@ export interface AuthSession {
 
 function readSession(): AuthSession | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    let raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      // Migración de una sola vez desde la key anterior (rebrand a "Parki"),
+      // para no desloguear a nadie con sesión activa tras el despliegue.
+      const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (legacy) {
+        localStorage.setItem(STORAGE_KEY, legacy);
+        localStorage.removeItem(LEGACY_STORAGE_KEY);
+        raw = legacy;
+      }
+    }
     return raw ? (JSON.parse(raw) as AuthSession) : null;
   } catch {
     return null;

@@ -95,11 +95,10 @@ function StepIndicator({ current, total }: { current: number; total: number | nu
           const done = i + 1 < current;
           const active = i + 1 === current;
           return (
-            <div key={i} className="rounded-full transition-all duration-300"
+            <div key={i} className={`rounded-full transition-all duration-300 ${done || active ? "bg-primary" : "bg-border-medium"}`}
               style={{
                 width: active ? "22px" : "8px",
                 height: "8px",
-                backgroundColor: done || active ? "#2563EB" : "var(--border-medium)",
                 opacity: done ? 0.6 : 1,
               }} />
           );
@@ -228,16 +227,8 @@ export function VehicleWizardModal({
 
   const inputCls = "w-full px-3 py-2.5 rounded-xl text-sm text-white outline-none transition-colors bg-page-input border border-border-medium";
 
-  const btnPrimary = {
-    background: "linear-gradient(135deg,#2563EB,#1D4ED8)",
-    color: "#fff",
-    border: "1px solid rgba(37,99,235,0.5)",
-  };
-  const btnGreen = {
-    background: "linear-gradient(135deg,#059669,#047857)",
-    color: "#fff",
-    border: "1px solid rgba(5,150,105,0.5)",
-  };
+  const btnPrimaryCls = "bg-primary text-primary-foreground";
+  const btnOkCls = "bg-ok text-black";
 
   const stepTitles: Record<ModalStep, { title: string; sub: string }> = {
     s1:  { title: "¿Registrar para mensualidad?", sub: "Elige cómo continuar con este vehículo" },
@@ -257,15 +248,14 @@ export function VehicleWizardModal({
       onClick={(e) => { if (e.target === e.currentTarget && !saving) onClose(); }}>
       <div className="w-full max-w-md rounded-2xl overflow-hidden flex flex-col bg-page-modal border border-border-medium max-h-[90vh]">
 
-        {/* Gradient bar */}
-        <div className="h-1 w-full flex-shrink-0"
-          style={{ background: "linear-gradient(90deg,#2563EB,#7C3AED)" }} />
+        {/* Accent bar */}
+        <div className="h-1 w-full flex-shrink-0 bg-primary" />
 
         {/* Scrollable body */}
         <div className="overflow-y-auto flex-1 p-6">
           {/* Plate badge + close */}
           <div className="flex items-start justify-between mb-4">
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold tracking-wider bg-blue-500/[0.12] border border-blue-500/30 text-blue-300 font-mono">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold tracking-wider bg-primary-dim border border-primary/30 text-primary font-mono">
               <Car className="w-4 h-4" />
               {vehicle.plate}
             </span>
@@ -290,11 +280,9 @@ export function VehicleWizardModal({
           {step === "s1" && (
             <div className="space-y-3">
               <button onClick={handleS1No}
-                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 cursor-pointer bg-page-input border border-border-medium"
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(100,116,139,0.5)"; e.currentTarget.style.backgroundColor = "var(--bg-subtle)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-medium)"; e.currentTarget.style.backgroundColor = "var(--bg-input)"; }}>
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-slate-500/15 border border-slate-500/30">
-                  <SquarePen className="w-5 h-5 text-slate-400" />
+                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-colors duration-150 cursor-pointer bg-page-input border border-border-medium hover:bg-page-subtle hover:border-border-medium">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-page-subtle border border-border-medium">
+                  <SquarePen className="w-5 h-5 text-text-secondary" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">No, solo actualizar datos</p>
@@ -303,14 +291,12 @@ export function VehicleWizardModal({
               </button>
 
               <button onClick={handleS1Yes}
-                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 cursor-pointer bg-blue-500/[0.08] border border-blue-500/25"
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.5)"; e.currentTarget.style.backgroundColor = "rgba(37,99,235,0.15)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.25)"; e.currentTarget.style.backgroundColor = "rgba(37,99,235,0.08)"; }}>
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-blue-500/15 border border-blue-500/35">
-                  <UserPlus className="w-5 h-5 text-blue-400" />
+                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-colors duration-150 cursor-pointer bg-primary-dim border border-primary/25 hover:bg-primary/15 hover:border-primary/50">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary-dim border border-primary/35">
+                  <UserPlus className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-blue-300">Sí, registrar para mensualidad</p>
+                  <p className="text-sm font-semibold text-primary">Sí, registrar para mensualidad</p>
                   <p className="text-xs mt-0.5 text-text-muted">Vincular cliente y crear mensualidad</p>
                 </div>
               </button>
@@ -329,8 +315,7 @@ export function VehicleWizardModal({
               />
               <NoticeBox notice={error} className="mt-3" />
               <button onClick={handleS2aSave} disabled={saving}
-                className="w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
-                style={btnPrimary}>
+                className={`w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2 ${btnPrimaryCls}`}>
                 {saving ? <Spinner /> : null}
                 {saving ? "Guardando..." : "Guardar datos"}
               </button>
@@ -341,27 +326,23 @@ export function VehicleWizardModal({
           {step === "s2b" && (
             <div className="space-y-3">
               <button onClick={handleS2bExisting}
-                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 cursor-pointer bg-emerald-500/[0.08] border border-emerald-500/25"
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(16,185,129,0.5)"; e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.14)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(16,185,129,0.25)"; e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.08)"; }}>
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-emerald-500/15 border border-emerald-500/35">
-                  <Search className="w-5 h-5 text-emerald-400" />
+                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-colors duration-150 cursor-pointer bg-ok-dim border border-ok/25 hover:bg-ok/15 hover:border-ok/50">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-ok-dim border border-ok/35">
+                  <Search className="w-5 h-5 text-ok" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-emerald-400">Sí, buscar cliente existente</p>
+                  <p className="text-sm font-semibold text-ok">Sí, buscar cliente existente</p>
                   <p className="text-xs mt-0.5 text-text-muted">Seleccionar de los clientes registrados</p>
                 </div>
               </button>
 
               <button onClick={handleS2bNew}
-                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 cursor-pointer bg-violet-500/[0.08] border border-violet-500/25"
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(124,58,237,0.5)"; e.currentTarget.style.backgroundColor = "rgba(124,58,237,0.14)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(124,58,237,0.25)"; e.currentTarget.style.backgroundColor = "rgba(124,58,237,0.08)"; }}>
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-violet-500/15 border border-violet-500/35">
-                  <UserPlus className="w-5 h-5 text-violet-400" />
+                className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-colors duration-150 cursor-pointer bg-primary-dim border border-primary/25 hover:bg-primary/15 hover:border-primary/50">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary-dim border border-primary/35">
+                  <UserPlus className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-violet-300">No, es cliente nuevo</p>
+                  <p className="text-sm font-semibold text-primary">No, es cliente nuevo</p>
                   <p className="text-xs mt-0.5 text-text-muted">Registrar nuevo propietario</p>
                 </div>
               </button>
@@ -387,13 +368,12 @@ export function VehicleWizardModal({
                 placeholder="Seleccionar cliente..."
               />
               {selectedClientId !== "" && (
-                <div className="mt-3 p-3 rounded-xl bg-emerald-500/[0.08] border border-emerald-500/20">
+                <div className="mt-3 p-3 rounded-xl bg-ok-dim border border-ok/20">
                   {(() => {
                     const c = clients.find((x) => x.id === selectedClientId);
                     return c ? (
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-                          style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-primary text-primary-foreground">
                           {c.fullName.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -407,8 +387,7 @@ export function VehicleWizardModal({
               )}
               <NoticeBox notice={error} className="mt-3" />
               <button onClick={handleS3aNext}
-                className="w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer flex items-center justify-center gap-2"
-                style={btnPrimary}>
+                className={`w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 ${btnPrimaryCls}`}>
                 Continuar
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -443,8 +422,7 @@ export function VehicleWizardModal({
               </div>
               <NoticeBox notice={error} className="mt-3" />
               <button onClick={handleS3bNext} disabled={saving}
-                className="w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
-                style={btnPrimary}>
+                className={`w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2 ${btnPrimaryCls}`}>
                 {saving ? <Spinner /> : null}
                 {saving ? "Creando cliente..." : "Crear cliente y continuar"}
               </button>
@@ -455,13 +433,12 @@ export function VehicleWizardModal({
           {step === "s4" && (
             <>
               {resolvedClientId && (
-                <div className="mb-4 p-3 rounded-xl flex items-center gap-3 bg-emerald-500/[0.08] border border-emerald-500/20">
+                <div className="mb-4 p-3 rounded-xl flex items-center gap-3 bg-ok-dim border border-ok/20">
                   {(() => {
                     const c = clients.find((x) => x.id === resolvedClientId);
                     return c ? (
                       <>
-                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                          style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-primary text-primary-foreground">
                           {c.fullName.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -473,7 +450,7 @@ export function VehicleWizardModal({
                       <p className="text-xs text-white">Cliente #{resolvedClientId}</p>
                     );
                   })()}
-                  <Check className="w-4 h-4 ml-auto flex-shrink-0 text-emerald-400" />
+                  <Check className="w-4 h-4 ml-auto flex-shrink-0 text-ok" />
                 </div>
               )}
               <BrandColorFields
@@ -485,8 +462,7 @@ export function VehicleWizardModal({
               />
               <NoticeBox notice={error} className="mt-3" />
               <button onClick={handleS4Save} disabled={saving}
-                className="w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
-                style={btnGreen}>
+                className={`w-full mt-5 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2 ${btnOkCls}`}>
                 {saving ? <Spinner /> : (
                   <Check className="w-4 h-4" />
                 )}

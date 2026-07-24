@@ -17,7 +17,7 @@ const cards = [
     href: "/mensualidades",
     title: "Mensualidades",
     description: "Gestiona y renueva mensualidades de vehículos",
-    color: "#2563EB",
+    color: "var(--primary)",
     icon: <Calendar className="w-6 h-6" />,
     metricKey: "memberships" as const,
     metricLabel: "activas",
@@ -26,7 +26,7 @@ const cards = [
     href: "/parking",
     title: "Parking Activo",
     description: "Monitorea los vehículos dentro del parqueadero",
-    color: "#10B981",
+    color: "var(--ok)",
     icon: <CircleParking className="w-6 h-6" />,
     metricKey: "activeVehicles" as const,
     metricLabel: "en parqueadero",
@@ -35,7 +35,7 @@ const cards = [
     href: "/clientes",
     title: "Clientes",
     description: "Administra los clientes registrados",
-    color: "#8B5CF6",
+    color: "var(--text-secondary)",
     icon: <Users className="w-6 h-6" />,
     metricKey: "clients" as const,
     metricLabel: "registrados",
@@ -44,7 +44,7 @@ const cards = [
     href: "/vehiculos",
     title: "Vehículos",
     description: "Consulta y gestiona vehículos registrados",
-    color: "#F59E0B",
+    color: "var(--text-secondary)",
     icon: <Car className="w-6 h-6" />,
     metricKey: "vehicles" as const,
     metricLabel: "registrados",
@@ -129,7 +129,7 @@ export default function HomePage() {
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
         <p className="text-text-secondary">
-          Bienvenido al sistema de gestión de Parking IA
+          Bienvenido al sistema de gestión de Parki
         </p>
       </div>
 
@@ -141,7 +141,7 @@ export default function HomePage() {
             className="group block rounded-2xl p-6 transition-all duration-200 cursor-pointer bg-page-card backdrop-blur border border-border-default"
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLAnchorElement).style.borderColor =
-                `${card.color}40`;
+                `color-mix(in srgb, ${card.color} 40%, transparent)`;
               (e.currentTarget as HTMLAnchorElement).style.background =
                 "var(--bg-card-hover)";
             }}
@@ -155,7 +155,7 @@ export default function HomePage() {
             <div
               className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
               style={{
-                backgroundColor: `${card.color}20`,
+                backgroundColor: `color-mix(in srgb, ${card.color} 15%, transparent)`,
                 color: card.color,
               }}
             >

@@ -38,6 +38,8 @@ export function DatePicker({ value, onChange, disabled }: DatePickerProps) {
   const [viewDate, setViewDate] = useState(() => selected ?? new Date());
 
   useEffect(() => {
+    // Sincroniza el mes visible cuando `value` cambia desde afuera (p.ej. al limpiar el filtro).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (value) setViewDate(parseISO(value));
   }, [value]);
 
@@ -95,7 +97,7 @@ export function DatePicker({ value, onChange, disabled }: DatePickerProps) {
         className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium outline-none cursor-pointer transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
         style={{
           backgroundColor: "var(--bg-input)",
-          border: `1px solid ${open ? "rgba(37,99,235,0.6)" : "var(--border-default)"}`,
+          border: `1px solid ${open ? "var(--primary)" : "var(--border-default)"}`,
           color: "var(--text-primary)",
         }}
       >
@@ -160,9 +162,9 @@ export function DatePicker({ value, onChange, disabled }: DatePickerProps) {
                   onClick={() => { onChange(iso); setOpen(false); }}
                   className="h-8 w-8 rounded-lg text-xs font-medium cursor-pointer transition-all duration-100 flex items-center justify-center"
                   style={{
-                    color: isSelected ? "#fff" : "var(--text-primary)",
-                    backgroundColor: isSelected ? "#2563EB" : "transparent",
-                    border: isToday && !isSelected ? "1px solid rgba(37,99,235,0.5)" : "1px solid transparent",
+                    color: isSelected ? "var(--primary-foreground)" : "var(--text-primary)",
+                    backgroundColor: isSelected ? "var(--primary)" : "transparent",
+                    border: isToday && !isSelected ? "1px solid var(--primary)" : "1px solid transparent",
                     opacity: inMonth ? 1 : 0.4,
                   }}
                   onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.backgroundColor = "var(--bg-subtle)"; }}
@@ -190,9 +192,9 @@ export function DatePicker({ value, onChange, disabled }: DatePickerProps) {
               type="button"
               onClick={() => { const t = new Date(); onChange(toISO(t)); setViewDate(t); setOpen(false); }}
               className="text-xs font-semibold cursor-pointer transition-colors duration-150"
-              style={{ color: "#60A5FA" }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "#93C5FD"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "#60A5FA"; }}
+              style={{ color: "var(--primary)" }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--primary-hover)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "var(--primary)"; }}
             >
               Hoy
             </button>

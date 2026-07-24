@@ -59,8 +59,8 @@ export function CustomSelect({
         className="w-full px-3 py-2.5 rounded-xl text-sm flex items-center justify-between gap-2 cursor-pointer outline-none transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
         style={{
           backgroundColor: "var(--bg-input)",
-          border: `1px solid ${open ? "rgba(37,99,235,0.6)" : "var(--border-medium)"}`,
-          color: selected ? "#E2E8F0" : "var(--text-muted)",
+          border: `1px solid ${open ? "var(--primary)" : "var(--border-medium)"}`,
+          color: selected ? "var(--text-primary)" : "var(--text-muted)",
         }}
       >
         <span className="truncate text-left">{selected ? selected.label : placeholder}</span>
@@ -79,7 +79,7 @@ export function CustomSelect({
           className="absolute left-0 right-0 mt-1.5 rounded-xl overflow-hidden animate-in"
           style={{
             background: "var(--bg-modal)",
-            border: "1px solid rgba(37,99,235,0.35)",
+            border: "1px solid var(--border-medium)",
             zIndex: 9999,
             maxHeight: "220px",
             overflowY: "auto",
@@ -94,14 +94,14 @@ export function CustomSelect({
                 key={String(opt.value)}
                 className="px-3 py-2.5 text-sm cursor-pointer transition-colors duration-100"
                 style={{
-                  color: isSelected ? "#60A5FA" : isEmpty ? "var(--text-muted)" : "var(--text-primary)",
-                  backgroundColor: isSelected ? "rgba(37,99,235,0.18)" : "transparent",
-                  borderLeft: isSelected ? "2px solid #2563EB" : "2px solid transparent",
+                  color: isSelected ? "var(--primary)" : isEmpty ? "var(--text-muted)" : "var(--text-primary)",
+                  backgroundColor: isSelected ? "var(--primary-dim)" : "transparent",
+                  borderLeft: isSelected ? "2px solid var(--primary)" : "2px solid transparent",
                 }}
                 onMouseEnter={(e) => {
                   if (!isSelected) {
-                    e.currentTarget.style.backgroundColor = "rgba(37,99,235,0.12)";
-                    e.currentTarget.style.color = "#60A5FA";
+                    e.currentTarget.style.backgroundColor = "var(--primary-dim)";
+                    e.currentTarget.style.color = "var(--primary)";
                   }
                 }}
                 onMouseLeave={(e) => {

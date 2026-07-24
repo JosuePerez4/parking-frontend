@@ -5,15 +5,17 @@ import {
   getVehicles, getClients, deleteVehicle,
   type Vehicle, type Client,
 } from "@/lib/api";
-import { AlertCircle, Users, User, Trash2, Loader2 } from "lucide-react";
+import { AlertCircle, Users, User, Trash2, Loader2, Plus } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { NoticeBox } from "@/components/ui/notice-box";
+import { Dialog } from "@/components/ui/dialog";
 import { describeSubmitError, isUnconfirmed, type SubmitNotice } from "@/lib/submit-error";
 import { vehicleTypeLabel } from "@/components/vehicles/config";
 import { VehicleTable, TableSkeleton } from "@/components/vehicles/VehicleTable";
 import { VehicleFilters } from "@/components/vehicles/VehicleFilters";
 import { VehicleStats } from "@/components/vehicles/VehicleStats";
 import { VehicleWizardModal } from "@/components/vehicles/VehicleWizardModal";
+import { AddVehicleModal } from "@/components/vehicles/AddVehicleModal";
 
 export default function VehiculosPage() {
   const { session } = useAuth();
@@ -24,6 +26,7 @@ export default function VehiculosPage() {
   const [error, setError]             = useState<string | null>(null);
   const [search, setSearch]           = useState("");
   const [assignTarget, setAssignTarget] = useState<Vehicle | null>(null);
+  const [addOpen, setAddOpen]         = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Vehicle | null>(null);
   const [deleting, setDeleting]       = useState(false);
   const [deleteError, setDeleteError] = useState<SubmitNotice | null>(null);
@@ -86,9 +89,18 @@ export default function VehiculosPage() {
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">Vehículos</h1>
-        <p className="text-sm text-text-secondary">Consulta y gestiona los vehículos registrados</p>
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-white mb-1">Vehículos</h1>
+          <p className="text-sm text-text-secondary">Consulta y gestiona los vehículos registrados</p>
+        </div>
+        <button
+          onClick={() => setAddOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-200 cursor-pointer bg-primary text-primary-foreground hover:bg-primary-hover"
+        >
+          <Plus className="w-4 h-4" />
+          Nuevo Vehículo
+        </button>
       </div>
 
       {/* Stats */}
@@ -98,7 +110,7 @@ export default function VehiculosPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300">
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-danger-dim border border-destructive/30 text-destructive">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
@@ -115,14 +127,14 @@ export default function VehiculosPage() {
           {/* Registrados */}
           <section>
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-blue-500/[0.12] border border-blue-500/25">
-                <Users className="w-4 h-4 text-blue-400" />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary-dim border border-primary/25">
+                <Users className="w-4 h-4 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className="text-base font-semibold text-white leading-tight">Vehículos Registrados</h2>
                 <p className="text-xs text-text-muted">Tienen cliente asignado</p>
               </div>
-              <span className="flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500/[0.12] border border-blue-500/25 text-blue-400">
+              <span className="flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-primary-dim border border-primary/25 text-primary">
                 {search ? `${filteredRegistered.length} / ${registered.length}` : registered.length}
               </span>
             </div>
@@ -139,14 +151,14 @@ export default function VehiculosPage() {
           {/* Visitantes */}
           <section>
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-violet-500/[0.12] border border-violet-500/25">
-                <User className="w-4 h-4 text-violet-400" />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-page-subtle border border-border-medium">
+                <User className="w-4 h-4 text-text-secondary" />
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className="text-base font-semibold text-white leading-tight">Vehículos Visitantes / Ocasionales</h2>
                 <p className="text-xs text-text-muted">Sin cliente asignado · Usa Asignar para iniciar el registro</p>
               </div>
-              <span className="flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-violet-500/[0.12] border border-violet-500/25 text-violet-400">
+              <span className="flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-page-subtle border border-border-medium text-text-secondary">
                 {search ? `${filteredVisitors.length} / ${visitors.length}` : visitors.length}
               </span>
             </div>
@@ -162,6 +174,18 @@ export default function VehiculosPage() {
         </div>
       )}
 
+      {/* ── Nuevo Vehículo ── */}
+      <Dialog open={addOpen} onOpenChange={(v) => { if (!v) setAddOpen(false); }}>
+        {addOpen && (
+          <AddVehicleModal
+            clients={clients}
+            tenantId={tenantId}
+            onCancel={() => setAddOpen(false)}
+            onDone={async () => { setAddOpen(false); await load(); }}
+          />
+        )}
+      </Dialog>
+
       {/* ── VehicleWizardModal ── */}
       {assignTarget && (
         <VehicleWizardModal
@@ -173,43 +197,42 @@ export default function VehiculosPage() {
         />
       )}
 
-      {/* ── Delete confirm modal ── */}
+      {/* ── Delete confirm drawer ── */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={(e) => { if (e.target === e.currentTarget && !deleting) setDeleteTarget(null); }}>
-          <div className="w-full max-w-sm rounded-2xl overflow-hidden bg-page-modal border border-red-500/25">
-            <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#EF4444,#DC2626)" }} />
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-red-500/12 border border-red-500/30">
-                  <Trash2 className="w-5 h-5 text-red-400" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-white">¿Desactivar este vehículo?</h2>
-                  <p className="text-xs mt-0.5 text-text-muted">Sus datos se conservan, no se borra nada</p>
-                </div>
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
+            onClick={() => { if (!deleting) setDeleteTarget(null); }} />
+          <div className="drawer-in relative w-full max-w-sm h-full bg-page-modal border-l border-border-medium flex flex-col">
+            <div className="flex items-center gap-3 px-6 py-5 border-b border-border-soft">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-danger-dim border border-destructive/30">
+                <Trash2 className="w-5 h-5 text-destructive" />
               </div>
-              <div className="mb-4 p-3 rounded-xl bg-red-500/[0.07] border border-red-500/15">
-                <p className="text-sm font-bold tracking-wider font-mono text-blue-300">{deleteTarget.plate}</p>
+              <div>
+                <h2 className="text-base font-bold text-white">¿Desactivar este vehículo?</h2>
+                <p className="text-xs mt-0.5 text-text-muted">Sus datos se conservan, no se borra nada</p>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-6 py-6">
+              <div className="mb-4 p-3 rounded-xl bg-danger-dim border border-destructive/15">
+                <p className="text-sm font-bold tracking-wider font-mono text-text-primary">{deleteTarget.plate}</p>
                 <p className="text-xs mt-0.5 text-text-secondary">
                   {vehicleTypeLabel[deleteTarget.type] ?? deleteTarget.type}{deleteTarget.brand ? ` · ${deleteTarget.brand}` : ""}
                 </p>
-                <p className="text-xs mt-2 text-red-400">También se desactivarán sus mensualidades. Dejará de aparecer en los listados, pero la información queda guardada.</p>
+                <p className="text-xs mt-2 text-destructive">También se desactivarán sus mensualidades. Dejará de aparecer en los listados, pero la información queda guardada.</p>
               </div>
-              <NoticeBox notice={deleteError} className="mb-4" />
-              <div className="flex gap-3">
-                <button onClick={() => setDeleteTarget(null)} disabled={deleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
-                  Cancelar
-                </button>
-                <button onClick={handleDelete} disabled={deleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 text-white"
-                  style={{ background: deleting ? "rgba(239,68,68,0.4)" : "linear-gradient(135deg,#EF4444,#DC2626)", border: "1px solid rgba(239,68,68,0.4)" }}>
-                  {deleting ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" />Desactivando...</>
-                  ) : "Sí, desactivar"}
-                </button>
-              </div>
+              <NoticeBox notice={deleteError} />
+            </div>
+            <div className="flex gap-3 px-6 py-5 border-t border-border-soft">
+              <button onClick={() => setDeleteTarget(null)} disabled={deleting}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary">
+                Cancelar
+              </button>
+              <button onClick={handleDelete} disabled={deleting}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 text-white bg-destructive">
+                {deleting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" />Desactivando...</>
+                ) : "Sí, desactivar"}
+              </button>
             </div>
           </div>
         </div>

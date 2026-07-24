@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import { type Membership } from "@/lib/api";
-import { RefreshCw, ArrowRight, Loader2 } from "lucide-react";
+import { RefreshCw, ArrowRight, Loader2, X } from "lucide-react";
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return "—";
@@ -35,42 +28,36 @@ interface RenewModalProps {
 }
 
 export function RenewModal({ membership, open, onClose, onConfirm, loading }: RenewModalProps) {
-  if (!membership) return null;
+  if (!open || !membership) return null;
 
   const newEndDate = addOneMonth(membership.endDate);
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v && !loading) onClose(); }}>
-      <DialogContent
-        className="sm:max-w-md border-0 p-0 overflow-hidden bg-page-modal backdrop-blur-[20px] border border-border-medium"
-      >
-        {/* Header accent */}
-        <div
-          className="h-1 w-full"
-          style={{ background: "linear-gradient(90deg, #2563EB, #7C3AED)" }}
-        />
-
-        <div className="p-6">
-          <DialogHeader className="mb-5">
-            <div className="flex items-center gap-3 mb-3">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-600/15 border border-blue-600/30"
-              >
-                <RefreshCw className="w-5 h-5 text-blue-400" />
-              </div>
-              <DialogTitle className="text-lg font-bold text-white">
-                Renovar Mensualidad
-              </DialogTitle>
+    <div className="fixed inset-0 z-50 flex justify-end">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
+        onClick={() => { if (!loading) onClose(); }} />
+      <div className="drawer-in relative w-full max-w-sm h-full bg-page-modal border-l border-border-medium flex flex-col">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-border-soft">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary-dim border border-primary/30">
+              <RefreshCw className="w-5 h-5 text-primary" />
             </div>
-            <DialogDescription className="text-sm text-text-secondary">
-              Confirma la renovación de esta mensualidad por un mes adicional.
-            </DialogDescription>
-          </DialogHeader>
-
-          {/* Info card */}
-          <div
-            className="rounded-xl p-4 mb-6 space-y-3 bg-page-row-hover border border-border-default"
+            <div>
+              <h2 className="text-lg font-bold text-white">Renovar Mensualidad</h2>
+              <p className="text-xs text-text-secondary">Confirma la renovación por un mes adicional</p>
+            </div>
+          </div>
+          <button
+            onClick={() => { if (!loading) onClose(); }}
+            className="p-1.5 rounded-lg text-text-muted hover:text-text-primary cursor-pointer flex-shrink-0"
+            aria-label="Cerrar"
           >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-6 py-6">
+          <div className="rounded-xl p-4 space-y-3 bg-page-row-hover border border-border-default">
             <div className="flex justify-between items-center">
               <span className="text-xs font-medium text-text-muted">Cliente</span>
               <span className="text-sm font-semibold text-white">
@@ -79,70 +66,55 @@ export function RenewModal({ membership, open, onClose, onConfirm, loading }: Re
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs font-medium text-text-muted">Placa</span>
-              <span
-                className="text-xs font-bold tracking-wider px-2 py-0.5 rounded"
-                style={{
-                  backgroundColor: "rgba(37, 99, 235, 0.15)",
-                  color: "#93C5FD",
-                  fontFamily: "monospace",
-                }}
-              >
+              <span className="text-xs font-bold tracking-wider px-2 py-0.5 rounded font-mono bg-primary-dim text-primary">
                 {membership.vehicle?.plate ?? `#${membership.vehicleId}`}
               </span>
             </div>
-            <div
-              className="border-t border-border-soft pt-3 flex justify-between items-center"
-            >
+            <div className="border-t border-border-soft pt-3 flex justify-between items-center">
               <div>
                 <p className="text-xs text-text-muted">Vencimiento actual</p>
-                <p className="text-sm font-medium mt-0.5 text-red-300">
+                <p className="text-sm font-medium mt-0.5 text-destructive">
                   {formatDate(membership.endDate)}
                 </p>
               </div>
               <ArrowRight className="w-4 h-4 text-text-dim" />
               <div className="text-right">
                 <p className="text-xs text-text-muted">Nuevo vencimiento</p>
-                <p className="text-sm font-semibold mt-0.5 text-emerald-400">
+                <p className="text-sm font-semibold mt-0.5 text-ok">
                   {newEndDate}
                 </p>
               </div>
             </div>
           </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onClose}
-              disabled={loading}
-              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={onConfirm}
-              disabled={loading}
-              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
-              style={{
-                background: loading ? "rgba(37, 99, 235, 0.5)" : "linear-gradient(135deg, #2563EB, #1D4ED8)",
-                color: "#fff",
-                border: "1px solid rgba(37, 99, 235, 0.5)",
-              }}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Renovando...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="w-4 h-4" />
-                  Confirmar Renovación
-                </>
-              )}
-            </button>
-          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+
+        <div className="flex items-center gap-3 px-6 py-5 border-t border-border-soft">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-200 cursor-pointer disabled:opacity-50 bg-page-input border border-border-medium text-text-secondary"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-200 cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2 bg-primary text-primary-foreground"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Renovando...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-4 h-4" />
+                Confirmar Renovación
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

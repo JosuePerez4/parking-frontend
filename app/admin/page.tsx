@@ -202,7 +202,7 @@ export default function AdminNegociosPage() {
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Negocios</h1>
           <p className="text-sm text-text-secondary">
-            Administra los negocios que usan Parking IA y sus cuentas de acceso
+            Administra los negocios que usan Parki y sus cuentas de acceso
           </p>
         </div>
         <Button onClick={openCreateModal}>
@@ -213,7 +213,7 @@ export default function AdminNegociosPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300">
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-danger-dim border border-destructive/30 text-destructive">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
@@ -225,8 +225,8 @@ export default function AdminNegociosPage() {
           <TableSkeleton />
         ) : tenants.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: "rgba(37,99,235,0.1)" }}>
-              <Building className="w-8 h-8" style={{ color: "#2563EB" }} />
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-primary-dim">
+              <Building className="w-8 h-8 text-primary" />
             </div>
             <p className="font-semibold mb-1 text-text-primary">Sin negocios registrados</p>
             <p className="text-sm text-text-muted">Crea el primer negocio con el botón superior</p>
@@ -255,10 +255,7 @@ export default function AdminNegociosPage() {
                     >
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div
-                            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                            style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}
-                          >
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-primary text-primary-foreground">
                             {t.name.charAt(0).toUpperCase()}
                           </div>
                           <p className="text-sm font-medium leading-tight text-text-primary">{t.name}</p>
@@ -289,10 +286,7 @@ export default function AdminNegociosPage() {
                           <button
                             onClick={() => setEditTarget(t)}
                             title="Editar negocio"
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                            style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#FCD34D" }}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(245,158,11,0.18)"; e.currentTarget.style.borderColor = "rgba(245,158,11,0.4)"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(245,158,11,0.08)"; e.currentTarget.style.borderColor = "rgba(245,158,11,0.2)"; }}
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors duration-200 bg-primary-dim border border-primary/20 text-primary hover:bg-primary/20 hover:border-primary/40"
                           >
                             <SquarePen className="w-3.5 h-3.5" />
                           </button>
@@ -300,10 +294,7 @@ export default function AdminNegociosPage() {
                             <button
                               onClick={() => { setDeactivateError(null); setDeactivateTarget(t); }}
                               title="Desactivar negocio"
-                              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                              style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
-                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
-                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
+                              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors duration-200 bg-danger-dim border border-destructive/20 text-destructive hover:bg-destructive/20 hover:border-destructive/40"
                             >
                               <CircleMinus className="w-3.5 h-3.5" />
                             </button>
@@ -323,8 +314,7 @@ export default function AdminNegociosPage() {
                   className="rounded-xl p-4 space-y-3 cursor-pointer bg-page-card border border-border-default">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                        style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-primary text-primary-foreground">
                         {t.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0">
@@ -356,8 +346,7 @@ export default function AdminNegociosPage() {
                     </button>
                     <button
                       onClick={() => setEditTarget(t)}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                      style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#FCD34D" }}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors duration-200 bg-primary-dim border border-primary/20 text-primary"
                     >
                       <SquarePen className="w-3.5 h-3.5" />
                       Editar
@@ -365,8 +354,7 @@ export default function AdminNegociosPage() {
                     {t.status === "active" && (
                       <button
                         onClick={() => { setDeactivateError(null); setDeactivateTarget(t); }}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                        style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors duration-200 bg-danger-dim border border-destructive/20 text-destructive"
                       >
                         <CircleMinus className="w-3.5 h-3.5" />
                         Desactivar
@@ -391,41 +379,37 @@ export default function AdminNegociosPage() {
         onSaved={async () => { setEditTarget(null); await load(); }}
       />
 
-      {/* Deactivate confirmation modal */}
+      {/* Deactivate confirmation drawer */}
       {deactivateTarget && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
-          onClick={(e) => { if (e.target === e.currentTarget && !deactivating) setDeactivateTarget(null); }}
-        >
-          <div className="w-full max-w-sm rounded-2xl overflow-hidden bg-page-modal"
-            style={{ border: "1px solid rgba(239,68,68,0.25)" }}>
-            <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#EF4444,#DC2626)" }} />
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  <Trash2 className="w-5 h-5" style={{ color: "#F87171" }} />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-text-primary">¿Desactivar este negocio?</h2>
-                  <p className="text-xs mt-0.5 text-text-muted">Sus datos se conservan, no se borra nada</p>
-                </div>
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
+            onClick={() => { if (!deactivating) setDeactivateTarget(null); }} />
+          <div className="drawer-in relative w-full max-w-sm h-full bg-page-modal border-l border-border-medium flex flex-col">
+            <div className="flex items-center gap-3 px-6 py-5 border-b border-border-soft">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-danger-dim border border-destructive/30">
+                <Trash2 className="w-5 h-5 text-destructive" />
               </div>
-              <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.15)" }}>
+              <div>
+                <h2 className="text-base font-bold text-text-primary">¿Desactivar este negocio?</h2>
+                <p className="text-xs mt-0.5 text-text-muted">Sus datos se conservan, no se borra nada</p>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-6 py-6">
+              <div className="mb-4 p-3 rounded-xl bg-danger-dim border border-destructive/15">
                 <p className="text-sm font-medium mb-1 text-text-primary">{deactivateTarget.name}</p>
-                <p className="text-xs" style={{ color: "#F87171" }}>
+                <p className="text-xs text-destructive">
                   Sus usuarios seguirán existiendo pero el negocio quedará marcado como inactivo. Puedes reactivarlo luego editando su estado.
                 </p>
               </div>
-              <NoticeBox notice={deactivateError} className="mb-4" />
-              <div className="flex gap-3">
-                <Button type="button" variant="outline" className="flex-1 justify-center" disabled={deactivating} onClick={() => setDeactivateTarget(null)}>
-                  Cancelar
-                </Button>
-                <Button type="button" variant="destructive" className="flex-1 justify-center" disabled={deactivating} onClick={handleDeactivate}>
-                  {deactivating ? "Desactivando..." : "Sí, desactivar"}
-                </Button>
-              </div>
+              <NoticeBox notice={deactivateError} />
+            </div>
+            <div className="flex gap-3 px-6 py-5 border-t border-border-soft">
+              <Button type="button" variant="outline" className="flex-1 justify-center" disabled={deactivating} onClick={() => setDeactivateTarget(null)}>
+                Cancelar
+              </Button>
+              <Button type="button" variant="destructive" className="flex-1 justify-center" disabled={deactivating} onClick={handleDeactivate}>
+                {deactivating ? "Desactivando..." : "Sí, desactivar"}
+              </Button>
             </div>
           </div>
         </div>
@@ -437,12 +421,12 @@ export default function AdminNegociosPage() {
           className="sm:max-w-lg border-0 p-0 overflow-hidden bg-page-modal border border-border-medium"
           style={{ backdropFilter: "blur(20px)" }}
         >
-          <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#2563EB,#7C3AED)" }} />
+          <div className="h-1 w-full bg-primary" />
           <div className="p-6">
             {createStep === "success" ? (
               <div className="text-center py-4">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-emerald-500/15" style={{ border: "1px solid rgba(16,185,129,0.3)" }}>
-                  <Check className="w-7 h-7 text-emerald-400" />
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-ok-dim border border-ok/30">
+                  <Check className="w-7 h-7 text-ok" />
                 </div>
                 <h2 className="text-lg font-bold mb-1 text-text-primary">Negocio creado</h2>
                 <p className="text-sm mb-6 text-text-secondary">
@@ -455,8 +439,8 @@ export default function AdminNegociosPage() {
               <>
                 <DialogHeader className="mb-5">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
-                      <Building className="w-5 h-5" style={{ color: "#60A5FA" }} />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary-dim border border-primary/30">
+                      <Building className="w-5 h-5 text-primary" />
                     </div>
                     <DialogTitle className="text-lg font-bold text-text-primary">Nuevo Negocio</DialogTitle>
                   </div>

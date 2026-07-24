@@ -46,7 +46,7 @@ export function HoursChart({ data, loading, closedEntries }: HoursChartProps) {
                 {String(h).padStart(2, "0")}:00
               </span>
               <div className="flex-1 h-2 rounded-full overflow-hidden bg-page-input">
-                <div className="h-full rounded-full" style={{ width: `${(c / maxHourCount) * 100}%`, backgroundColor: "#2563EB" }} />
+                <div className="h-full rounded-full bg-primary" style={{ width: `${(c / maxHourCount) * 100}%` }} />
               </div>
               <span className="text-xs w-8 text-text-muted">{c}</span>
             </div>
@@ -54,7 +54,7 @@ export function HoursChart({ data, loading, closedEntries }: HoursChartProps) {
       </div>
       {peakHours.length > 0 && (
         <p className="text-xs mt-3 text-text-dim">
-          Hora más activa: <span style={{ color: "#60A5FA" }}>{peakHours[0]?.hour}</span> ({peakHours[0]?.count} ingresos)
+          Hora más activa: <span className="text-primary">{peakHours[0]?.hour}</span> ({peakHours[0]?.count} ingresos)
         </p>
       )}
     </div>

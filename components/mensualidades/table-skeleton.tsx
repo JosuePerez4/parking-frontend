@@ -26,7 +26,7 @@ export function TableSkeleton() {
             </div>
           </div>
           {/* Plate */}
-          <Skeleton className="h-6 w-16 rounded-lg bg-blue-600/10" />
+          <Skeleton className="h-6 w-16 rounded-lg bg-primary-dim" />
           {/* Type */}
           <Skeleton className="h-3 w-12 rounded bg-page-input" />
           {/* Start */}
@@ -38,7 +38,7 @@ export function TableSkeleton() {
           {/* Price */}
           <Skeleton className="h-3 w-24 rounded bg-page-input" />
           {/* Action */}
-          <Skeleton className="h-7 w-20 rounded-lg bg-blue-600/8" />
+          <Skeleton className="h-7 w-20 rounded-lg bg-primary-dim" />
         </div>
       ))}
     </div>

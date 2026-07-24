@@ -5,17 +5,17 @@ import { Badge } from "@/components/ui/badge";
 const STATUS_CONFIG = {
   active: {
     label: "Activo",
-    bg: "rgba(16,185,129,0.15)",
-    border: "rgba(16,185,129,0.35)",
-    color: "#34D399",
-    dot: "#10B981",
+    bg: "var(--ok-dim)",
+    border: "color-mix(in srgb, var(--ok) 45%, transparent)",
+    color: "var(--ok)",
+    dot: "var(--ok)",
   },
   inactive: {
     label: "Inactivo",
-    bg: "rgba(100,116,139,0.15)",
-    border: "rgba(100,116,139,0.3)",
+    bg: "var(--bg-subtle)",
+    border: "var(--border-medium)",
     color: "var(--text-secondary)",
-    dot: "#64748B",
+    dot: "var(--text-dim)",
   },
 } as const;
 

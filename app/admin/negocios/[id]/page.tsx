@@ -246,7 +246,7 @@ export default function TenantDetailPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300">
+        <div className="mb-6 p-4 rounded-xl text-sm flex items-center gap-3 bg-danger-dim border border-destructive/30 text-destructive">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
@@ -270,10 +270,7 @@ export default function TenantDetailPage() {
             style={{ backdropFilter: "blur(12px)" }}
           >
             <div className="flex items-start gap-4 min-w-0">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center text-base font-bold text-white flex-shrink-0"
-                style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}
-              >
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-base font-bold flex-shrink-0 bg-primary text-primary-foreground">
                 {tenant.name.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
@@ -353,10 +350,7 @@ export default function TenantDetailPage() {
                               <button
                                 onClick={() => openEditUser(u)}
                                 title="Editar usuario"
-                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                                style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#FCD34D" }}
-                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(245,158,11,0.18)"; e.currentTarget.style.borderColor = "rgba(245,158,11,0.4)"; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(245,158,11,0.08)"; e.currentTarget.style.borderColor = "rgba(245,158,11,0.2)"; }}
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors duration-200 bg-primary-dim border border-primary/20 text-primary hover:bg-primary/20 hover:border-primary/40"
                               >
                                 <SquarePen className="w-3.5 h-3.5" />
                               </button>
@@ -364,10 +358,7 @@ export default function TenantDetailPage() {
                                 <button
                                   onClick={() => { setDeactivateUserError(null); setDeactivateUserTarget(u); }}
                                   title="Desactivar usuario"
-                                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                                  style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
-                                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.18)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
-                                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"; }}
+                                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors duration-200 bg-danger-dim border border-destructive/20 text-destructive hover:bg-destructive/20 hover:border-destructive/40"
                                 >
                                   <CircleMinus className="w-3.5 h-3.5" />
                                 </button>
@@ -404,8 +395,7 @@ export default function TenantDetailPage() {
                       <div className="flex items-center gap-2 pt-1">
                         <button
                           onClick={() => openEditUser(u)}
-                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                          style={{ backgroundColor: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#FCD34D" }}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors duration-200 bg-primary-dim border border-primary/20 text-primary"
                         >
                           <SquarePen className="w-3.5 h-3.5" />
                           Editar
@@ -413,8 +403,7 @@ export default function TenantDetailPage() {
                         {u.status === "active" && (
                           <button
                             onClick={() => { setDeactivateUserError(null); setDeactivateUserTarget(u); }}
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all duration-200"
-                            style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors duration-200 bg-danger-dim border border-destructive/20 text-destructive"
                           >
                             <CircleMinus className="w-3.5 h-3.5" />
                             Desactivar
@@ -447,12 +436,12 @@ export default function TenantDetailPage() {
           className="sm:max-w-lg border-0 p-0 overflow-hidden bg-page-modal border border-border-medium"
           style={{ backdropFilter: "blur(20px)" }}
         >
-          <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#2563EB,#7C3AED)" }} />
+          <div className="h-1 w-full bg-primary" />
           <div className="p-6">
             <DialogHeader className="mb-5">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)" }}>
-                  <UserPlus className="w-5 h-5" style={{ color: "#60A5FA" }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary-dim border border-primary/30">
+                  <UserPlus className="w-5 h-5 text-primary" />
                 </div>
                 <DialogTitle className="text-lg font-bold text-text-primary">Nuevo Usuario</DialogTitle>
               </div>
@@ -523,7 +512,7 @@ export default function TenantDetailPage() {
           className="sm:max-w-lg border-0 p-0 overflow-hidden bg-page-modal border border-border-medium"
           style={{ backdropFilter: "blur(20px)" }}
         >
-          <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#F59E0B,#D97706)" }} />
+          <div className="h-1 w-full bg-primary" />
           <div className="p-6">
             <DialogHeader className="mb-5">
               <DialogTitle className="text-lg font-bold text-text-primary">Editar Usuario</DialogTitle>
@@ -574,39 +563,35 @@ export default function TenantDetailPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Deactivate user confirm */}
+      {/* Deactivate user confirm drawer */}
       {deactivateUserTarget && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
-          onClick={(e) => { if (e.target === e.currentTarget && !deactivatingUser) setDeactivateUserTarget(null); }}
-        >
-          <div className="w-full max-w-sm rounded-2xl overflow-hidden bg-page-modal"
-            style={{ border: "1px solid rgba(239,68,68,0.25)" }}>
-            <div className="h-1 w-full" style={{ background: "linear-gradient(90deg,#EF4444,#DC2626)" }} />
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)" }}>
-                  <Trash2 className="w-5 h-5" style={{ color: "#F87171" }} />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-text-primary">¿Desactivar este usuario?</h2>
-                  <p className="text-xs mt-0.5 text-text-muted">Perderá acceso al sistema, pero sus datos se conservan</p>
-                </div>
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
+            onClick={() => { if (!deactivatingUser) setDeactivateUserTarget(null); }} />
+          <div className="drawer-in relative w-full max-w-sm h-full bg-page-modal border-l border-border-medium flex flex-col">
+            <div className="flex items-center gap-3 px-6 py-5 border-b border-border-soft">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-danger-dim border border-destructive/30">
+                <Trash2 className="w-5 h-5 text-destructive" />
               </div>
-              <div className="mb-4 p-3 rounded-xl" style={{ backgroundColor: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.15)" }}>
+              <div>
+                <h2 className="text-base font-bold text-text-primary">¿Desactivar este usuario?</h2>
+                <p className="text-xs mt-0.5 text-text-muted">Perderá acceso al sistema, pero sus datos se conservan</p>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-6 py-6">
+              <div className="mb-4 p-3 rounded-xl bg-danger-dim border border-destructive/15">
                 <p className="text-sm font-medium text-text-primary">{deactivateUserTarget.fullName}</p>
                 <p className="text-xs text-text-secondary">{deactivateUserTarget.email}</p>
               </div>
-              <NoticeBox notice={deactivateUserError} className="mb-4" />
-              <div className="flex gap-3">
-                <Button type="button" variant="outline" className="flex-1 justify-center" disabled={deactivatingUser} onClick={() => setDeactivateUserTarget(null)}>
-                  Cancelar
-                </Button>
-                <Button type="button" variant="destructive" className="flex-1 justify-center" disabled={deactivatingUser} onClick={handleDeactivateUser}>
-                  {deactivatingUser ? "Desactivando..." : "Sí, desactivar"}
-                </Button>
-              </div>
+              <NoticeBox notice={deactivateUserError} />
+            </div>
+            <div className="flex gap-3 px-6 py-5 border-t border-border-soft">
+              <Button type="button" variant="outline" className="flex-1 justify-center" disabled={deactivatingUser} onClick={() => setDeactivateUserTarget(null)}>
+                Cancelar
+              </Button>
+              <Button type="button" variant="destructive" className="flex-1 justify-center" disabled={deactivatingUser} onClick={handleDeactivateUser}>
+                {deactivatingUser ? "Desactivando..." : "Sí, desactivar"}
+              </Button>
             </div>
           </div>
         </div>
